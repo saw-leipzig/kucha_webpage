@@ -1,5 +1,4 @@
-# kucha_website
-
+# Kucha Information System Frontend Website
 > Kucha-Project Presentation
 
 ## Build Setup
