@@ -1,0 +1,144 @@
+<template>
+    <v-app :class="{'mobileSmall': $vuetify.breakpoint.smAndDown, 'mobileExtraSmall': $vuetify.breakpoint.xs}" >
+
+    <v-app-bar
+      app
+      color="primary"
+      dark
+      clipped-left
+    >
+      <v-app-bar-nav-icon @click.stop="navigation = !navigation"></v-app-bar-nav-icon>
+      <v-toolbar-title>Kucha Information System</v-toolbar-title>
+      <v-spacer></v-spacer>
+    </v-app-bar>
+    <v-navigation-drawer
+      v-model="navigation"
+      :mini-variant="mini"
+      app
+      clipped
+      bottom
+      floating
+    >
+      <v-list>
+        <v-subheader class="px-2">
+          <v-list-item-title
+            v-if="!mini"
+            class="pl-3"
+          >Navigation</v-list-item-title>
+          <v-btn
+            icon
+            @click.stop="mini = !mini"
+          >
+            <v-icon v-if="mini">mdi-chevron-right</v-icon>
+            <v-icon v-else>mdi-chevron-left</v-icon>
+          </v-btn>
+        </v-subheader>
+        <v-list-item
+          class="px-2"
+          to="/"
+
+        >
+          <v-list-item-avatar>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-title>
+           Home
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          class="px-2"
+          disabled
+        >
+          <v-list-item-avatar>
+            <v-icon>mdi-information</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-title>
+            About
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          class="px-2"
+          disabled
+        >
+          <v-list-item-avatar>
+            <v-icon>mdi-security</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-title>
+            Privacy
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+      <v-divider></v-divider>
+    </v-navigation-drawer>
+
+    <v-main>
+      <router-view/>
+
+    </v-main>
+
+  </v-app>
+
+</template>
+
+<script>
+
+import {logo, logo_smwk} from '@/utils/constants'
+
+
+export default {
+  name: 'App',
+  data () {
+    return {
+      show: false,     
+      drawer: null,
+      navigation: true,
+      mini: true,
+      query: '',
+      logo: logo,
+      logo_smwk: logo_smwk,
+      snackbar: {
+        show: false,
+        text:'test',
+        type: this.HINT
+      },
+      appBarExtension: false,
+      accept_tracking: true,
+    }
+  },
+  created() {
+  },
+  components: {
+  },
+  methods: {
+
+  },
+  beforeMount:function () {
+    console.log("Initialize Dictionaries");
+    this.$store.dispatch('getDics')
+
+  }
+}
+</script>
+
+<style lang="css" scoped>
+
+.v-tab {
+  padding: 8px;
+  min-width: 20px;
+}
+.v-treeview-node__content, .v-treeview-node__label {
+  flex-shrink: 1;
+  word-break: break-all;
+  min-height: 10px;
+}
+.v-treeview-node__root {
+  height: auto; min-height: 10px;
+}
+.v-treeview-node {
+  min-height: 10px;
+}
+.v-treeview--dense .v-treeview-node__root
+{
+  min-height: 10px;
+}
+</style>
