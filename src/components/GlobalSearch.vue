@@ -17,7 +17,7 @@
       @mouseup.prevent
       @mousedown.prevent
       @click:clear.prevent="checkClear"
-      v-on:keyup.enter="formSubmit"
+      v-on:keyup.enter="formSubmit(0)"
       v-on:keyup.escape="checkClear"
       :persistent-hint="persistentHint"
       :hint="hint"
@@ -37,7 +37,7 @@
       :x-small="xsmall"
       :small="small"
       :large="large"
-      @click.stop="formSubmit">
+      @click.stop="formSubmit(0)">
         <span v-if="$vuetify.breakpoint.smAndUp">Search</span>
         <v-icon v-else>mdi-magnify</v-icon>
       </v-btn>
@@ -46,12 +46,12 @@
         <v-list :dense="$vuetify.breakpoint.smAndDown">
           <v-subheader style="padding: 0px;" class="search-results-header">
             <v-list-item-action class="ml-n2">
-                <v-btn icon v-on:click="loadPrevious" :disabled="!previousUrl">
+                <v-btn icon v-on:click="loadPrevious" :disabled="searchPack<=0">
                   <v-icon >mdi-arrow-left</v-icon>
                 </v-btn>
             </v-list-item-action>
             <v-list-item-content class="text-center">
-              <v-list-item-title class="grey--text">Showing Results</v-list-item-title>
+              <v-list-item-title class="grey--text">{{"Results "+searchPack+"-"+searchPackEnd+" of "+totalres}}</v-list-item-title>
               <v-list-item-subtitle>{{ 'Results for' + ': ' + searchtext}}</v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
@@ -60,15 +60,15 @@
               </va-legend>
             </v-list-item-action>
             <v-list-item-action>
-                <v-btn icon v-on:click="loadNext" :disabled="!nextUrl">
+                <v-btn icon v-on:click="loadNext" :disabled="searchPack+results.length===totalres">
                   <v-icon>mdi-arrow-right</v-icon>
                 </v-btn>
             </v-list-item-action>
           </v-subheader>
 
-          <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="{ name: 'depiction', params: {result: item } }" two-line>
+          <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
             <v-list-item-content>
-              <v-list-item-title>{{ item._source.shortName }}</v-list-item-title>
+              <v-list-item-title>{{(item._source.shortName===undefined||item._source.shortName==="")? "Painted Representation " +item._source.depictionID :  "Painted Representation " +item._source.depictionID +" ("+item._source.shortName+")"}}</v-list-item-title>
               <v-list-item-subtitle>{{ item._source.description }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
@@ -145,11 +145,9 @@ export default {
   data () {
     return {
 
-      searchtext: '',
       results: Array,
       start: 0,
       showResults: false,
-      totalResults: 0,
       cancelToken: null,
       previousUrl: '',
       nextUrl: '',
@@ -158,14 +156,43 @@ export default {
   },
 
   computed: {
+    searchPackEnd(){
+      return this.searchPack+this.results.length;
+    },
+    searchPack:{
+      get: function(){
+          return this.$store.state.searchPack;
+      },
+      set: function (newValue){
+        this.$store.commit("setSearchPack", newValue)
+      }
+    },
+    totalres:{
+      get: function(){
+          return this.$store.state.totalRes;
+      },
+      set: function (newValue){
+        this.$store.commit("setTotalRes", newValue)
+      }
+    },
+    respack:{
+      get: function(){
+        return  this.$store.state.respack;
+      },
+      set: function (newValue){
+        this.$store.commit("setRespack", newValue)
+      }
+    },
+    searchtext:{
+      get: function(){
+        return this.$store.state.searchText;
+      },
+      set: function (newValue){
+        this.$store.commit("setSearchText", newValue)
+      }
+    },
     allowedPortalTypes() {
       return ['person', 'location', 'organizational_unit', 'project', 'historic_event'].concat(portalTypesPub, portalTypesSources)
-    },
-    batchStart() {
-      return this.start * this.b_size + Math.min(this.results.length, 1)
-    },
-    batchEnd() {
-      return this.start * this.b_size + this.results.length
     },
     b_size() {
       return this.$vuetify.breakpoint.smAndUp? 10 : 4
@@ -207,6 +234,19 @@ export default {
       if (document.activeElement == e.target && !this.showResults && this.searchtext && this.searchtext.length>2) {
         this.showResults = true
       }
+    },
+    getItemURL(item){
+      console.log("Item",item);
+      var res = ""   
+      if (item._source.depictionID){
+        res = "/depiction/"+item._source.depictionID
+        console.log("Link is: ", res);
+      }
+      else if (item._source.caveID){
+        var res = "/cave/"+item._source.caveID
+        console.log("Link is: ", res);
+      }
+      return res
     },
     setRes(res){
       console.log("setRes started")
@@ -276,7 +316,7 @@ export default {
         if (i == max-1 && !cancel) {
           console.log('submit')
            clearInterval(timeid)
-          self.formSubmit()
+          self.formSubmit(0)
 
         }
         i++
@@ -285,27 +325,30 @@ export default {
 
     },
 
-    formSubmit() {
-      console.log("Blub")
+    formSubmit(batch) {
+      console.log("Blub", this)
       if(this.searchtext) {
         this.start = 0
         this.cancelToken && this.cancelToken.cancel('Search canceled by new search');
         this.cancelToken = CancelToken.source()
-        var params = this.searchtext
+        var params = {}
+        params["searchtext"]=this.searchtext
+        params["batchStart"]=batch
         this.loading = true
         searchRoot(params, this.cancelToken)
         .then( res => {
-          console.log("recieved result.",res)
+          this.totalres=res.data.hits.total.value;
+          console.log(this.totalres);
+          console.log("recieved result.",res.data.hits.total.value)
           this.results = res.data.hits.hits
           console.log(res);
-//          this.previousUrl = res.data.batching? res.data.batching.prev : null
-//          this.nextUrl = res.data.batching? res.data.batching.next : null
           this.totalResults = res.data.hits.total.value
           this.showResults = true
           this.loading = false
+
           console.log("search finished.");
           this.$store.commit('setResults',res.data.hits.hits)
-        this.$matomo && this.$matomo.trackSiteSearch(this.searchtext, 'global', this.totalResults)
+        this.$matomo && this.$matomo.trackSiteSearch(this.$store.state.searchtext, 'global', this.totalResults)
         }).catch(function (error) {
       console.log(error)
       return null
@@ -314,35 +357,13 @@ export default {
     },
 
     loadPrevious() {
-      if(this.previousUrl) {
-        this.loading = true
-        get(this.previousUrl)
-         .then( res => {
-            this.results = res.data.items
-            this.previousUrl = res.data.batching? res.data.batching.prev : null
-            this.nextUrl = res.data.batching? res.data.batching.next : null
-            this.totalResults = res.data.items_total
-            this.showResults = true
-            this.start-=1
-            this.loading = false
-          })
-      }
+        this.searchPack-=10
+        this.formSubmit(this.searchPack)
     },
 
     loadNext() {
-      if(this.nextUrl) {
-        this.loading = true
-        get(this.nextUrl)
-         .then( res => {
-            this.results = res.data.items
-            this.previousUrl = res.data.batching? res.data.batching.prev : null
-            this.nextUrl = res.data.batching? res.data.batching.next : null
-            this.totalResults = res.data.items_total
-            this.showResults = true
-            this.start+=1
-            this.loading = false
-          })
-       }
+        this.searchPack+=10
+        this.formSubmit(this.searchPack)
     },
 
     keyHandler(event) {
@@ -363,6 +384,9 @@ export default {
   mounted() {
 
     window.addEventListener("keydown", this.keyHandler );
+    if (this.searchtext.length>2){
+      this.formSubmit(0)
+    }
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.keyHandler );

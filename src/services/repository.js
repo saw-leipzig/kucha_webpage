@@ -2,17 +2,7 @@ import { get, post, httpClient, baseURL, CancelToken } from "@/utils/httpClient"
 import store from '../store'
 import axios from 'axios'
   //helpers
-export const resourceLocation = "/orte";
-export const resourceInstitutions = "/institutionen";
-export const resourceProjekte = "/projekte";
-export const resourcePublicationsSources ='/publikationen-quellen'
-export const resourceSources ='/publikationen-quellen/quellen'
-export const resourcePublications ='/publikationen-quellen/publikationen'
-export const resourcePerson ='/personen'
-export const resourceObjectByUID ='/resolveuid'
-export const resourceArchiveStats ='/@@archivestats'
-export const tax_OUTypes='/@vocabularies/collective.taxonomy.ou_types'
-export const tax_researchFields='/@vocabularies/collective.taxonomy.research_fields'
+
 
 
  //api calls
@@ -127,50 +117,6 @@ export function getSource(id) {
   params.append('metadata_fields', 'hierarchical_title')
   return get(`${resourceSources}/${id}`, params);
 }
-
-export function getPublicationsStats() {
-   let params = {
-    b_size: 1
-  };
-  return get(`${resourcePublications}`, params);
-}
-
-export function getSources() {
-   let params = {
-    b_size: 10000,
-  };
-
-  return get(`${resourceSources}`, params);
-}
-
-export function getSourcesStats() {
-   let params = {
-    b_size: 1
-  };
-
-  return get(`${resourceSources}`, params);
-}
-
-export function getPersons() {
-   let params = {
-    b_size: 10000
-  };
-
-  return get(`${resourcePerson}`, params);
-}
-
-export function getPersonsStats() {
-   let params = {
-    b_size: 1
-  };
-  return get(`${resourcePerson}`, params);
-}
-
-export function getArchiveStats() {
-  let params = {};
-  return get(resourceArchiveStats, params);
-}
-
 export function loginToBackendForCookie(credentials) {
   let formData = new FormData();
   formData.append("__ac_name", credentials.login);
@@ -193,23 +139,11 @@ export function logoutfromBackend() {
   return httpClient.get(baseURL+"/logout", { errorHandle: false, headers: { "Accept" : "text/html"}, withCredentials: false})
 }
 
-export function getPerson(id) {
-  var params = new URLSearchParams();
-  params.append('metadata_fields', 'latitude')
-  params.append('metadata_fields', 'longitude')
-  params.append('metadata_fields', 'hierarchical_title')
-  params.append('b_size', 10000)
-  params.append('fullobjects', 1)
-
-  return get(`${resourcePerson}/${id}`, params);
-}
-
 export function searchPubsAndSources(params) {
    return get('publikationen-quellen/@search', params)
 }
 
 export function getDic() {
-  console.log("sarted getting Dics")
   return axios({
     url: 'http://127.0.0.1:9200/kucha_dic/_search',
     method: 'post',
@@ -218,11 +152,65 @@ export function getDic() {
             "query": {
             "match_all" : {}
           },
-          "_source": ["iconography.*"]
+          "_source": ["iconography.*", "sites.*", "annotatedBibliography.*","caveType.*","wallLocation.*"]
     }
 
   })
 }
+export function getDepictionStats() {
+  return axios({
+    url: 'http://127.0.0.1:9200/kucha_drop/_search',
+    method: 'post',
+    data: {  
+            "size":0,
+            "aggs": {
+                "genres": {
+                "terms": { "field": "cave.site.siteID" } 
+                },
+                "relatedAnnotationList": {
+                    "nested": {
+                        "path": "relatedAnnotationList"
+                    },
+                    "aggs": {
+                        "tags": {
+                            "nested": {
+                                "path": "relatedAnnotationList.tags"
+                            },
+                            "aggs": {
+                                "genres": {
+                                    "terms": { "field": "relatedAnnotationList.tags.root" } 
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+  })
+}
+export function getDicStats() {
+  return axios({
+    url: 'http://127.0.0.1:9200/kucha_dic/_search',
+    method: 'post',
+    data: {  
+      "size":0,
+      "aggs": {
+          "annotatedBibliography": {
+              "nested": {
+                  "path": "annotatedBibliography"
+              },
+                      "aggs": {
+                          "genres": {
+                              "terms": { "field": "annotatedBibliography.annotation" } 
+                          }
+                      }
+                  }
+              }
+          }  
+  })
+}
+
+
 
 export function searchRoot(params, source) {
     console.log("sarted Search",params,source)
@@ -230,23 +218,31 @@ export function searchRoot(params, source) {
       url: 'http://127.0.0.1:9200/kucha_drop/_search',
       method: 'post',
       data: {
+        "from":params.batchStart,
         query: {
           'simple_query_string': {
-            'query': params,
+            'query': params.searchtext,
             'default_operator': 'and' }
         }
       }
 
     })
-
-//    .then(response => {
-//      console.log(response)
-//      return response.data.hits.hits
-//    }).catch(function (error) {
-//      console.log(error)
-//      return null
-//    })
-   
+  }
+  export function getItemById(params) {
+    console.log("params",params);
+      return axios({
+        url: 'http://127.0.0.1:9200/kucha_drop/_search',
+        method: 'post',
+        data: {
+          'query': {
+            'multi_match': {
+              'query': params.id,
+              'fields': params.type
+              }
+          }
+        }
+  
+      })
 }
 
 export function search(path, params) {

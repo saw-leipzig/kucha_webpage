@@ -22,11 +22,23 @@ const store = new Vuex.Store({
   state: {
     result: 0,
     results: {},
-    dic: {}
+    dic: {},
+    searchText:"",
+    totalRes:0,
+    searchPack:0
   },
   mutations: {
     setResult (state,id) {
       state.result=id
+    },
+    setSearchText (state,txt){
+      state.searchText=txt
+    },
+    setTotalRes (state,id){
+      state.totalRes=id
+    },
+    setSearchPack (state,id){
+      state.searchPack=id
     },
     setResults (state,payload){
       state.results=payload
@@ -36,6 +48,15 @@ const store = new Vuex.Store({
     }
   },
   getters:{
+    getSearchText : state => {
+      return state.searchText
+    },
+    getTotalRes : state => {
+      return state.totalRes
+    },
+    getsearchPack : state => {
+      return state.searchPack
+    },
     getResult : state => {
       return state.result
     },
@@ -50,7 +71,7 @@ const store = new Vuex.Store({
     getDics: (context) => {
       getDic()
       .then( res => {
-        console.log("recieved result.",res)
+        console.log("recieved dic result.",res)
         let dic = res.data.hits.hits[0]._source
 //          this.previousUrl = res.data.batching? res.data.batching.prev : null
 //          this.nextUrl = res.data.batching? res.data.batching.next : null

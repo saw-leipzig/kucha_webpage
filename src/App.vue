@@ -115,6 +115,7 @@ export default {
   beforeMount:function () {
     console.log("Initialize Dictionaries");
     this.$store.dispatch('getDics')
+    console.log("Iconography:",this.$store.state.dic.iconography);
 
   }
 }
