@@ -43,7 +43,7 @@
           <v-container style='height:550'>
             <v-card style='height:550px'>
               <div id="openseadragonAnno" style='height:500px'>
-                <v-row attach="#openseadragonAnno" style='position: relative;'>
+                <v-row attach="#openseadragonAnno" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
                     v-model="sheet"
                     inset
