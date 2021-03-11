@@ -1,6 +1,7 @@
 <template>
     <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}">
       <v-text-field
+      :disabled="searchDisabled"
       id="global-search-input-field"
       ref="globalSearchInput"
       label="Search"
@@ -154,6 +155,9 @@ export default {
     }
   },
   computed: {
+    searchDisabled(){
+      return this.$store.state.searchDisabled
+    },
     searchPackEnd(){
       return this.searchPack + this.results.length;
     },
@@ -341,7 +345,7 @@ export default {
         params["searchtext"] = this.searchtext
         params["batchStart"] = batch
         this.loading = true
-        searchRoot(params, this.cancelToken)
+        searchRoot(params, this.$store.state.mapping)
           .then( res => {
             this.totalres = res.data.hits.total.value;
             console.log(this.totalres);

@@ -2,7 +2,7 @@
 
     <div>
 
-      <v-card-title>{{getDepictionLabel}} </v-card-title>
+      <v-card-title>{{getDepictionLabel()}} </v-card-title>
       <v-card-actions v-if="annos.length>0">
         <v-btn
           @click="showAnno = !showAnno"
@@ -263,6 +263,7 @@ import caveInf from '@/components/caveInf'
 import {getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
 import * as d3 from "d3";
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
+import Annotorious from '../../static/openseadragon/openseadragon-annotorious.min.js'
 
 export default {
 
@@ -395,7 +396,7 @@ export default {
   },
   methods: {
     getDepictionLabel(){
-      getDepictionLabel(this.depiction, this.$store.state.dic.wallLocation);
+      return getDepictionLabel(this.depiction, this.$store.state.dic.wallLocation);
     },
     initOSDimg(){
       let tilesImg = []
@@ -449,7 +450,7 @@ export default {
         config["tagVocabulary"] = [];
         config["tree"] = [];
         config["image"] = this.viewerAnnos;
-        this.annotoriousplugin = OpenSeadragon.Annotorious(this.viewerAnnos, config)
+        this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
         this.viewerAnnos.setControlsEnabled(false);
         this.viewerAnnos.setMouseNavEnabled(false);
         this.viewerAnnos.addHandler("pre-full-page", function (data) {

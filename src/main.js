@@ -25,9 +25,11 @@ const store = new Vuex.Store({
     result: 0,
     results: {},
     dic: {},
+    mapping: {},
     searchText:"",
     totalRes:0,
-    searchPack:0
+    searchPack:0,
+    disableSearch:true,
   },
   mutations: {
     setResult (state, id) {
@@ -47,6 +49,12 @@ const store = new Vuex.Store({
     },
     setDics (state, payload){
       state.dic = payload
+    },
+    setMapping (state, payload){
+      state.mapping = payload
+    },
+    setDisableSearch (state, payload){
+      state.disableSearch = payload
     }
   },
   getters:{
@@ -67,6 +75,12 @@ const store = new Vuex.Store({
     },
     getDics : state => {
       return state.dic
+    },
+    getMapping : state => {
+      return state.mapping
+    },
+    getDisableSearch : state => {
+      return state.disableSearch
     }
   },
   actions: {
@@ -85,7 +99,10 @@ const store = new Vuex.Store({
     getMapping: (context) =>{
       getKuchaMapping()
         .then(res=> {
-          console.log("recieved Mapping", res)
+          context.commit('setMapping', res.data.kucha_deep.mappings.properties);
+        }).catch(function (error) {
+          console.log(error)
+          return null
         })
     }
   }
