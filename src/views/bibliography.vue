@@ -1,34 +1,31 @@
 <template>
-<div>
-    <caveInf v-if=cave :cave="cave"></caveInf>
-    <hideRelatedItems title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
-    <hideRelatedItems title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
-</div>
+  <div>
+    <bibliographyInf v-if=bibliography :bibliography="bibliography"></bibliographyInf>
+    <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+  </div>
 </template>
 <script>
-import { getItemById } from '@/services/repository'
-import caveInf from '@/components/caveInf'
-import depictionInf from '@/components/depictionInf'
+import {getItemById, getDepictionByBibliography} from '@/services/repository'
+import bibliographyInf from '@/components/bibliographyInf'
 
 export default {
-  name: 'cave',
+  name: 'bibliography',
   components: {
-    caveInf,
-    depictionInf,
+    bibliographyInf,
   },
 
   data () {
     return {
+      error:false,
       relatedDepictions:[],
-      showRelatedItems:false
     }
   },
   computed: {
   },
   methods: {
-    cave(){
+    bibliography(){
       this.getRelatedDepictions()
-      var res = this.$store.state.results.find(item => item._source.caveID === parseInt(this.$route.params.id))
+      var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
       console.log("res after finding in results:", res);
       if (res !== undefined){
         console.log("reutrning stored result");
@@ -36,7 +33,7 @@ export default {
       } else {
         console.log("cave in stored results not found, starting new search");
         var params = {}
-        params['type'] = "caveID"
+        params['type'] = "annotatedBibliographyID"
         params['id'] = this.$route.params.id
         getItemById(params)
           .then( res => {
@@ -55,16 +52,15 @@ export default {
     },
     getRelatedDepictions(){
       var params = {}
-      params['type'] = "cave.caveID"
-      params['id'] = this.$route.params.id
-      getItemById(params)
+      params.annotatedBibliographyID = [parseInt(this.$route.params.id)]
+      getDepictionByBibliography(params)
         .then( res => {
-          let results = []
-          for (let result of res.data.hits.hits){
-            results.push(result._source)
+          var newDepictions = []
+          for (var entry of res.data.hits.hits){
+            newDepictions.push(entry._source)
           }
-          console.log("relatedDepictions", results)
-          this.relatedDepictions = results
+          this.relatedDepictions = newDepictions
+          console.log("new Depictions:", newDepictions);
         }).catch(function (error) {
           console.log(error)
         })

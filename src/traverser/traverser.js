@@ -38,22 +38,22 @@ export function lookup({ views, path, options }) {
 
 export function updateComponent({ views, path, vm, options }) {
   return lookup({ views, path, options })
-  .then(({ component, context }) => {
-    executeHook(
-      component.onTraverse,
-      null,
-      path,
-      options,
-    ).then(({ key, data }) => {
-      const hookContext = context;
-      hookContext[key] = data;
-      vm.prototype._context = hookContext;
-      vm.prototype._component = component;
-    }).catch(() => {
-      vm.prototype._component = component;
-      vm.prototype._context = context;
+    .then(({ component, context }) => {
+      executeHook(
+        component.onTraverse,
+        null,
+        path,
+        options,
+      ).then(({ key, data }) => {
+        const hookContext = context;
+        hookContext[key] = data;
+        vm.prototype._context = hookContext;
+        vm.prototype._component = component;
+      }).catch(() => {
+        vm.prototype._component = component;
+        vm.prototype._context = context;
+      });
     });
-  });
 }
 
 export function traverse(item, router, options) {

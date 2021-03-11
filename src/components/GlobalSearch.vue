@@ -21,7 +21,7 @@
       v-on:keyup.escape="checkClear"
       :persistent-hint="persistentHint"
       :hint="hint"
-      :hide-details="hint == ''"
+      :hide-details="hint === ''"
       :loading="loading"
       class="search-input"
       :style="$vuetify.breakpoint.smAndUp ? 'min-width: 300px;' : ''"
@@ -65,13 +65,12 @@
                 </v-btn>
             </v-list-item-action>
           </v-subheader>
-
           <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
-            <v-list-item-content>
-              <v-list-item-title>{{(item._source.shortName===undefined||item._source.shortName==="")? "Painted Representation " +item._source.depictionID :  "Painted Representation " +item._source.depictionID +" ("+item._source.shortName+")"}}</v-list-item-title>
-              <v-list-item-subtitle>{{ item._source.description }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
+              <v-list-item-content>
+                  <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
+                  <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
         </v-list>
       </v-menu>
     </v-form>
@@ -81,8 +80,8 @@
 <script>
 import { CancelToken } from "@/utils/httpClient";
 import { createFrontendLink } from  "@/utils/urlHelper"
+import {getCaveLabel, getBibTitle, getWallLabels} from  "@/utils/helpers"
 import { searchRoot } from '@/services/repository'
-import { get } from "@/utils/httpClient";
 import { portalTypesPub, portalTypesSources } from "@/utils/constants"
 import Legend from '@/components/Legend'
 
@@ -112,7 +111,7 @@ export default {
       type: Boolean,
       default: false
     },
-     small: {
+    small: {
       type: Boolean,
       default: false
     },
@@ -154,14 +153,13 @@ export default {
       loading: false
     }
   },
-
   computed: {
     searchPackEnd(){
-      return this.searchPack+this.results.length;
+      return this.searchPack + this.results.length;
     },
     searchPack:{
       get: function(){
-          return this.$store.state.searchPack;
+        return this.$store.state.searchPack;
       },
       set: function (newValue){
         this.$store.commit("setSearchPack", newValue)
@@ -169,7 +167,7 @@ export default {
     },
     totalres:{
       get: function(){
-          return this.$store.state.totalRes;
+        return this.$store.state.totalRes;
       },
       set: function (newValue){
         this.$store.commit("setTotalRes", newValue)
@@ -195,63 +193,81 @@ export default {
       return ['person', 'location', 'organizational_unit', 'project', 'historic_event'].concat(portalTypesPub, portalTypesSources)
     },
     b_size() {
-      return this.$vuetify.breakpoint.smAndUp? 10 : 4
+      return this.$vuetify.breakpoint.smAndUp ? 10 : 4
     },
     legendButtonProps() {
-       return { icon: true }
+      return { icon: true }
     },
     legendItems() {
       let legend = []
       let legendObject = {}
       legendObject.title = "Title"
-    //  legendObject.description = this.$t('legend.result-list-decription')
       legendObject.items = [];
-      legendObject.items.push( { vhtml: this.buildLegendIcon(this.getHtmlIcon('mdi-menu-up')), description:"description" , itemClasses: "reducedPaddingTop" })
-      legendObject.items.push( { vhtml: this.buildLegendIcon(this.getHtmlIcon('mdi-menu-down')), description: "description", itemClasses: "reducedPaddingTop"  })
-      legendObject.items.push( { vhtml:  this.buildLegendIcon(this.getHtmlIcon('mdi-keyboard-return', 14)) , description: "" })
-//      legendObject.items.push( { vhtml:  this.buildLegendIcon(this.$t('legend.result-list-page-key') +this.getHtmlIcon('mdi-arrow-up', 14)) , description: this.$t('legend.result-list-prev') })
-//      legendObject.items.push( { vhtml: this.buildLegendIcon(this.$t('legend.result-list-page-key') + this.getHtmlIcon('mdi-arrow-down', 14)), description: this.$t('legend.result-list-next'), itemProps: { style: ''}, itemClasses: "page-down-symbol"  })
-//       legendObject.items.push( { vhtml: this.buildLegendIcon('ESC'), description: this.$t('legend.result-list-escape'), itemProps: { style: ''}, itemClasses: "page-down-symbol"  })
-
+      legendObject.items.push({vhtml: this.buildLegendIcon(this.getHtmlIcon('mdi-menu-up')), description:"description", itemClasses: "reducedPaddingTop"})
+      legendObject.items.push({vhtml: this.buildLegendIcon(this.getHtmlIcon('mdi-menu-down')), description: "description", itemClasses: "reducedPaddingTop"})
+      legendObject.items.push({vhtml: this.buildLegendIcon(this.getHtmlIcon('mdi-keyboard-return', 14)), description: ""})
       let legendAccessKey = {}
-//      legendAccessKey.title = this.$t('legend.result-list-access-headline')
-//      legendAccessKey.description = this.$t('legend.result-list-access-description')
       legendAccessKey.items = [];
-//       legendAccessKey.items.push( { vhtml: this.buildLegendIcon('f'), description: this.$t('legend.result-list-access-key') })
-
-      legend.push({ block: [legendObject ], width: 60 })
-      legend.push({ block: [ legendAccessKey ], width: 60 })
+      legend.push({ block: [legendObject], width: 60 })
+      legend.push({ block: [legendAccessKey], width: 60 })
       return legend
     },
 
   },
 
   methods: {
+    getTitle(item){
+      if (item._source.depictionID){
+        return (item._source.cave === undefined || item._source.shortName === "") ? "Painted Representation " + item._source.depictionID :  "Painted Representation " + item._source.depictionID + " (" + item._source.shortName + ")"
+      } else if (item._source.caveID){
+        return this.getCaveLabel(item._source)
+      } else if (item._source.annotatedBibliographyID){
+        return "Annotated Bibliography: " + getBibTitle(item._source)
+      } else if (item._source.iconographyID){
+        return "Iconography: " + item._source.iconographyID
+      } else {
+        return "unknown"
+      }
+    },
+    getSubTitle(item){
+      if (item._source.depictionID){
+        return getWallLabels(this.$store.state.dic.wallLocation, item._source, "")
+      } else if (item._source.caveID){
+        return null
+      } else if (item._source.annotatedBibliographyID){
+        return null
+      } else if (item._source.iconographyID){
+        return "(" + item._source.text + ")"
+      } else {
+        return "unknown"
+      }
+    },
     createFrontendLink: createFrontendLink,
-
+    getCaveLabel(item){
+      return 'Cave ' + getCaveLabel(item)
+    },
     checkFocus(e) {
-      console.log('focused')
-      if (document.activeElement == e.target && !this.showResults && this.searchtext && this.searchtext.length>2) {
+      if (document.activeElement === e.target && !this.showResults && this.searchtext && this.searchtext.length > 2) {
         this.showResults = true
       }
     },
     getItemURL(item){
-      console.log("Item",item);
-      var res = ""   
+      var res = ""
       if (item._source.depictionID){
-        res = "/depiction/"+item._source.depictionID
-        console.log("Link is: ", res);
-      }
-      else if (item._source.caveID){
-        var res = "/cave/"+item._source.caveID
-        console.log("Link is: ", res);
+        res = "/depiction/" + item._source.depictionID
+      } else if (item._source.caveID){
+        res = "/cave/" + item._source.caveID
+      } else if (item._source.annotatedBibliographyID){
+        res = "/bibliography/" + item._source.annotatedBibliographyID
+      } else if (item._source.iconographyID){
+        res = "/iconography/" + item._source.iconographyID
       }
       return res
     },
     setRes(res){
       console.log("setRes started")
-      console.log('Setting result to',res);
-      this.$store.commit('setResult',res)
+      console.log('Setting result to', res);
+      this.$store.commit('setResult', res)
     },
     checkClear() {
       this.searchtext = '';
@@ -259,46 +275,41 @@ export default {
     },
 
     buildLegendIcon(text) {
-      return '<div class="va-key-symbol" style="border: 1px solid black; width: 48px; height: 28px; padding: 4px; text-align: center;">'+text+'</div>'
+      return '<div class="va-key-symbol" style="border: 1px solid black; width: 48px; height: 28px; padding: 4px; text-align: center;">' + text + '</div>'
     },
     getHtmlIcon(iconname, fontSize) {
-      let fontstyle=""
+      let fontstyle = ""
       if (fontSize) {
-        fontstyle = ' style="font-size: '+fontSize+'px;"'
+        fontstyle = ' style="font-size: ' + fontSize + 'px;"'
       }
-      let theme = this.$vuetify.theme.isDark? 'theme--dark' : 'theme--light'
-      return '<i aria-hidden="true" class="v-icon notranslate mdi '+iconname + ' ' + theme + '"' + fontstyle+'></i>'
+      let theme = this.$vuetify.theme.isDark ? 'theme--dark' : 'theme--light'
+      return '<i aria-hidden="true" class="v-icon notranslate mdi ' + iconname + ' ' + theme + '"' + fontstyle + '></i>'
     },
 
     focusOnInput() {
       console.log('call focus')
       this.$nextTick(() => {
-          console.log("focusOnImput started.");
-          this.$refs.globalSearchInput && this.$refs.globalSearchInput.focus()
-          console.log('ref: ', this.$refs.globalSearchInput.$el)
-          console.log('active: ', document.activeElement)
+        console.log("focusOnImput started.");
+        this.$refs.globalSearchInput && this.$refs.globalSearchInput.focus()
+        console.log('ref: ', this.$refs.globalSearchInput.$el)
+        console.log('active: ', document.activeElement)
       });
 
     },
 
 
     countAndSubmit(e) {
-
-        if(e.location != 0 || e.code.startsWith('Arrow') || e.code=="Insert" || e.code=="CapsLock" || e.code=="PageUp"  || e.code=="PageDown" || e.code=="End"  || e.code=="Home" || e.code.startsWith('F')) {
-          return
-        }
-
-
-      if(this.searchtext && this.searchtext.length>2 ) {
-        this.waitForChanges(this.searchtext)
+      if (e.location !== 0 || e.code.startsWith('Arrow') || e.code === "Insert" || e.code === "CapsLock" || e.code === "PageUp"  || e.code === "PageDown" || e.code === "End"  || e.code === "Home" || e.code.startsWith('F')) {
+        return
       }
-      else {
-          this.results = []
-          this.totalResults = 0
-          this.showResults = false
+      if (this.searchtext && this.searchtext.length > 2 ) {
+        this.waitForChanges(this.searchtext)
+      } else {
+        this.results = []
+        this.totalResults = 0
+        this.showResults = false
       }
     },
-
     waitForChanges(search) {
       let cancel = false
       const max = 10
@@ -306,72 +317,67 @@ export default {
       let self = this
       let i = 0
       let timeid = setInterval( () => {
-       // self.$log.debug('searchtest', timeid, self.searchtext, search)
-        if(self.searchtext != search) {
+        if (self.searchtext !== search) {
           console.log('cancel', i)
           cancel = true
-          i = max-1
+          i = max - 1
           clearInterval(timeid)
         }
-        if (i == max-1 && !cancel) {
+        if (i === max - 1 && !cancel) {
           console.log('submit')
-           clearInterval(timeid)
+          clearInterval(timeid)
           self.formSubmit(0)
-
         }
         i++
       }
-      , millisec)
-
+        , millisec)
     },
-
     formSubmit(batch) {
-      console.log("Blub", this)
-      if(this.searchtext) {
+      if (this.searchtext) {
         this.start = 0
         this.cancelToken && this.cancelToken.cancel('Search canceled by new search');
         this.cancelToken = CancelToken.source()
         var params = {}
-        params["searchtext"]=this.searchtext
-        params["batchStart"]=batch
+        params["searchtext"] = this.searchtext
+        params["batchStart"] = batch
         this.loading = true
         searchRoot(params, this.cancelToken)
-        .then( res => {
-          this.totalres=res.data.hits.total.value;
-          console.log(this.totalres);
-          console.log("recieved result.",res.data.hits.total.value)
-          this.results = res.data.hits.hits
-          console.log(res);
-          this.totalResults = res.data.hits.total.value
-          this.showResults = true
-          this.loading = false
+          .then( res => {
+            this.totalres = res.data.hits.total.value;
+            console.log(this.totalres);
+            console.log("recieved result.", res.data.hits.total.value)
+            this.results = res.data.hits.hits
+            console.log(res);
+            this.totalResults = res.data.hits.total.value
+            this.showResults = true
+            this.loading = false
 
-          console.log("search finished.");
-          this.$store.commit('setResults',res.data.hits.hits)
-        this.$matomo && this.$matomo.trackSiteSearch(this.$store.state.searchtext, 'global', this.totalResults)
-        }).catch(function (error) {
-      console.log(error)
-      return null
-    })
+            console.log("search finished.");
+            this.$store.commit('setResults', res.data.hits.hits)
+            this.$matomo && this.$matomo.trackSiteSearch(this.$store.state.searchtext, 'global', this.totalResults)
+          }).catch(function (error) {
+            console.log(error)
+            return null
+          })
       }
     },
 
     loadPrevious() {
-        this.searchPack-=10
-        this.formSubmit(this.searchPack)
+      this.searchPack -= 10
+      this.formSubmit(this.searchPack)
     },
 
     loadNext() {
-        this.searchPack+=10
-        this.formSubmit(this.searchPack)
+      this.searchPack += 10
+      this.formSubmit(this.searchPack)
     },
 
     keyHandler(event) {
-      if(event.code == "PageDown" && this.showResults) {
+      if (event.code === "PageDown" && this.showResults) {
         event.preventDefault()
         this.loadNext()
       }
-       if(event.code == "PageUp" && this.showResults) {
+      if (event.code === "PageUp" && this.showResults) {
         event.preventDefault()
         this.loadPrevious()
       }
@@ -384,9 +390,12 @@ export default {
   mounted() {
 
     window.addEventListener("keydown", this.keyHandler );
-    if (this.searchtext.length>2){
-      this.formSubmit(0)
+    if (this.searchtext){
+      if (this.searchtext.length > 2){
+        this.formSubmit(0)
+      }
     }
+
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.keyHandler );
@@ -443,7 +452,9 @@ export default {
 .va-key-symbol {
   font-size: 0.85em;
 }
-
+.v-list-item__subtitle {
+  white-space: break-spaces;
+}
 .reducedPaddingTop .va-key-symbol {
   padding-top: 2px !important;
 }

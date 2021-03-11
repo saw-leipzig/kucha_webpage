@@ -45,9 +45,25 @@
            Home
           </v-list-item-title>
         </v-list-item>
+        <v-list-group
+            :value="true"
+            prepend-icon="mdi-filter"
+          >
+            <template v-slot:activator>
+              <v-list-item-title>Filter</v-list-item-title>
+            </template>
+         <v-list-item to="/depiction">
+            <v-list-item-icon>
+              <v-icon >mdi-image-search</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Depiction</v-list-item-title>
+
+          </v-list-item>
+        </v-list-group>
+
         <v-list-item
           class="px-2"
-          disabled
+          href="https://www.saw-leipzig.de/de/projekte/wissenschaftliche-bearbeitung-der-buddhistischen-hoehlenmalereien-in-der-kucha-region-der-noerdlichen-seidenstrasse/intro"
         >
           <v-list-item-avatar>
             <v-icon>mdi-information</v-icon>
@@ -82,20 +98,19 @@
 
 <script>
 
-import {logo, logo_smwk} from '@/utils/constants'
+import {logo} from '@/utils/constants'
 
 
 export default {
   name: 'App',
   data () {
     return {
-      show: false,     
+      show: false,
       drawer: null,
       navigation: true,
       mini: true,
       query: '',
       logo: logo,
-      logo_smwk: logo_smwk,
       snackbar: {
         show: false,
         text:'test',
@@ -115,8 +130,8 @@ export default {
   beforeMount:function () {
     console.log("Initialize Dictionaries");
     this.$store.dispatch('getDics')
-    console.log("Iconography:",this.$store.state.dic.iconography);
-
+    this.$store.dispatch('getMapping')
+    console.log("Iconography:", this.$store.state.dic.iconography);
   }
 }
 </script>

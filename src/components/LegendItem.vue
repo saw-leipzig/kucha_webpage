@@ -3,7 +3,6 @@
   <div class="legend-icon flex-shrink-0" :style="distance? 'width: '+distance+'px;' : ''" >
     <slot name="icon">
       <v-avatar v-if="svgName" class="legend-avatar">
-        <va-svg  :name="svgName" v-bind="itemProps" :class="itemClasses" />
       </v-avatar>
       <v-avatar v-else-if="imgSrc" class="legend-avatar">
         <v-img :src="imgSrc" height="25px" width="25px" contain v-bind="itemProps" :class="itemClasses"></v-img>
@@ -26,7 +25,6 @@
 
 <script>
 
-import svgicon from '@/components/svg'
 
 export default {
 
@@ -44,7 +42,6 @@ export default {
   },
 
   components: {
-    'va-svg': svgicon
   },
 
   data () {

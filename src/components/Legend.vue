@@ -95,7 +95,7 @@ export default {
   watch: {
     legendOverlay(nV, oV) {
 
-      if(oV && !nV) {
+      if (oV && !nV) {
         this.$emit("dialog_closed")
       }
     }

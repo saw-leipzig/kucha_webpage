@@ -4,7 +4,7 @@ import joinPath from 'path.join';
 
 export default function executeHook(hook, from, to, options) {
   if (!hook) {
-    return Promise.reject();
+    return Promise.reject(new Error("something bad happened"));
   }
 
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ export default function executeHook(hook, from, to, options) {
       to,
       (path) => {
         if (typeof path === 'undefined') {
-          reject();
+          reject(new Error("something bad happened"));
         }
         redirect(joinPath(extractObjectPath(to), path), options)
           .then(({ data }) => {

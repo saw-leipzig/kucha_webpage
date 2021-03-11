@@ -1,361 +1,332 @@
-import Vue from 'vue'
 import 'leaflet'
-import edtf from 'edtf'
-import { portalTypesSources, portalTypesPub, regions ,sites, districts} from '@/utils/constants'
+import {regions, sites, districts} from '@/utils/constants'
 
-const dateType = new edtf.Date().type
-const intervalType = new edtf.Interval().type
-const seasonType = new edtf.Season().type
-const localDateStringSupport = toLocaleDateStringSupportsLocales()
-const options = {
-  3: {
-    //weekday: 'long',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  },
-  2: {
-    year: 'numeric',
-    month: 'numeric',
-  },
-  1: {
-    year: 'numeric',
+function getName(author) {
+  return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
+}
+function getAuthors(bibliography) {
+  var result = "";
+  if (bibliography.authorList.length > 3) {
+    var author = bibliography.authorList[0];
+    result = getName(author) + ", et al.";
+  } else {
+    for (var ae of bibliography.authorList) {
+      if (result === ""){
+        result += getName(ae);
+      } else {
+        result += "/ " + getName(ae)
+      }
+    }
+  }
+  return result;
+}
+function getEditors(bibliography) {
+  var result = "";
+  if (bibliography.editorList.length > 3) {
+    var editor = bibliography.editorList[0];
+    result = getName(editor) + ", et al.";
+  } else {
+    for (var ee of bibliography.editorList) {
+      if (result === ""){
+        result += getName(ee);
+      } else {
+        result += "/ " + getName(ee)
+      }
+    }
+  }
+  return result;
+}
+function getTitleORGFull(bibliography) {
+  var result = bibliography.subtitleORG === "" ? bibliography.titleORG : bibliography.titleORG + ": " + bibliography.subtitleORG;
+  return result;
+}
+function getTitleTRFull(bibliography) {
+  var result = bibliography.subtitleTR === "" ? bibliography.titleTR : bibliography.titleTR + ": " + bibliography.subtitleTR;
+  return result;
+}
+function getTitleENFull(bibliography) {
+  var result = "";
+  if (bibliography.titleEN === "") {
+    result = "";
+  } else {
+    if (bibliography.officialTitleTranslation) {
+      result = bibliography.subtitleEN === "" ? "/ " + bibliography.titleEN + "" : "/ " + bibliography.titleEN + ": " + bibliography.subtitleEN + "";
+    } else {
+      result = bibliography.subtitleEN === "" ? "[" + bibliography.titleEN + "]" : "[" + bibliography.titleEN + ": " + bibliography.subtitleEN + "]";
+    }
+  }
+  return result;
+}
+export function getWallTree(wallLocationTree, entries){
+  var newChildren = []
+  var result
+  var newWallLocationTree = Object.assign({}, wallLocationTree)
+  if (wallLocationTree.children){
+    if (Array.isArray(newWallLocationTree.children)){
+      for (var child of newWallLocationTree.children){
+        result = getWallTree(child, entries)
+        if (result !== null){
+          newChildren.push(result)
+        }
+      }
+    } else {
+      result = getWallTree(newWallLocationTree.children, entries)
+      if (result !== null){
+        newChildren.push(child)
+      }
+    }
+    newWallLocationTree.children = newChildren
+  }
+  var match = entries.find(el => el.wallLocationID === newWallLocationTree.wallLocationID)
+  if ((match !== undefined) || (newWallLocationTree.children.length > 0)){
+    if (match !== undefined){
+      if (match.position){
+        var positionName = ""
+        for (var pe of match.position){
+          if (positionName === ""){
+            positionName = pe.name
+          } else {
+            positionName += ", " + pe.name
+          }
+        }
+        if (positionName !== ""){
+          newWallLocationTree.name += " (" + positionName + ")"
+        }
+      }
+    }
+    return newWallLocationTree
+  } else {
+    return null
   }
 }
-
-
-function toLocaleDateStringSupportsLocales() {
-  try {
-    new Date().toLocaleDateString('i');
-  } catch (e) {
-    return e.name === 'RangeError';
+export function getWallTreeByIDs(wallIDs, wallLocation){
+  var wallClone = Object.assign({}, wallLocation)
+  var walls = []
+  for (var key in wallClone){
+    var res = getWallTree(wallClone[key], wallIDs)
+    if (res !== null){
+      walls.push(res)
+    }
   }
-  return false;
+  return walls
 }
-
-/**
- * Transform a given EDTF Object into a localized date string
- * @param  {Object} edtf_date A simple object with type, level and values
- * @param  {String} locale    Language, e.g. 'en' or 'de'
- * @return {String}           Localized date string, if toLocaleDateString supports locale and options parameter, edtf string otherwise.
- */
-function getLocalDateString (edtf_date, locale) {
-  if (localDateStringSupport) {
-    let lds = new Date(edtf_date.min).toLocaleDateString(locale, options[edtf_date.values.length])
-    return lds
+export function getWallLabels(wallLocation, depiction, label){
+  var wallTrees = getWallTreeByIDs(depiction.wallIDs, wallLocation)
+  var results = ""
+  for (var wallTree of wallTrees){
+    var result = getWallTreeLabels(wallTree, label)
+    if (results === ""){
+      results += result
+    } else {
+      results += "/ " + result
+    }
   }
-  else {
-    return edtf_date.edtf
+  if (depiction.positionNotes && depiction.positionNotes !== null){
+    if (results !== ""){
+      results += ", " + depiction.positionNotes
+    } else {
+      results += depiction.positionNotes
+    }
+  }
+  return results
+}
+export function getWallTreeLabels(wallTree, label){
+  var results = []
+  if (label === ""){
+    label += wallTree.name
+  } else {
+    label += ", " + wallTree.name
+  }
+  if (wallTree.children ){
+    if (wallTree.children.length > 0){
+      for (var child of wallTree.children){
+        var res = getWallTreeLabels(child, label)
+        results.push(res)
+      }
+    } else {
+      results.push(label)
+    }
+  } else {
+    results.push(label)
+  }
+  return results
+}
+export function getBibTitle(bibliography){
+  var bib = "";
+  var translit = "";
+  var bold = "";
+  var translat = "";
+  var tail = "";
+  if ((bibliography.publicationType.publicationTypeID === 1) || (bibliography.publicationType.publicationTypeID === 3)) {
+    if (getAuthors(bibliography) === "") {
+      if (getEditors(bibliography) !== "") {
+        bib = bib + getEditors(bibliography) + " (ed.)";
+      }
+    } else {
+      bib = bib + getAuthors(bibliography);
+    }
+    if (bibliography.yearORG !== "") {
+      bib = bib + ", " + bibliography.yearORG + ",";
+    }
+    if (getTitleTRFull(bibliography) !== "") {
+      translit = " " + getTitleTRFull(bibliography);
+    }
+    if (getTitleORGFull(bibliography) !== "") {
+      bold = " " + getTitleORGFull(bibliography);
+    }
+    if (getTitleENFull(bibliography) !== "") {
+      translat = " " + getTitleENFull(bibliography);
+    }
+    if (bibliography.volumeORG !== "") {
+      tail = tail + ", Vol." + bibliography.volumeORG;
+    }
+    if (bibliography.editionORG !== "") {
+      tail = tail + ", Edition: " + bibliography.editionORG;
+    }
+    if (bibliography.seriesORG !== "") {
+      tail = tail + ", Series: " + bibliography.seriesORG;
+    }
+    tail = tail + ". ";
+    if (bibliography.publisher !== "") {
+      tail = tail + bibliography.publisher;
+    }
+    if (bibliography.thesisType !== "") {
+      if (bibliography.publisher === "") {
+        tail = tail + bibliography.thesisType + " thesis";
+      } else {
+        tail = tail + ", " + bibliography.thesisType;
+      }
+    }
+    tail = tail + ". ";
+    if (bibliography.hesHan){
+      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+
+    } else {
+      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+    }
+  } else if ((bibliography.publicationType.publicationTypeID === 4) || (bibliography.publicationType.publicationTypeID === 7)) {
+    bib = bib + getAuthors(bibliography);
+    if (bibliography.yearORG !== "") {
+      bib = bib + ", " + bibliography.yearORG + ",";
+    }
+    if (getTitleTRFull(bibliography) !== "") {
+      bib = bib + " " + getTitleTRFull(bibliography);
+    }
+    if (getTitleORGFull(bibliography) !== "") {
+      bib = bib + " " + getTitleORGFull(bibliography);
+    }
+    if (getTitleENFull(bibliography) !== "") {
+      bib = bib + " " + getTitleENFull(bibliography);
+    }
+    bib = bib + ". In: ";
+    if (getEditors(bibliography)  !== "") {
+      bib = bib + getEditors(bibliography);
+      if (bibliography.editorType === "") {
+        bib = bib + " (" + bibliography.editorType + ")";
+      }
+    }
+    if (bibliography.parentTitleTR !== "") {
+      translit = translit + " " + getTitleTRFull(bibliography);
+    }
+    if (bibliography.parentTitleORG !== "") {
+      bold = bold + " " + bibliography.parentTitleORG;
+    }
+    if (bibliography.parentTitleEN !== "") {
+      translat = translat + " [" + bibliography.parentTitleEN + "]";
+    }
+    tail = tail + ". ";
+    if (bibliography.publisher !== "") {
+      tail = tail + bibliography.publisher;
+    }
+    if (bibliography.pagesORG !== "") {
+      if (bibliography.publisher === "") {
+        tail = tail + ". " + bibliography.pagesORG;
+      } else {
+        tail = tail + ", " + bibliography.pagesORG;
+      }
+    }
+    if (bibliography.url !== "") {
+      tail = tail + ", " + bibliography.url;
+      if (bibliography.accessdateORG !== "") {
+        tail = tail + " [" + bibliography.accessdateORG + "]";
+      }
+    }
+    tail = tail + ". ";
+    if (bibliography.hesHan){
+      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+    } else {
+      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+    }
+  } else if (bibliography.publicationType.publicationTypeID === 8) {
+    bib = bib + getAuthors(bibliography);
+    if (bibliography.yearORG !== "") {
+      bib = bib + ", " + bibliography.yearORG + ",";
+    }
+    if (getTitleTRFull(bibliography) !== "") {
+      translit = " " + getTitleTRFull(bibliography);
+    }
+    if (getTitleORGFull(bibliography) !== "") {
+      bold = " " + getTitleORGFull(bibliography);
+    }
+    if (getTitleENFull(bibliography) !== "") {
+      translat = " " + getTitleENFull(bibliography);
+    }
+    if (bibliography.parentTitleORG !== "") {
+      tail = tail + ", " + bibliography.parentTitleORG;
+    }
+    if (bibliography.volumeORG !== "") {
+      tail = tail + " " + bibliography.volumeORG;
+    }
+    if (bibliography.issueORG !== "") {
+      tail = tail + " " + bibliography.issueORG;
+    }
+    if (bibliography.pagesORG !== "") {
+      if (bibliography.publisher === "") {
+        tail = tail + ". " + bibliography.pagesORG;
+      } else {
+        tail = tail + ", " + bibliography.pagesORG;
+      }
+    }
+    if (bibliography.hesHan){
+      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+    } else {
+      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+    }
+  } else {
+    return ("undefined")
   }
 }
 export function getSiteLabel(item){
-  let site = item > 0 ? sites.find(site => site.siteID===item).name : "";
-  console.log("Site:",sites);
+  let site = item > 0 ? sites.find(site => site.siteID === item).name : "";
   return site
 }
 export function getRegionLabel(item){
-  let region = item > 0 ? regions.find(region => region.regionID===item).englishName: "";
+  let region = item > 0 ? regions.find(region => region.regionID === item).englishName : "";
   return region
 }
 export function getDistrictLabel(item){
-  let rdistrict = item > 0 ? districts.find(district => district.districtID===item).name: "";
+  let rdistrict = item > 0 ? districts.find(district => district.districtID === item).name : "";
   return rdistrict
 }
-
+export function getDepictionLabel(depiction, wallLocation){
+  let depictionLabel =  "Information for Painted Representation " + depiction.depictionID
+  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
+  else if (depiction.shortName){
+    if (depiction.shortName !== ""){
+      depictionLabel += ", " + depiction.shortName
+    }
+  }
+  depictionLabel += ", " + getWallLabels(wallLocation, depiction, "")
+  return depictionLabel
+}
 export function getCaveLabel(item){
-  let site = item.siteID > 0 ? sites.find(site => site.siteID===item.siteID).shortName : "";
-  let district = item.districtID > 0 ? districts.find(district => district.districtID===item.districtID).name
-      : "";
-  let region = item.regionID > 0 ? regions.find(region => region.regionID===item.regionID).englishName
-      : "";
-  let caveLabel = site + " " + item.officialNumber + (!(district.length == 0) ? " / " + district : "")
-      + (!(region.length == 0) ? " / " + region : "");
+  let site = item.siteID > 0 ? sites.find(site => site.siteID === item.siteID).shortName : "";
+  let district = item.districtID > 0 ? districts.find(district => district.districtID === item.districtID).name : "";
+  let region = item.regionID > 0 ? regions.find(region => region.regionID === item.regionID).englishName : "";
+  let caveLabel = site + " " + item.officialNumber + (!(district.length === 0) ? " / " + district : "") + (!(region.length === 0) ? " / " + region : "");
   return caveLabel
 
 }
-export function extractLatLng(items, icon, tooltipextension='') {
-  //workaround to get rid of the 'L' is not defined error from leaflet
-  var L = window.L;
-  icon = icon || L.Icon.default
-  let markers = [];
-  items.forEach( item => {
-    if(item) {
-      try {
-       var myLatLng = L.latLng(item.latitude, item.longitude);
-       if(myLatLng != null) {
-        //let key = item.latitude+"_"+item.longitude+"_"+index;
-        markers.push( {'tooltip': item.title, 'url': item['@id'], 'edtf': item.EdtfDate, LatLng: myLatLng, icon: icon, tooltipExtension: tooltipextension });
-        }
-      }
-      catch (e){
-        Vue.$log.error("Wrong latitude or longitude set: ", item? item.title : null)
-      }
-    }
-  })
-  return markers;
+export function getCaveShortLabel(item){
+  return item.site.shortName + " " + item.officialNumber
 }
-
-function UnparsableEtdfLibraryException(message) {
-  this.message = message
-}
-
-function UnparsableEtdfException(message) {
-   this.message = message
-}
-
-function parseEdtf(edtf_date_field) {
-  let edtf_date = null
-  try {
-    edtf_date = edtf(edtf_date_field, { level: 3 })
-  }
-  catch(e) {
-    throw new UnparsableEtdfLibraryException('Unparsable Etdf - Library exception')
-  }
-
-  if (!edtf_date ) {
-   throw new UnparsableEtdfException('Unparsable Etdf')
-  }
-
-  if (edtf_date.type == undefined ) {
-    throw new UnparsableEtdfException('Unparsable Etdf')
-  }
-  else if (edtf_date.type == intervalType) {
-    let unparsable = edtf_date.values.find(d => { return d.type == undefined })
-    if (unparsable != undefined) {
-       throw new UnparsableEtdfException('Unparsable Etdf')
-    }
-  }
-  return edtf_date
-}
-
-function ownConversionOfEdtf(edtf_date_field, parseable) {
-
-  if(! parseable) {
-
-    return edtf_date_field
-  }
-  let edtf_date_parsed_object = edtf.parse(edtf_date_field, { level: 3 })
-
-   return getViewableDateFromParsedObject(edtf_date_parsed_object)
-
-}
-
-export function getViewableEdtfDate (edtf_date_field) {
-      // dates in facts are edtf_date-fields so we use edtf.js
-      // https://github.com/inukshuk/edtf.js#readme
-      let edtf_date = null
-      try {
-        edtf_date = parseEdtf(edtf_date_field)
-      }
-      catch(e) {
-        if (e instanceof UnparsableEtdfLibraryException) {
-          Vue.$log.error('UnparsableEtdfLibraryException', edtf_date_field)
-          return ownConversionOfEdtf(edtf_date_field, false)
-        } else {
-          return ownConversionOfEdtf(edtf_date_field, true)
-        }
-      }
-
-      return getViewableDateFromFullObject (edtf_date)
-}
-
-function getViewableDateFromFullObject (edtf_date_full_object) {
-
-      let prefix =''
-      let local_datestring = 'unparsed EDTF'
-
-       if (edtf_date_full_object.approximate && edtf_date_full_object.approximate.value) {
-          prefix = VueI18n.t('circa') + ' '
-        }
-
-      if (edtf_date_full_object.type == dateType) {
-        local_datestring = getLocalDateString(edtf_date_full_object, VueI18n.locale)
-      }
-
-      else if (edtf_date_full_object.type == seasonType) {
-        local_datestring = season_map[edtf_date_full_object.values[1]] + ' ' + edtf_date_full_object.values[0]
-      }
-
-      else if (edtf_date_full_object.type == intervalType) {
-        // Warning: the max value is a not included border value
-        // Warning: is it possible that there are more than two values?
-        let interval = edtf_date_full_object.values.map(d => {
-          return getViewableDateFromFullObject (d)
-        })
-        local_datestring = interval.join(' - ')
-      }
-      return prefix + local_datestring
-}
-
-function getViewableDateFromParsedObject (edtf_date_parsed_object) {
-
-      let prefix =''
-      let local_datestring = 'unparsed pEDTF'
-
-      if (edtf_date_parsed_object.approximate) {
-          prefix = VueI18n.t('circa') + ' '
-      }
-
-      if (edtf_date_parsed_object.type == 'Date') {
-       // Vue.$log.debug('type is date', edtf_date_parsed_object)
-        if(edtf_date_parsed_object.values && edtf_date_parsed_object.values.length > 1) {
-          let date = new Date(...edtf_date_parsed_object.values)
-          Vue.$log.debug('date', date)
-          local_datestring = date.toLocaleDateString(VueI18n.locale,  options[edtf_date_parsed_object.values.length])
-        }
-        else {
-          local_datestring = edtf_date_parsed_object.values[0]
-        }
-      }
-
-      else if (edtf_date_parsed_object.type == 'Season') {
-        //Vue.$log.debug('type is season', edtf_date_parsed_object)
-        local_datestring = season_map[edtf_date_parsed_object.values[1]] + ' ' + edtf_date_parsed_object.values[0]
-      }
-
-      else if (edtf_date_parsed_object.type == 'Interval') {
-        //Vue.$log.debug('type is interval', edtf_date_parsed_object)
-        // Warning: the max value is a not included border value
-        // Warning: is it possible that there are more than two values?
-        let interval = edtf_date_parsed_object.values.map(d => {
-          return getViewableDateFromParsedObject (d)
-        })
-        local_datestring = interval.join(' - ')
-      }
-      return prefix + local_datestring
-}
-
-export function getMarkerIcon(type) {
-  var L = window.L;
-  switch (type) {
-    case 'person_birthplace': return greenMarkerIcon
-    case 'person_placeofdeath': return redMarkerIcon
-    case 'person_gravesite':return blackMarkerIcon
-    case 'location_subitem': return violetMarkerIcon
-    case 'person_placeofactivity': return orangeMarkerIcon
-    default:
-      return new L.Icon.Default()
-  }
-
-}
-
-/*export const blueMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-blue.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});*/
-//eslint-disable-next-line
-export const redMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-red.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  type: 'person_placeofdeath'
-});
-//eslint-disable-next-line
-export const greenMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-green.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  type: 'person_birthplace'
-});
-//eslint-disable-next-line
-export const blackMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-black.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  type: 'person_gravesite'
-});
-
-//eslint-disable-next-line
-export const orangeMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-orange.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  type: 'person_placeofactivity'
-});
-
-//eslint-disable-next-line
-export const violetMarkerIcon = new L.Icon({
-  iconUrl: require('@/img/marker-icon-2x-violet.png'),
-  shadowUrl: require('@/img/marker-shadow.png'),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  type: 'person_placeofactivity'
-});
-
-export function getSourceTypeLegend() {
-  let legendObject = {}
-  legendObject.title = VueI18n.t('sopu-types-of-sources')
-  legendObject.items = portalTypesSources.map( pt => { return { svg: pt, description: VueI18n.t('portal-type.' + pt), itemClasses: "" }})
-  return legendObject
-
-}
-
-export function getPublicationTypeLegend() {
-  let legendObject = {}
-  legendObject.title = VueI18n.t('sopu-types-of-publications')
-  legendObject.items = portalTypesPub.map( pt => {return { svg: pt, description: VueI18n.t('portal-type.' + pt) }})
-  return legendObject
-}
-
-export function getMapMarkerLegend() {
-  let marker = [ 'person_birthplace', 'person_placeofdeath','person_gravesite','person_placeofactivity', 'location_default', 'location_subitem']
-  let legendObject = {}
-  legendObject.title = VueI18n.t('legend.map-legend-headline')
-  legendObject.items = [];
-  marker.forEach(function(mi) {
-    let icon = getMarkerIcon(mi)
-    if(icon && icon.options)
-    legendObject.items.push(  { img: icon.options.iconUrl, description: VueI18n.t(mi) })
-
-  })
-  return legendObject
-}
-
-export function getDigitalCopyLegend() {
-  let legendObject = {}
-  legendObject.title = VueI18n.t('legend.dc-headline')
-  legendObject.description = VueI18n.t('legend.dc-description')
-  legendObject.items = [];
-  legendObject.items.push( { svg: 'dc_local', description: VueI18n.t('legend.dc-local') })
-  legendObject.items.push( { svg: 'dc_external', description: VueI18n.t('legend.dc-external') })
-  return legendObject
-}
-
-export function getLinkLegend() {
-  let legendObject = {}
-  legendObject.title = VueI18n.t('legend.link-legend-headline')
-  legendObject.items = [];
-  legendObject.items.push( { icon: 'mdi-link-variant', description: VueI18n.t('legend.link-legend-internal') })
-  legendObject.items.push( { icon: 'mdi-open-in-new', description: VueI18n.t('legend.link-legend-external') })
-  return legendObject
-}
-
-export function getMembership() {
-  let legendObject = {}
-  legendObject.title = VueI18n.t('legend.membership-headline')
-  legendObject.items = [];
-  legendObject.items.push( { icon: 'mdi-account', description: VueI18n.t('legend.membership-true'), itemProps: { color: 'green'}, itemClasses: "primary--text" })
-  legendObject.items.push( { icon: 'mdi-account', description: VueI18n.t('legend.membership-false') })
-  return legendObject
-}
-
-
-

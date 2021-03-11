@@ -18,7 +18,7 @@ const plugin = {
     Vue.mixin({
       beforeCreate() {
         if (this.$options.traverser) {
-          //console.log("entry beforeCreate")
+          //  console.log("entry beforeCreate")
           const views = this.$options.traverser.views || [];
           const options = this.$options.traverser.options;
 
@@ -35,12 +35,12 @@ const plugin = {
 
           const path = this.$route.path;
           if (this.$router.getMatchedComponents(path).length === 0) {
-           // console.log("traverser length ===0 ")
+            // console.log("traverser length ===0 ")
             updateComponent({ views, path, vm: Vue, options });
           }
 
           this.$router.beforeEach((to, from, next) => {
-            //console.log("traverser router before each")
+            //  console.log("traverser router before each")
             if (this.$router.getMatchedComponents(to).length) {
               next();
               return;

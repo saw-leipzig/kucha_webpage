@@ -10,13 +10,15 @@ import 'roboto-fontface/css/roboto/roboto-fontface.css'
 import '@mdi/font/css/materialdesignicons.css'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import createPersistedState from 'vuex-persistedstate'
-import { getDic } from '@/services/repository'
-import openseadragon from 'openseadragon'
+import { getDic, getKuchaMapping } from '@/services/repository'
+import hideRelatedItems from '@/components/hideRelatedItems.vue'
+
 Vue.config.productionTip = false
 
 Vue.use(VueAxios, axios)
 
 Vue.use(Vuex)
+Vue.component("hideRelatedItems", hideRelatedItems)
 const store = new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
@@ -28,23 +30,23 @@ const store = new Vuex.Store({
     searchPack:0
   },
   mutations: {
-    setResult (state,id) {
-      state.result=id
+    setResult (state, id) {
+      state.result = id
     },
-    setSearchText (state,txt){
-      state.searchText=txt
+    setSearchText (state, txt){
+      state.searchText = txt
     },
-    setTotalRes (state,id){
-      state.totalRes=id
+    setTotalRes (state, id){
+      state.totalRes = id
     },
-    setSearchPack (state,id){
-      state.searchPack=id
+    setSearchPack (state, id){
+      state.searchPack = id
     },
-    setResults (state,payload){
-      state.results=payload
+    setResults (state, payload){
+      state.results = payload
     },
-    setDics (state,payload){
-      state.dic=payload
+    setDics (state, payload){
+      state.dic = payload
     }
   },
   getters:{
@@ -70,17 +72,21 @@ const store = new Vuex.Store({
   actions: {
     getDics: (context) => {
       getDic()
-      .then( res => {
-        console.log("recieved dic result.",res)
-        let dic = res.data.hits.hits[0]._source
-//          this.previousUrl = res.data.batching? res.data.batching.prev : null
-//          this.nextUrl = res.data.batching? res.data.batching.next : null
-        context.commit('setDics', dic);
-        console.log(dic)
-      }).catch(function (error) {
-        console.log(error)
-        return null
-      })
+        .then( res => {
+          console.log("recieved dic result.", res)
+          let dic = res.data.hits.hits[0]._source
+          context.commit('setDics', dic);
+          console.log(dic)
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+    },
+    getMapping: (context) =>{
+      getKuchaMapping()
+        .then(res=> {
+          console.log("recieved Mapping", res)
+        })
     }
   }
 
@@ -95,3 +101,4 @@ new Vue({
   },
   render: h => h(App)
 }).$mount('#app')
+
