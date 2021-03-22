@@ -308,6 +308,14 @@ export function getDistrictLabel(item){
   let rdistrict = item > 0 ? districts.find(district => district.districtID === item).name : "";
   return rdistrict
 }
+export function findAgg(aggs, key){
+  for (let agg of aggs){
+    if (agg.key === key){
+      return agg.doc_count
+    }
+  }
+  return "0"
+}
 export function getDepictionLabel(depiction, wallLocation){
   let depictionLabel =  "Information for Painted Representation " + depiction.depictionID
   if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);

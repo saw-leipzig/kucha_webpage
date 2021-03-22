@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     getTitle(item){
-      console.log(item);
+      // console.log(item);
       if (item.depictionID) {
         return getDepictionLabel(item, this.$store.state.dic.wallLocation)
       } else if (item.caveID) {

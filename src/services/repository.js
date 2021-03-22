@@ -154,7 +154,6 @@ export function searchRoot(params, source) {
   })
 }
 export function getItemById(params) {
-  console.log("params", params);
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',

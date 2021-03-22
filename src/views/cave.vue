@@ -19,6 +19,7 @@ export default {
 
   data () {
     return {
+      cave: {},
       relatedDepictions:[],
       showRelatedItems:false
     }
@@ -26,31 +27,39 @@ export default {
   computed: {
   },
   methods: {
-    cave(){
-      this.getRelatedDepictions()
-      var res = this.$store.state.results.find(item => item._source.caveID === parseInt(this.$route.params.id))
-      console.log("res after finding in results:", res);
-      if (res !== undefined){
-        console.log("reutrning stored result");
-        return res._source
-      } else {
-        console.log("cave in stored results not found, starting new search");
-        var params = {}
-        params['type'] = "caveID"
-        params['id'] = this.$route.params.id
-        getItemById(params)
-          .then( res => {
-            console.log("results", res)
-            if (res.data.hits.hits.length > 0){
-              this.$store.commit('setResults', res.data.hits.hits)
-            } else {
-              this.error = true
-            }
-          }).catch(function (error) {
-            console.log(error)
+    getNewItem(){
+      console.log("cave in stored results not found, starting new search");
+      var params = {}
+      params['type'] = "caveID"
+      params['id'] = this.$route.params.id
+      getItemById(params)
+        .then( res => {
+          console.log("results", res)
+          if (res.data.hits.hits.length > 0){
+            this.$store.commit('setResults', res.data.hits.hits)
+            this.getCave()
+          } else {
             this.error = true
-          })
-        return null
+          }
+        }).catch(function (error) {
+          console.log(error)
+          this.error = true
+        })
+      return null
+    },
+    getCave(){
+      this.getRelatedDepictions()
+      if (Object.keys(this.$store.state.results).length !== 0){
+        var res = this.$store.state.results.find(item => item._source.caveID === parseInt(this.$route.params.id))
+        console.log("res after finding in results:", res);
+        if (res !== undefined){
+          console.log("reutrning stored result");
+          this.cave = res._source
+        } else {
+          this.getNewItem()
+        }
+      } else {
+        this.getNewItem()
       }
     },
     getRelatedDepictions(){
@@ -71,10 +80,15 @@ export default {
     },
   },
   watch: {
+    $route(to, from) {
+      console.log("route changed");
+      this.getCave()
+    }
   },
   mounted:function () {
     console.log("setting error false");
     this.error = false;
+    this.getCave()
   },
   beforeUpdate:function () {
 

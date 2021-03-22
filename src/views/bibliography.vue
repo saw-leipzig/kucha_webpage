@@ -18,36 +18,44 @@ export default {
     return {
       error:false,
       relatedDepictions:[],
+      bibliography:{}
     }
   },
   computed: {
   },
   methods: {
-    bibliography(){
-      this.getRelatedDepictions()
-      var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
-      console.log("res after finding in results:", res);
-      if (res !== undefined){
-        console.log("reutrning stored result");
-        return res._source
-      } else {
-        console.log("cave in stored results not found, starting new search");
-        var params = {}
-        params['type'] = "annotatedBibliographyID"
-        params['id'] = this.$route.params.id
-        getItemById(params)
-          .then( res => {
-            console.log("results", res)
-            if (res.data.hits.hits.length > 0){
-              this.$store.commit('setResults', res.data.hits.hits)
-            } else {
-              this.error = true
-            }
-          }).catch(function (error) {
-            console.log(error)
+    getNewBibliography(){
+      console.log("cave in stored results not found, starting new search");
+      var params = {}
+      params['type'] = "annotatedBibliographyID"
+      params['id'] = this.$route.params.id
+      getItemById(params)
+        .then( res => {
+          console.log("results", res)
+          if (res.data.hits.hits.length > 0){
+            this.$store.commit('setResults', res.data.hits.hits)
+            this.bibliography = res.data.hits.hits[0]._source
+          } else {
             this.error = true
-          })
-        return null
+          }
+        }).catch(function (error) {
+          console.log(error)
+          this.error = true
+        })
+    },
+    getBibliography(){
+      this.getRelatedDepictions()
+      if (Object.keys(this.$store.state.results).length !== 0){
+        var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
+        console.log("res after finding in results:", res);
+        if (res !== undefined){
+          console.log("reutrning stored result");
+          return res._source
+        } else {
+          this.getNewBibliography()
+        }
+      } else {
+        this.getNewBibliography()
       }
     },
     getRelatedDepictions(){
@@ -67,10 +75,15 @@ export default {
     },
   },
   watch: {
+    $route(to, from) {
+      console.log("route changed");
+      this.getBibliography()
+    }
   },
   mounted:function () {
     console.log("setting error false");
     this.error = false;
+    this.getBibliography()
   },
   beforeUpdate:function () {
 

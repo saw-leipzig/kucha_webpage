@@ -104,49 +104,51 @@ export default {
       }
       var ceilingTypes = ""
       var plasticalItems = ""
-      for (var caveArea of this.cave.caveAreaList){
-        var mesures = ""
-        if (caveArea.ceilingType1){
-          ceilingTypes += caveArea.caveAreaLabel + ": " + caveArea.ceilingType1.name + "\n"
-        }
-        if (caveArea.ceilingType2){
-          ceilingTypes += caveArea.caveAreaLabel + ": " + caveArea.ceilingType1.name + "(optional second type)\n"
-        }
-        if (caveArea.expeditionLength > 0){
-          mesures += "Length (Expedition Measurement): " + caveArea.expeditionLength.toString() + " m\n";
-        }
-        if (caveArea.expeditionWidth > 0){
-          mesures += "Width (Expedition Measurement): " + caveArea.expeditionWidth.toString() + "m \n";
-        }
-        if (caveArea.expeditionTotalHeight > 0){
-          mesures += "Total Height (Expedition Measurement): " + caveArea.expeditionTotalHeight.toString() + "m \n";
-        }
-        if (caveArea.expeditionWallHeight > 0){
-          mesures += "Wall Height (Expedition Measurement): " + caveArea.expeditionWallHeight.toString() + "m \n";
-        }
-        if (caveArea.modernMaxHeight > 0){
-          mesures += "Maximal Height (Modern Measurement): " + caveArea.modernMaxHeight.toString() + " m\n";
-        }
-        if (caveArea.modernMaxHeight > 0){
-          mesures += "Maximal Height (Modern Measurement): " + caveArea.modernMaxHeight.toString() + " m\n";
-        }
-        if (caveArea.modernMaxLength > 0){
-          mesures += "Maximal Length (Modern Measurement): " + caveArea.modernMaxLength.toString() + " m\n";
-        }
-        if (caveArea.modernMaxWidth > 0){
-          mesures += "Maximal Width (Modern Measurement): " + caveArea.modernMaxWidth.toString() + " m\n";
-        }
-        if (caveArea.modernMinHeight > 0){
-          mesures += "Minimal Height (Modern Measurement): " + caveArea.modernMinHeight.toString() + " m\n";
-        }
-        if (caveArea.modernMinLength > 0){
-          mesures += "Minimal Length (Modern Measurement): " + caveArea.modernMinLength.toString() + " m\n";
-        }
-        if (caveArea.modernMinWidth > 0){
-          mesures += "Minimal Width (Modern Measurement): " + caveArea.modernMinWidth.toString() + " m\n";
-        }
-        if (mesures !== ""){
-          caveMeasurements["Measurements of " + caveArea.caveAreaLabel] = mesures
+      if ( this.cave.caveAreaList){
+        for (var caveArea of this.cave.caveAreaList){
+          var mesures = ""
+          if (caveArea.ceilingType1){
+            ceilingTypes += caveArea.caveAreaLabel + ": " + caveArea.ceilingType1.name + "\n"
+          }
+          if (caveArea.ceilingType2){
+            ceilingTypes += caveArea.caveAreaLabel + ": " + caveArea.ceilingType1.name + "(optional second type)\n"
+          }
+          if (caveArea.expeditionLength > 0){
+            mesures += "Length (Expedition Measurement): " + caveArea.expeditionLength.toString() + " m\n";
+          }
+          if (caveArea.expeditionWidth > 0){
+            mesures += "Width (Expedition Measurement): " + caveArea.expeditionWidth.toString() + "m \n";
+          }
+          if (caveArea.expeditionTotalHeight > 0){
+            mesures += "Total Height (Expedition Measurement): " + caveArea.expeditionTotalHeight.toString() + "m \n";
+          }
+          if (caveArea.expeditionWallHeight > 0){
+            mesures += "Wall Height (Expedition Measurement): " + caveArea.expeditionWallHeight.toString() + "m \n";
+          }
+          if (caveArea.modernMaxHeight > 0){
+            mesures += "Maximal Height (Modern Measurement): " + caveArea.modernMaxHeight.toString() + " m\n";
+          }
+          if (caveArea.modernMaxHeight > 0){
+            mesures += "Maximal Height (Modern Measurement): " + caveArea.modernMaxHeight.toString() + " m\n";
+          }
+          if (caveArea.modernMaxLength > 0){
+            mesures += "Maximal Length (Modern Measurement): " + caveArea.modernMaxLength.toString() + " m\n";
+          }
+          if (caveArea.modernMaxWidth > 0){
+            mesures += "Maximal Width (Modern Measurement): " + caveArea.modernMaxWidth.toString() + " m\n";
+          }
+          if (caveArea.modernMinHeight > 0){
+            mesures += "Minimal Height (Modern Measurement): " + caveArea.modernMinHeight.toString() + " m\n";
+          }
+          if (caveArea.modernMinLength > 0){
+            mesures += "Minimal Length (Modern Measurement): " + caveArea.modernMinLength.toString() + " m\n";
+          }
+          if (caveArea.modernMinWidth > 0){
+            mesures += "Minimal Width (Modern Measurement): " + caveArea.modernMinWidth.toString() + " m\n";
+          }
+          if (mesures !== ""){
+            caveMeasurements["Measurements of " + caveArea.caveAreaLabel] = mesures
+          }
         }
       }
       ceilingTypes += ""
@@ -195,9 +197,11 @@ export default {
     },
     getCaveRes(){
       this.caveScatches = []
-      for (let item of this.cave.caveSketchList){
-        var res = "http://127.0.0.1:8182/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
-        this.caveScatches.push(res)
+      if (this.cave.caveSketchListcaveSketchList){
+        for (let item of this.cave.caveSketchList){
+          var res = "http://127.0.0.1:8182/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
+          this.caveScatches.push(res)
+        }
       }
     },
     getCaveType(ID){

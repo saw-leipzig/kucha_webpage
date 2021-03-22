@@ -37,6 +37,7 @@ module.exports = {
     'eol-last':'on',
     'quotes':'on',
     'allowEmptyReject':'off',
+    'no-undef':'off',
   
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
