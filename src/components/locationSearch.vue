@@ -64,7 +64,6 @@ export default {
         if (this.aggregations){
           location["count"] = findAgg(this.aggregations, location.locationID)
         }
-        console.log("Location: ", location, ", count: ", location.count);
         if (location.count > 0){
           locations.push(location)
         }

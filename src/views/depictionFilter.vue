@@ -8,7 +8,7 @@
       <v-expansion-panel-content>
         <v-row align="start" dense style="flex-wrap: wrap;">
           <v-col  style="min-width: 265px;">
-            <free-text-search @clicked="onClickChild"></free-text-search>
+            <free-text-search ref="textSearch" @clicked="onTextSearchInput" :aggregations="caveFacets"></free-text-search>
           </v-col>
         </v-row>
         <v-row align="start" dense style="flex-wrap: wrap;">
@@ -147,9 +147,10 @@ export default {
       }
       return null
     },
-    onClickChild (value) {
-      this.textSearch = value
-      this.initiateSearch(0)
+    onTextSearchInput (value) {
+      this.textSearch = value.search
+      // this.buildTextAggs(value.aggs)
+      this.initiateFacets()
     },
 
     changedCaveInput(value){
@@ -232,40 +233,41 @@ export default {
       console.log("built aggsObject", this.aggsObject);
     },
     buildQueries(){
-      let queries = []
+      let queries = {
+        "must": [],
+        "should": []}
       if (this.textSearch){
         if (this.textSearch.length > 0){
-          let textSearchmust = {}
-          textSearchmust["query_string"] = {}
-          textSearchmust.query_string["query"] = this.textSearch
-          queries.push(textSearchmust)
+          for (let textSearchObject of this.textSearch){
+            queries.should.push(textSearchObject)
+          }
         }
       }
       if ( this.caveSearchObjects){
         if (this.caveSearchObjects.length > 0){
           for (let caveSearchObject of this.caveSearchObjects){
-            queries.push(caveSearchObject)
+            queries.must.push(caveSearchObject)
           }
         }
       }
       if (this.locationSearchObjects){
         if (this.locationSearchObjects.length > 0){
           for (let locationSearchObject of this.locationSearchObjects){
-            queries.push(locationSearchObject)
+            queries.must.push(locationSearchObject)
           }
         }
       }
       if (this.wallSearchObjects){
         if (this.wallSearchObjects.length > 0){
           for (let wallLocationSearchObject of this.wallSearchObjects){
-            queries.push(wallLocationSearchObject)
+            queries.must.push(wallLocationSearchObject)
           }
         }
       }
       if (this.icoSearchObjects){
         if (this.icoSearchObjects.length > 0){
           for (let icoSearchObject of this.icoSearchObjects){
-            queries.push(icoSearchObject)
+            queries.must.push(icoSearchObject)
           }
         }
       }
@@ -281,14 +283,25 @@ export default {
       searchObject.query["bool"] = {}
       searchObject.query.bool["must"] = {}
       searchObject.query.bool.must = []
+      let shouldQuery = {
+        "bool": {
+          "should": []
+        }
+      }
       let depictionmust = {}
       depictionmust["exists"] = {}
       depictionmust.exists["field"] = "depictionID"
       searchObject.query.bool.must.push(depictionmust)
-      for (let query of this.buildQueries()){
+      let queries = this.buildQueries()
+      for (let query of queries.must){
         searchObject.query.bool.must.push(query)
       }
-
+      for (let query of queries.should){
+        shouldQuery.bool.should.push(query)
+      }
+      if (shouldQuery.bool.should.length > 0){
+        searchObject.query.bool.must.push(shouldQuery)
+      }
       this.resAmount = 0
       this.loading = true
       postQuery(searchObject)
@@ -359,8 +372,21 @@ export default {
       aggregations["post_filter"] = {}
       aggregations["post_filter"]["bool"] = {}
       aggregations["post_filter"]["bool"]["must"] = []
-      for (let query of this.buildQueries()){
-        aggregations.post_filter.bool.must.push(query)
+      let queries = this.buildQueries()
+      let shouldQuery = {
+        "bool": {
+          "should": []
+        }
+      }
+
+      for (let query of queries.must){
+        aggregations.query.bool.must.push(query)
+      }
+      for (let query of queries.should){
+        shouldQuery.bool.should.push(query)
+      }
+      if (shouldQuery.bool.should.length > 0){
+        aggregations.query.bool.must.push(shouldQuery)
       }
       postQuery(aggregations)
         .then( res => {

@@ -491,6 +491,8 @@ export default {
         console.log("Images:", this.images);
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
         OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
+        OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
+        OpenSeadragon.setString('Tooltips.VerticalGuide', 'Add Vertical Guide');
         OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
         OpenSeadragon.setString('Tool.brightness', 'Brightness');
         OpenSeadragon.setString('Tool.contrast', 'Contrast');
@@ -499,8 +501,6 @@ export default {
         OpenSeadragon.setString('Tool.gamma', 'Gamma');
         OpenSeadragon.setString('Tool.greyscale', 'Greyscale');
         OpenSeadragon.setString('Tool.reset', 'Reset');
-        OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
-        OpenSeadragon.setString('Tooltips.VerticalGuide', 'Add Vertical Guide');
         OpenSeadragon.setString('Tool.rotate', 'Rotate');
         OpenSeadragon.setString('Tool.close', 'Close');
         this.fillPicsContainer()
@@ -586,7 +586,7 @@ export default {
     },
     getCaveLabel(entry){
       if (entry !== undefined){
-        return "of cave " + getCaveLabel(entry)
+        return "of cave " + getCaveLabel(entry, this.$store.state.dic.sites, this.$store.state.dic.districts, this.$store.state.dic.region)
       } else {
         return "";
       }

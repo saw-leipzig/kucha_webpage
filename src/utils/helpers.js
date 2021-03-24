@@ -1,5 +1,5 @@
 import 'leaflet'
-import {regions, sites, districts} from '@/utils/constants'
+import store from '../store'
 
 function getName(author) {
   return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
@@ -296,16 +296,16 @@ export function getBibTitle(bibliography){
     return ("undefined")
   }
 }
-export function getSiteLabel(item){
-  let site = item > 0 ? sites.find(site => site.siteID === item).name : "";
+export function getSiteLabel(item, sites){
+  let site = item > 0 ? store.getters.getDics.sites.find(site => site.siteID === item).name : "";
   return site
 }
-export function getRegionLabel(item){
-  let region = item > 0 ? regions.find(region => region.regionID === item).englishName : "";
+export function getRegionLabel(item, regions){
+  let region = item > 0 ? store.getters.getDics.region.find(region => region.regionID === item).englishName : "";
   return region
 }
 export function getDistrictLabel(item){
-  let rdistrict = item > 0 ? districts.find(district => district.districtID === item).name : "";
+  let rdistrict = item > 0 ? store.getters.getDics.districts.find(district => district.districtID === item).name : "";
   return rdistrict
 }
 export function findAgg(aggs, key){
@@ -328,9 +328,9 @@ export function getDepictionLabel(depiction, wallLocation){
   return depictionLabel
 }
 export function getCaveLabel(item){
-  let site = item.siteID > 0 ? sites.find(site => site.siteID === item.siteID).shortName : "";
-  let district = item.districtID > 0 ? districts.find(district => district.districtID === item.districtID).name : "";
-  let region = item.regionID > 0 ? regions.find(region => region.regionID === item.regionID).englishName : "";
+  let site = item.siteID > 0 ? store.getters.getDics.sites.find(site => site.siteID === item.siteID).shortName : "";
+  let district = item.districtID > 0 ? store.getters.getDics.districts.find(district => district.districtID === item.districtID).name : "";
+  let region = item.regionID > 0 ? store.getters.getDics.region.find(region => region.regionID === item.regionID).englishName : "";
   let caveLabel = site + " " + item.officialNumber + (!(district.length === 0) ? " / " + district : "") + (!(region.length === 0) ? " / " + region : "");
   return caveLabel
 

@@ -130,7 +130,7 @@ import { getDepictionByAnnotation } from '@/services/repository'
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
 export default {
 
-  name: 'bibliographyInf',
+  name: 'iconographyInf',
   props: {
     iconography: {}
   },
@@ -158,9 +158,8 @@ export default {
       }
       console.log("returnElement", returnElement );
       return returnElement
-    }
-  },
-  methods: {
+    },
+
     idealTypical(){
       let icoInf = {}
       let basicInf = {}
@@ -177,7 +176,7 @@ export default {
         if (idealTypical.remarks){
           desc["General Remarks"] = idealTypical.remarks
         }
-        this.images = idealTypical.images
+        // this.images = idealTypical.images
       }
       if (Object.keys(basicInf).length > 0){
         icoInf['Basic Information'] = basicInf
@@ -189,6 +188,9 @@ export default {
 
       return icoInf
     },
+
+  },
+  methods: {
     getIdsOfChildren(ico, ids){
       var result = []
       if (ico.children){
@@ -223,7 +225,7 @@ export default {
       return tiles
     },
     initNewIconography(){
-      if (this.images.length > 0){
+      if (this.idealTypical.images.length > 0){
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
         OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
         OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
@@ -245,11 +247,11 @@ export default {
     },
     initOSDimg(){
       let tilesImg = []
-      console.log("Initializing Images: ", this.images);
-      if (this.images.length > 0){
+      console.log("Initializing Images: ", this.idealTypical.images);
+      if (this.idealTypical.images.length > 0){
         console.log("images available, initiate OSDIMG");
-        tilesImg = this.getOSDURL(this.images[0])
-        this.image = this.images[0]
+        tilesImg = this.getOSDURL(this.idealTypical.images[0])
+        this.image = this.idealTypical.images[0]
         this.viewerImg = OpenSeadragon({
           id: "openseadragonImg",
           prefixUrl: '/static/',
