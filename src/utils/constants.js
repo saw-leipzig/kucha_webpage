@@ -71,13 +71,9 @@ export const TextSearchDepiction = {
   "General Remarks":{"generalRemarks":{}},
   "Other Suggested Identifications":{"otherSuggestedIdentifications":{}},
   "Bibliography": {
-    "relatedBibliographyList": {
-      "nested":true,
-      "nestedChildren": {
-        "authorList":{"nested":true},
-        "editorList":{"nested":true}
-      }
-    }
+    "relatedBibliographyList": {"nested":true},
+    "relatedBibliographyList.authorList":{"nested":true},
+    "relatedBibliographyList.editorList":{"nested":true}
   }
 }
 

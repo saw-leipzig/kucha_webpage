@@ -147,7 +147,7 @@ export default {
       }
       return null
     },
-    onTextSearchInput (value) {
+    onTextSearchInput(value) {
       this.textSearch = value.search
       // this.buildTextAggs(value.aggs)
       this.initiateFacets()
@@ -237,9 +237,12 @@ export default {
         "must": [],
         "should": []}
       if (this.textSearch){
-        if (this.textSearch.length > 0){
-          for (let textSearchObject of this.textSearch){
+        if ((this.textSearch.should.length > 0) || (this.textSearch.must.length > 0)){
+          for (let textSearchObject of this.textSearch.should){
             queries.should.push(textSearchObject)
+          }
+          for (let textSearchObject of this.textSearch.must){
+            queries.must.push(textSearchObject)
           }
         }
       }

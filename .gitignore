@@ -15,3 +15,13 @@ selenium-debug.log
 *.ntvs*
 *.njsproj
 *.sln
+build/logo.png
+src/._sync_72c5014b265d.db
+.gitignore
+static/openseadragon/openseadragon-annotorious.min.js.map
+static/openseadragon/openseadragon-annotorious.min.js
+.gitignore
+src/._sync_72c5014b265d.db-shm
+.gitignore
+static/openseadragon/openseadragon-annotorious.min.js
+build/logo.png

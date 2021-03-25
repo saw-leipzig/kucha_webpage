@@ -8,11 +8,12 @@
         <v-treeview selection-type="leaf" :filter="filter" item-key="wallLocationID" :search="search" v-model="wallLocationSelected" rounded  selectable hoverable open-all :items="getWallLocations" dense >
                 <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
-                  <v-badge
+                  {{ item.name }}
+                  <v-badge v-if="item.count"
                     :content="item.count.size"
                     inline
                     color="grey"
-                  > {{ item.name }}
+                  >
                   </v-badge>
 
                 </div>
@@ -47,14 +48,15 @@ export default {
   computed: {
     getWallLocations(){
       let wallLocations = []
-      let walls = JSON.parse(JSON.stringify(this.$store.state.dic.wallLocation));
-      console.log("walls", walls);
+      let walls = this.$store.state.dic.wallLocation
+      console.log("walls", walls)
       for (let element of walls){
-        let res = this.setAggsInElement(element)
-        console.log("result of res count for:", element, ":", res);
+        let el = Object.assign({}, element)
+        let res = this.setAggsInElement(el)
+        console.log("result of res count for:", element, ":", res)
         if (res !== null){
           if (res.count.size > 0){
-            wallLocations.push(element)
+            wallLocations.push(res)
           }
         }
       }
@@ -239,11 +241,7 @@ export default {
       console.log("seletctedItems after adding parents: ", this.selected);
       this.startSearch()
     },
-    'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on wallLocation", this.aggregations);
-      console.log("length of aggregations: ", this.aggregations.length);
 
-    },
 
   },
   mounted:function () {
