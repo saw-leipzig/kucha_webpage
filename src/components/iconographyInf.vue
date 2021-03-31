@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card v-if="idealTypical">
       <v-card-title > Information for Iconography Entry {{iconography.iconographyID}} </v-card-title>
       <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
       <v-treeview
@@ -13,7 +13,7 @@
           <div v-html="getTitle(item)"></div>
         </template>
       </v-treeview>
-      <v-card-actions v-if="Object.keys(idealTypical).length>0">
+      <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
           @click="mouseOver"
           color="orange lighten-2"
@@ -47,7 +47,7 @@
 
                 >
                   <v-tab
-                    v-for="(item_value, item_name, item_key) in idealTypical"
+                    v-for="(item_value, item_name, item_key) in idealTypical.data"
                     :key="item_key"
                   >
                     {{ item_name }}
@@ -57,7 +57,7 @@
                   <v-card flat>
                     <v-tabs-items v-model="tab">
                       <v-tab-item
-                        v-for="(item_value, item_name, item_key) in idealTypical"
+                        v-for="(item_value, item_name, item_key) in idealTypical.data"
                         :key="item_key"
                       >
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
@@ -75,7 +75,7 @@
           </v-card-text>
         </div>
       </v-expand-transition>
-      <v-card-actions v-if="images.length>1">
+      <v-card-actions v-if="hasImages">
         <v-btn
           @click="showImage = !showImage"
           color="orange lighten-2"
@@ -98,12 +98,12 @@
 
             <div v-show="showImage" style='height:650px'>
             <v-tabs
-            v-if="images.length>0"
+            v-if="hasImages"
               slider-color="yellow"
               centered
             >
               <v-tab
-                v-for="(item, index) in images"
+                v-for="(item, index) in idealTypical.images"
                 :key="index"
                 @click="setOSDimages(item)"
             >
@@ -120,7 +120,7 @@
             </v-container>
             </div>
       </v-expand-transition>
-      <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+      <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     </v-card>
 
 </template>
@@ -141,12 +141,48 @@ export default {
       tab:[],
       showDec:false,
       showImage:false,
-      images:[],
       relatedDepictions:[],
       iconographyWithChildren:{}
     }
   },
   computed: {
+    hasRelatedDepictions(){
+      if (this.relatedDepictions){
+        if (this.relatedDepictions.length > 0){
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    },
+    hasImages(){
+      if (this.idealTypical){
+        if (this.idealTypical.images){
+          if (this.idealTypical.images.length > 1){
+            return true
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    },
+    hasAdditionalInfo(){
+      if (this.idealTypical){
+        if (Object.keys(this.idealTypical).length > 0){
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    },
     icoTree(){
       var returnElement = []
       for (var rootElement of this.$store.state.dic.iconography){
@@ -162,6 +198,7 @@ export default {
 
     idealTypical(){
       let icoInf = {}
+      let data = {}
       let basicInf = {}
       let desc = {}
       console.log("iconography Entry", this.iconography);
@@ -176,16 +213,19 @@ export default {
         if (idealTypical.remarks){
           desc["General Remarks"] = idealTypical.remarks
         }
-        // this.images = idealTypical.images
+        icoInf['images'] = []
+        if (idealTypical.images){
+          icoInf['images'] = idealTypical.images
+        }
       }
       if (Object.keys(basicInf).length > 0){
-        icoInf['Basic Information'] = basicInf
+        data['Basic Information'] = basicInf
       }
       if (Object.keys(desc).length > 0){
-        icoInf['Description'] = desc
+        data['Description'] = desc
       }
       this.getRelatedDepictions()
-
+      icoInf['data'] = data
       return icoInf
     },
 
@@ -225,23 +265,25 @@ export default {
       return tiles
     },
     initNewIconography(){
-      if (this.idealTypical.images.length > 0){
-        OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
-        OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
-        OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
-        OpenSeadragon.setString('Tool.brightness', 'Brightness');
-        OpenSeadragon.setString('Tool.contrast', 'Contrast');
-        OpenSeadragon.setString('Tool.thresholding', 'Thresholding');
-        OpenSeadragon.setString('Tool.invert', 'Invert');
-        OpenSeadragon.setString('Tool.gamma', 'Gamma');
-        OpenSeadragon.setString('Tool.greyscale', 'Greyscale');
-        OpenSeadragon.setString('Tool.reset', 'Reset');
-        OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
-        OpenSeadragon.setString('Tooltips.VerticalGuide', 'Add Vertical Guide');
-        OpenSeadragon.setString('Tool.rotate', 'Rotate');
-        OpenSeadragon.setString('Tool.close', 'Close');
-        if (!this.viewerImg){
-          this.initOSDimg()
+      if (this.idealTypical.images){
+        if (this.idealTypical.images.length > 0){
+          OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
+          OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
+          OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
+          OpenSeadragon.setString('Tool.brightness', 'Brightness');
+          OpenSeadragon.setString('Tool.contrast', 'Contrast');
+          OpenSeadragon.setString('Tool.thresholding', 'Thresholding');
+          OpenSeadragon.setString('Tool.invert', 'Invert');
+          OpenSeadragon.setString('Tool.gamma', 'Gamma');
+          OpenSeadragon.setString('Tool.greyscale', 'Greyscale');
+          OpenSeadragon.setString('Tool.reset', 'Reset');
+          OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
+          OpenSeadragon.setString('Tooltips.VerticalGuide', 'Add Vertical Guide');
+          OpenSeadragon.setString('Tool.rotate', 'Rotate');
+          OpenSeadragon.setString('Tool.close', 'Close');
+          if (!this.viewerImg){
+            this.initOSDimg()
+          }
         }
       }
     },

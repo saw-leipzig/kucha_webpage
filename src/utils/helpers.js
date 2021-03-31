@@ -316,6 +316,53 @@ export function findAgg(aggs, key){
   }
   return "0"
 }
+export function buildAgg(aggInfo, reference, aggsObject){
+  if (Array.isArray(reference)){
+    for (let ref of reference){
+      delete aggsObject[ref]
+    }
+  } else {
+    delete aggsObject[reference]
+  }
+
+  for (let prop in aggInfo){
+    aggsObject[prop] = {}
+    if (aggInfo[prop].ids){
+      aggsObject[prop]['filter'] = {
+      }
+      aggsObject[prop].filter[prop] = {
+        "filter": {
+          "terms" : {
+          }
+        }
+      }
+      aggsObject[prop].filter[prop].filter.terms[aggInfo[prop].field] = aggInfo[prop].ids
+    }
+    aggsObject[prop]['agg'] = {
+    }
+    aggsObject[prop].agg[prop] = {
+      "terms" : {
+        "size": 10000
+      }
+    }
+    aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
+  }
+}
+
+export function getBuckets(element){
+  for (let prop in element){
+    if (prop === "buckets"){
+      return element[prop]
+    } else {
+      let res = getBuckets(element[prop])
+      if (res !== null){
+        return res
+      }
+    }
+  }
+  return null
+}
+
 export function getDepictionLabel(depiction, wallLocation){
   let depictionLabel =  "Information for Painted Representation " + depiction.depictionID
   if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);

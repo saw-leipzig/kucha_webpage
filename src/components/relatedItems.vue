@@ -12,7 +12,7 @@
             <depictionInf v-if="item.depictionID" :depiction="item" :presentCave="presentCave"></depictionInf>
             <caveInf v-if="item.caveID" :cave="item" ></caveInf>
             <bibliographyInf v-if="item.annotatedBibliographyID" :bibliography="item" ></bibliographyInf>
-            <iconographyInf v-if="item.iconogrpahyID" :iconography="item" ></iconographyInf>
+            <iconographyInf v-if="item.iconographyID" :iconography="item" ></iconographyInf>
         </v-expansion-panel-content>
         </v-expansion-panel>
     </v-expansion-panels>

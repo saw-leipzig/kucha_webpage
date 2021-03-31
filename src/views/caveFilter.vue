@@ -3,7 +3,7 @@
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
-        Depiction Filter
+        Cave Filter
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-row align="start" dense style="flex-wrap: wrap;">
@@ -15,20 +15,9 @@
           <v-col  style="min-width: 265px;">
             <v-row>
               <v-col>
-                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets"></caveSearch>
+                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="" :aggregations="caveFacets"></caveSearch>
               </v-col>
             </v-row>
-            <v-row>
-              <v-col>
-                <locationSearch ref="locationSearch" @clicked="changedLocationInput" prefix="location." :aggregations="locationFacets"></locationSearch>
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col style="min-width: 200px;max-width: 265px;">
-            <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
-          </v-col>
-          <v-col  style="min-width: 300px;">
-            <iconographySearch ref="iconographySearch" mode="depiction" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
           </v-col>
         </v-row>
         <v-row>
@@ -39,7 +28,7 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedDepictions.length > 0" :title="resultsTitle" :items="relatedDepictions" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  <hideRelatedItems v-if="relatedCaves.length > 0" :title="resultsTitle" :items="relatedCaves" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
 
 </div>
 
@@ -47,41 +36,32 @@
 <script>
 import {postQuery} from '@/services/repository'
 import caveSearch from '@/components/caveSearch.vue'
-import locationSearch from '@/components/locationSearch.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
-import iconographySearch from '@/components/iconographySearch.vue'
-import wallSearch from '@/components/wallSearch.vue'
 import {getBuckets, buildAgg} from  "@/utils/helpers"
-import {TextSearchDepiction} from '@/utils/constants.js'
+import {TextSearchCave} from '@/utils/constants.js'
 
 export default {
-  name: 'depictionFilter',
+  name: 'caveFilter',
   components: {
-    wallSearch,
     freeTextSearch,
-    caveSearch,
-    iconographySearch,
-    locationSearch,
+    caveSearch
   },
   data () {
     return {
-      panel: 0,
+      panel:0,
       aggregations:{},
       visible:[0],
-      relatedDepictions:[],
+      relatedCaves:[],
       textSearch:"",
       caveSearchObjects:null,
       aggsObject:{},
-      icoSearchObjects:null,
-      locationSearchObjects:null,
-      wallSearchObjects:null,
       resAmount:0,
       loading:false,
     }
   },
   computed: {
     getTextSearchParams(){
-      return TextSearchDepiction
+      return TextSearchCave
     },
     caveFacets(){
       console.log("aggregations caveFacetts: ", this.aggregations);
@@ -254,7 +234,7 @@ export default {
     },
     initiateSearch(amount){
       let searchObject = {}
-      this.relatedDepictions = []
+      this.relatedCaves = []
       searchObject["size"] = amount
       searchObject["sort"] = ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       searchObject["query"] = {}
@@ -266,10 +246,10 @@ export default {
           "should": []
         }
       }
-      let depictionmust = {}
-      depictionmust["exists"] = {}
-      depictionmust.exists["field"] = "depictionID"
-      searchObject.query.bool.must.push(depictionmust)
+      let cavemust = {}
+      cavemust["exists"] = {}
+      cavemust.exists["field"] = "caveID"
+      searchObject.query.bool.must.push(cavemust)
       let queries = this.buildQueries()
       for (let query of queries.must){
         searchObject.query.bool.must.push(query)
@@ -285,13 +265,13 @@ export default {
       postQuery(searchObject)
         .then( res => {
           console.log("search results", res);
-          var newDepictions = []
+          var newCaves = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
-            newDepictions.push(entry._source)
+            newCaves.push(entry._source)
           }
           this.loading = false
-          this.relatedDepictions = newDepictions
+          this.relatedCaves = newCaves
         })
         .catch((error) => {
           console.log(error)
@@ -341,7 +321,7 @@ export default {
           "must": [
             {
               "exists": {
-                "field": "depictionID"
+                "field": "caveID"
               }
             }
           ]
@@ -378,29 +358,17 @@ export default {
     },
   },
   watch: {
-    'panel': function(newVal, oldVal) {
-      console.log("updated caveTypes panel", newVal);
-    },
     'aggregations': function(newVal, oldVal) {
       console.log("updated aggregations on should", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Depiction filter");
+    console.log("started Cave filter");
 
-    let locationRes = this.$refs.locationSearch.prepSearch();
-    this.locationSearchObjects = locationRes.search
-    buildAgg(locationRes.aggs, "location", this.aggsObject)
     let caveRes = this.$refs.caveSearch.prepSearch();
     this.caveSearchObjects = caveRes.search
     this.buildCaveAggs(caveRes.aggs)
-    let icoRes = this.$refs.iconographySearch.prepSearch();
-    this.icoSearchObjects = icoRes.search
-    this.aggsObject["iconography"] = icoRes.aggs
-    let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
-    this.wallLocationSearch = wallLocationRes.search
-    this.aggsObject["wallLocation"] = wallLocationRes.aggs
     this.initiateFacets()
   },
   beforeUpdate:function () {

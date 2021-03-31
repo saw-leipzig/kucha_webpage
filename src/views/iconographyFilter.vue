@@ -3,34 +3,10 @@
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
-        Depiction Filter
+        Iconography Filter
       </v-expansion-panel-header>
       <v-expansion-panel-content>
-        <v-row align="start" dense style="flex-wrap: wrap;">
-          <v-col  style="min-width: 265px;">
-            <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" :aggregations="textFacets"></free-text-search>
-          </v-col>
-        </v-row>
-        <v-row align="start" dense style="flex-wrap: wrap;">
-          <v-col  style="min-width: 265px;">
-            <v-row>
-              <v-col>
-                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets"></caveSearch>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <locationSearch ref="locationSearch" @clicked="changedLocationInput" prefix="location." :aggregations="locationFacets"></locationSearch>
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col style="min-width: 200px;max-width: 265px;">
-            <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
-          </v-col>
-          <v-col  style="min-width: 300px;">
-            <iconographySearch ref="iconographySearch" mode="depiction" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
-          </v-col>
-        </v-row>
+            <iconographySearch ref="iconographySearch" @clicked="changedIcoInput" prefix="" mode="iconography"></iconographySearch>
         <v-row>
           <v-col>
             <v-btn @click="initiateSearch(2000)" :loading="loading" dense block color="success">{{"Show " + resAmount +" Results"}}</v-btn>
@@ -46,22 +22,13 @@
 </template>
 <script>
 import {postQuery} from '@/services/repository'
-import caveSearch from '@/components/caveSearch.vue'
-import locationSearch from '@/components/locationSearch.vue'
-import freeTextSearch from '@/components/freeTextSearch.vue'
 import iconographySearch from '@/components/iconographySearch.vue'
-import wallSearch from '@/components/wallSearch.vue'
-import {getBuckets, buildAgg} from  "@/utils/helpers"
 import {TextSearchDepiction} from '@/utils/constants.js'
 
 export default {
-  name: 'depictionFilter',
+  name: 'iconographyFilter',
   components: {
-    wallSearch,
-    freeTextSearch,
-    caveSearch,
     iconographySearch,
-    locationSearch,
   },
   data () {
     return {
@@ -83,57 +50,7 @@ export default {
     getTextSearchParams(){
       return TextSearchDepiction
     },
-    caveFacets(){
-      console.log("aggregations caveFacetts: ", this.aggregations);
-      let aggregations = {}
-      if (this.aggregations){
-        if (this.aggregations["caveType"]){
-          aggregations["caveType"] = getBuckets(this.aggregations["caveType"])
-        }
-        if (this.aggregations["district"]){
-          aggregations["district"] = getBuckets(this.aggregations["district"])
-        }
-        if (this.aggregations["region"]){
-          aggregations["region"] = getBuckets(this.aggregations["region"])
-        }
-        if (this.aggregations["site"]){
-          aggregations["site"] = getBuckets(this.aggregations["site"])
-        }
-      }
-      return aggregations
-    },
-    icoFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["iconography"])
-      }
-      console.log("aggregations icoFacetts: ", aggregations);
-      return aggregations
-    },
-    locationFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["location"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
-      return aggregations
-    },
-    textFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["text"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
-      return aggregations
-    },
-    wallLocationFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["wallLocation"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
-      return aggregations
-    },
+
     resultsTitle(){
       if (this.loading){
         return "Loading, please wait!"
@@ -147,65 +64,11 @@ export default {
     }
   },
   methods: {
-    onTextSearchInput(value) {
-      this.textSearch = value.search
-      // this.buildTextAggs(value.aggs)
-      this.initiateFacets()
-    },
-
-    changedCaveInput(value){
-      console.log("new changed Cave Value:", value);
-      this.caveSearchObjects = value.search
-      this.buildCaveAggs(value.aggs)
-      this.initiateFacets()
-      console.log("built aggs:", this.aggsObject);
-    },
     changedIcoInput(value){
       console.log("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
       this.initiateFacets()
-    },
-    changedLocationInput(value){
-      console.log("new changed location Value:", value);
-      this.locationSearchObjects = value.search
-      buildAgg(value.aggs, "location", this.aggsObject)
-      this.initiateFacets()
-    },
-    changedWallInput(value){
-      console.log("new changed wall Value:", value);
-      this.wallSearchObjects = value.search
-      this.aggsObject["wallLocation"] = value.aggs
-      this.initiateFacets()
-    },
-    buildCaveAggs(aggInfo){
-      delete this.aggsObject.caveType
-      delete this.aggsObject.site
-      delete this.aggsObject.district
-      delete this.aggsObject.region
-      for (let prop in aggInfo){
-        this.aggsObject[prop] = {}
-        if (aggInfo[prop].ids){
-          this.aggsObject[prop]['filter'] = {
-          }
-          this.aggsObject[prop].filter[prop] = {
-            "filter": {
-              "terms" : {
-              }
-            }
-          }
-          this.aggsObject[prop].filter[prop].filter.terms[aggInfo[prop].field] = aggInfo[prop].ids
-        }
-        this.aggsObject[prop]['agg'] = {
-        }
-        this.aggsObject[prop].agg[prop] = {
-          "terms" : {
-            "size": 10000
-          }
-        }
-        this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
-      }
-      console.log("built aggsObject", this.aggsObject);
     },
     buildQueries(){
       let queries = {
@@ -268,7 +131,7 @@ export default {
       }
       let depictionmust = {}
       depictionmust["exists"] = {}
-      depictionmust.exists["field"] = "depictionID"
+      depictionmust.exists["field"] = "iconographyID"
       searchObject.query.bool.must.push(depictionmust)
       let queries = this.buildQueries()
       for (let query of queries.must){
@@ -315,33 +178,14 @@ export default {
       return null
     },
     initiateFacets(){
-      let aggregations = {"aggs" : {}}
-      for (let aggProp in this.aggsObject){
-        console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
-        let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
-        for (let filterProp in this.aggsObject){
-          if (filterProp !== aggProp){
-            if (this.aggsObject[filterProp].filter){
-              let filter = JSON.parse(JSON.stringify(this.aggsObject[filterProp].filter))
-              if (filterProp === "iconography" || filterProp === "wallLocation"){
-                agg = this.appendFilterToAgg(agg, filter, "reverse_nested")
-              } else {
-                agg = this.appendFilterToAgg(agg, filter, "filter")
-              }
-            }
-          }
-        }
-        for (let finalAggProp in agg){
-          aggregations.aggs[aggProp] = agg[finalAggProp]
-        }
-      }
+      let aggregations = {}
       aggregations["size"] = 0
       aggregations["query"] = {
         "bool": {
           "must": [
             {
               "exists": {
-                "field": "depictionID"
+                "field": "iconographyID"
               }
             }
           ]
@@ -389,18 +233,9 @@ export default {
   mounted:function () {
     console.log("started Depiction filter");
 
-    let locationRes = this.$refs.locationSearch.prepSearch();
-    this.locationSearchObjects = locationRes.search
-    buildAgg(locationRes.aggs, "location", this.aggsObject)
-    let caveRes = this.$refs.caveSearch.prepSearch();
-    this.caveSearchObjects = caveRes.search
-    this.buildCaveAggs(caveRes.aggs)
     let icoRes = this.$refs.iconographySearch.prepSearch();
     this.icoSearchObjects = icoRes.search
     this.aggsObject["iconography"] = icoRes.aggs
-    let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
-    this.wallLocationSearch = wallLocationRes.search
-    this.aggsObject["wallLocation"] = wallLocationRes.aggs
     this.initiateFacets()
   },
   beforeUpdate:function () {

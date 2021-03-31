@@ -43,10 +43,6 @@ export default {
   },
   data () {
     return {
-      visible:true,
-      relatedDepictions:[],
-      loading: false,
-      textSearch:"",
       locations:[],
     }
   },

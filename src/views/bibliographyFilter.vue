@@ -3,7 +3,7 @@
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
-        Depiction Filter
+        Annotated Bibliogrpahy Filter
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-row align="start" dense style="flex-wrap: wrap;">
@@ -11,25 +11,27 @@
             <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" :aggregations="textFacets"></free-text-search>
           </v-col>
         </v-row>
-        <v-row align="start" dense style="flex-wrap: wrap;">
-          <v-col  style="min-width: 265px;">
+        <v-row>
+         <v-col  style="min-width: 265px;">
             <v-row>
               <v-col>
-                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets"></caveSearch>
+                <bibKeywordSearch ref="bibKeywordSearch" @clicked="changedBibKeywordInput" prefix="keywordList." :aggregations="bibKeywordFacets"></bibKeywordSearch>
               </v-col>
             </v-row>
+         </v-col>
+         <v-col  style="min-width: 265px;">
             <v-row>
               <v-col>
-                <locationSearch ref="locationSearch" @clicked="changedLocationInput" prefix="location." :aggregations="locationFacets"></locationSearch>
+                <checkBoxFilter
+                  ref="bibCheckBoxSearch"
+                  @clicked="changedBibCeckboxInput"
+                  :checkBoxData="getBibCheckBoxData"
+                  :aggregations="bibCheckBoxFacets"
+                  >
+                  </checkBoxFilter>
               </v-col>
             </v-row>
-          </v-col>
-          <v-col style="min-width: 200px;max-width: 265px;">
-            <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
-          </v-col>
-          <v-col  style="min-width: 300px;">
-            <iconographySearch ref="iconographySearch" mode="depiction" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
-          </v-col>
+         </v-col>
         </v-row>
         <v-row>
           <v-col>
@@ -39,99 +41,74 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedDepictions.length > 0" :title="resultsTitle" :items="relatedDepictions" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  <hideRelatedItems v-if="relatedBibliography.length > 0" :title="resultsTitle" :items="relatedBibliography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
 
 </div>
 
 </template>
 <script>
-import {postQuery} from '@/services/repository'
-import caveSearch from '@/components/caveSearch.vue'
-import locationSearch from '@/components/locationSearch.vue'
+import { postQuery } from '@/services/repository'
+import {TextSearchBibliography} from '@/utils/constants.js'
+
 import freeTextSearch from '@/components/freeTextSearch.vue'
-import iconographySearch from '@/components/iconographySearch.vue'
-import wallSearch from '@/components/wallSearch.vue'
+import bibKeywordSearch from '@/components/bibKeywordSearch.vue'
+import checkBoxFilter from '@/components/checkBoxFilter.vue'
 import {getBuckets, buildAgg} from  "@/utils/helpers"
-import {TextSearchDepiction} from '@/utils/constants.js'
 
 export default {
-  name: 'depictionFilter',
+  name: 'bibliographyFilter',
   components: {
-    wallSearch,
     freeTextSearch,
-    caveSearch,
-    iconographySearch,
-    locationSearch,
+    bibKeywordSearch,
+    checkBoxFilter
+
   },
   data () {
     return {
       panel: 0,
       aggregations:{},
       visible:[0],
-      relatedDepictions:[],
+      relatedBibliography:[],
       textSearch:"",
-      caveSearchObjects:null,
       aggsObject:{},
-      icoSearchObjects:null,
-      locationSearchObjects:null,
-      wallSearchObjects:null,
       resAmount:0,
       loading:false,
+      bibKeywordsSearchObjects:[],
+      bibCheckBoxSearchObjects:[]
     }
   },
   computed: {
     getTextSearchParams(){
-      return TextSearchDepiction
+      return TextSearchBibliography
     },
-    caveFacets(){
-      console.log("aggregations caveFacetts: ", this.aggregations);
+    getBibCheckBoxData(){
+      let bibCheckBoxData = {}
+      bibCheckBoxData["annotation"] = {
+        "path": "",
+        "label": "annotation"
+      }
+      bibCheckBoxData["unpublished"] = {
+        "path": "",
+        "label": "unpublished"
+      }
+      return bibCheckBoxData
+    },
+    bibKeywordFacets(){
+      let aggregations = []
+      if (this.aggregations){
+        aggregations = getBuckets(this.aggregations["keyword"])
+      }
+      console.log("aggregations bibKeywordsFacetts: ", aggregations);
+      return aggregations
+    },
+    bibCheckBoxFacets(){
       let aggregations = {}
       if (this.aggregations){
-        if (this.aggregations["caveType"]){
-          aggregations["caveType"] = getBuckets(this.aggregations["caveType"])
-        }
-        if (this.aggregations["district"]){
-          aggregations["district"] = getBuckets(this.aggregations["district"])
-        }
-        if (this.aggregations["region"]){
-          aggregations["region"] = getBuckets(this.aggregations["region"])
-        }
-        if (this.aggregations["site"]){
-          aggregations["site"] = getBuckets(this.aggregations["site"])
+        for (let checkBox in this.getBibCheckBoxData){
+          aggregations[checkBox] = getBuckets(this.aggregations[checkBox])
         }
       }
-      return aggregations
-    },
-    icoFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["iconography"])
-      }
-      console.log("aggregations icoFacetts: ", aggregations);
-      return aggregations
-    },
-    locationFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["location"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
-      return aggregations
-    },
-    textFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["text"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
-      return aggregations
-    },
-    wallLocationFacets(){
-      let aggregations = []
-      if (this.aggregations){
-        aggregations = getBuckets(this.aggregations["wallLocation"])
-      }
-      console.log("aggregations locationFacetts: ", aggregations);
+      console.log("aggregations bibKeywordsFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -152,31 +129,54 @@ export default {
       // this.buildTextAggs(value.aggs)
       this.initiateFacets()
     },
+    changedBibKeywordInput(value){
+      console.log("new changed keyword Value:", value);
+      this.bibKeywordsSearchObjects = value.search
+      this.aggsObject["keyword"] = value.aggs
+      this.initiateFacets()
+    },
+    changedBibCeckboxInput(value){
+      console.log("new changed checkbox Value:", value);
+      this.bibCheckBoxSearchObjects = value.search
+      buildAgg(value.aggs, Object.keys(value.aggs), this.aggsObject)
 
-    changedCaveInput(value){
-      console.log("new changed Cave Value:", value);
-      this.caveSearchObjects = value.search
-      this.buildCaveAggs(value.aggs)
-      this.initiateFacets()
-      console.log("built aggs:", this.aggsObject);
-    },
-    changedIcoInput(value){
-      console.log("new changed Ico Value:", value);
-      this.icoSearchObjects = value.search
-      this.aggsObject["iconography"] = value.aggs
       this.initiateFacets()
     },
-    changedLocationInput(value){
-      console.log("new changed location Value:", value);
-      this.locationSearchObjects = value.search
-      buildAgg(value.aggs, "location", this.aggsObject)
-      this.initiateFacets()
+    textFacets(){
+      let aggregations = []
+      if (this.aggregations){
+        aggregations = this.getBuckets(this.aggregations["text"])
+      }
+      console.log("aggregations locationFacetts: ", aggregations);
+      return aggregations
     },
-    changedWallInput(value){
-      console.log("new changed wall Value:", value);
-      this.wallSearchObjects = value.search
-      this.aggsObject["wallLocation"] = value.aggs
-      this.initiateFacets()
+
+
+
+    buildAgg(aggInfo, reference){
+      delete this.aggsObject[reference]
+      for (let prop in aggInfo){
+        this.aggsObject[prop] = {}
+        if (aggInfo[prop].ids){
+          this.aggsObject[prop]['filter'] = {
+          }
+          this.aggsObject[prop].filter[prop] = {
+            "filter": {
+              "terms" : {
+              }
+            }
+          }
+          this.aggsObject[prop].filter[prop].filter.terms[aggInfo[prop].field] = aggInfo[prop].ids
+        }
+        this.aggsObject[prop]['agg'] = {
+        }
+        this.aggsObject[prop].agg[prop] = {
+          "terms" : {
+            "size": 10000
+          }
+        }
+        this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
+      }
     },
     buildCaveAggs(aggInfo){
       delete this.aggsObject.caveType
@@ -221,31 +221,17 @@ export default {
           }
         }
       }
-      if ( this.caveSearchObjects){
-        if (this.caveSearchObjects.length > 0){
-          for (let caveSearchObject of this.caveSearchObjects){
-            queries.must.push(caveSearchObject)
+      if (this.bibKeywordsSearchObjects){
+        if (this.bibKeywordsSearchObjects.length > 0){
+          for (let bibKeywordsSearchObject of this.bibKeywordsSearchObjects){
+            queries.must.push(bibKeywordsSearchObject)
           }
         }
       }
-      if (this.locationSearchObjects){
-        if (this.locationSearchObjects.length > 0){
-          for (let locationSearchObject of this.locationSearchObjects){
-            queries.must.push(locationSearchObject)
-          }
-        }
-      }
-      if (this.wallSearchObjects){
-        if (this.wallSearchObjects.length > 0){
-          for (let wallLocationSearchObject of this.wallSearchObjects){
-            queries.must.push(wallLocationSearchObject)
-          }
-        }
-      }
-      if (this.icoSearchObjects){
-        if (this.icoSearchObjects.length > 0){
-          for (let icoSearchObject of this.icoSearchObjects){
-            queries.must.push(icoSearchObject)
+      if (this.bibCheckBoxSearchObjects){
+        if (this.bibCheckBoxSearchObjects.length > 0){
+          for (let bibCheckBoxSearchObject of this.bibCheckBoxSearchObjects){
+            queries.must.push(bibCheckBoxSearchObject)
           }
         }
       }
@@ -254,9 +240,8 @@ export default {
     },
     initiateSearch(amount){
       let searchObject = {}
-      this.relatedDepictions = []
+      this.relatedBibliography = []
       searchObject["size"] = amount
-      searchObject["sort"] = ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       searchObject["query"] = {}
       searchObject.query["bool"] = {}
       searchObject.query.bool["must"] = {}
@@ -266,10 +251,10 @@ export default {
           "should": []
         }
       }
-      let depictionmust = {}
-      depictionmust["exists"] = {}
-      depictionmust.exists["field"] = "depictionID"
-      searchObject.query.bool.must.push(depictionmust)
+      let bibliographymust = {}
+      bibliographymust["exists"] = {}
+      bibliographymust.exists["field"] = "annotatedBibliographyID"
+      searchObject.query.bool.must.push(bibliographymust)
       let queries = this.buildQueries()
       for (let query of queries.must){
         searchObject.query.bool.must.push(query)
@@ -291,7 +276,7 @@ export default {
             newDepictions.push(entry._source)
           }
           this.loading = false
-          this.relatedDepictions = newDepictions
+          this.relatedBibliography = newDepictions
         })
         .catch((error) => {
           console.log(error)
@@ -323,7 +308,7 @@ export default {
           if (filterProp !== aggProp){
             if (this.aggsObject[filterProp].filter){
               let filter = JSON.parse(JSON.stringify(this.aggsObject[filterProp].filter))
-              if (filterProp === "iconography" || filterProp === "wallLocation"){
+              if (filterProp === "keywords" || filterProp === "wallLocation"){
                 agg = this.appendFilterToAgg(agg, filter, "reverse_nested")
               } else {
                 agg = this.appendFilterToAgg(agg, filter, "filter")
@@ -341,7 +326,7 @@ export default {
           "must": [
             {
               "exists": {
-                "field": "depictionID"
+                "field": "annotatedBibliographyID"
               }
             }
           ]
@@ -358,13 +343,13 @@ export default {
       }
 
       for (let query of queries.must){
-        aggregations.post_filter.bool.must.push(query)
+        aggregations.query.bool.must.push(query)
       }
       for (let query of queries.should){
         shouldQuery.bool.should.push(query)
       }
       if (shouldQuery.bool.should.length > 0){
-        aggregations.post_filter.bool.must.push(shouldQuery)
+        aggregations.query.bool.must.push(shouldQuery)
       }
       postQuery(aggregations)
         .then( res => {
@@ -382,25 +367,18 @@ export default {
       console.log("updated caveTypes panel", newVal);
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on should", newVal);
+      console.log("updated aggregations on bibliographyFilter", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Depiction filter");
-
-    let locationRes = this.$refs.locationSearch.prepSearch();
-    this.locationSearchObjects = locationRes.search
-    buildAgg(locationRes.aggs, "location", this.aggsObject)
-    let caveRes = this.$refs.caveSearch.prepSearch();
-    this.caveSearchObjects = caveRes.search
-    this.buildCaveAggs(caveRes.aggs)
-    let icoRes = this.$refs.iconographySearch.prepSearch();
-    this.icoSearchObjects = icoRes.search
-    this.aggsObject["iconography"] = icoRes.aggs
-    let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
-    this.wallLocationSearch = wallLocationRes.search
-    this.aggsObject["wallLocation"] = wallLocationRes.aggs
+    console.log("started Bibliography filter");
+    let bibKeywordRes = this.$refs.bibKeywordSearch.prepSearch();
+    this.bibKeywordsSearchObjects = bibKeywordRes.search
+    this.aggsObject["keyword"] = bibKeywordRes.aggs
+    let bibCheckBoxRes = this.$refs.bibCheckBoxSearch.prepSearch();
+    this.bibCheckBoxSearchObjects = bibCheckBoxRes.search
+    buildAgg(bibCheckBoxRes.aggs, Object.keys(bibCheckBoxRes.aggs), this.aggsObject)
     this.initiateFacets()
   },
   beforeUpdate:function () {

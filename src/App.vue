@@ -52,11 +52,32 @@
             <template v-slot:activator>
               <v-list-item-title>Filter</v-list-item-title>
             </template>
+         <v-list-item to="/cave">
+            <v-list-item-icon>
+              <v-icon >mdi-alpha-c-circle-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Cave</v-list-item-title>
+
+          </v-list-item>
          <v-list-item to="/depiction">
             <v-list-item-icon>
               <v-icon >mdi-image-search</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Depiction</v-list-item-title>
+            <v-list-item-title>Painted Representation</v-list-item-title>
+
+          </v-list-item>
+         <v-list-item to="/bibliography">
+            <v-list-item-icon>
+              <v-icon >mdi-book-open-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Annotated Bibliography</v-list-item-title>
+
+          </v-list-item>
+         <v-list-item to="/iconography">
+            <v-list-item-icon>
+              <v-icon >mdi-map-marker-path</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Iconography</v-list-item-title>
 
           </v-list-item>
         </v-list-group>
@@ -108,7 +129,7 @@ export default {
       show: false,
       drawer: null,
       navigation: true,
-      mini: true,
+      mini: false,
       query: '',
       logo: logo,
       snackbar: {

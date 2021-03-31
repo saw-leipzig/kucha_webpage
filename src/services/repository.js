@@ -14,7 +14,7 @@ export function getDic() {
       "query": {
         "match_all" : {}
       },
-      "_source": ["location.*", "region.*", "districts.*", "ornaments.*", "iconography.*", "sites.*", "annotatedBibliography.*", "caveType.*", "wallLocation.*"]
+      "_source": ["bibKeyWords.*", "location.*", "region.*", "districts.*", "ornaments.*", "iconography.*", "sites.*", "caveType.*", "wallLocation.*"]
     }
   })
 }
@@ -89,7 +89,7 @@ export function postQuery(queryInput){
   })
 }
 
-function buildNestedQueries(mapping, path, queryWord){
+export function buildNestedQueries(mapping, path, queryWord){
   let results = []
   for ( var obj in mapping){
     if (mapping[obj].type === "nested"){
@@ -104,6 +104,7 @@ function buildNestedQueries(mapping, path, queryWord){
           "path": objPath,
           "query":{
             "query_string": {
+              "lenient": true,
               "query": queryWord
             }
           }

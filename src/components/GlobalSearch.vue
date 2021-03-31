@@ -83,7 +83,6 @@ import { CancelToken } from "@/utils/httpClient";
 import { createFrontendLink } from  "@/utils/urlHelper"
 import {getCaveLabel, getBibTitle, getWallLabels} from  "@/utils/helpers"
 import { searchRoot } from '@/services/repository'
-import { portalTypesPub, portalTypesSources } from "@/utils/constants"
 import Legend from '@/components/Legend'
 
 export default {
@@ -192,9 +191,6 @@ export default {
       set: function (newValue){
         this.$store.commit("setSearchText", newValue)
       }
-    },
-    allowedPortalTypes() {
-      return ['person', 'location', 'organizational_unit', 'project', 'historic_event'].concat(portalTypesPub, portalTypesSources)
     },
     b_size() {
       return this.$vuetify.breakpoint.smAndUp ? 10 : 4
