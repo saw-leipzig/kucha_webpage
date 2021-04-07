@@ -300,6 +300,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.relatedBibliography = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
         console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);

@@ -15,7 +15,7 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedDepictions.length > 0" :title="resultsTitle" :items="relatedDepictions" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  <hideRelatedItems v-if="relatedIconography.length > 0" :title="resultsTitle" :items="relatedIconography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
 
 </div>
 
@@ -35,7 +35,7 @@ export default {
       panel: 0,
       aggregations:{},
       visible:[0],
-      relatedDepictions:[],
+      relatedIconography:[],
       textSearch:"",
       caveSearchObjects:null,
       aggsObject:{},
@@ -117,7 +117,7 @@ export default {
     },
     initiateSearch(amount){
       let searchObject = {}
-      this.relatedDepictions = []
+      this.relatedIconography = []
       searchObject["size"] = amount
       searchObject["sort"] = ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       searchObject["query"] = {}
@@ -154,7 +154,7 @@ export default {
             newDepictions.push(entry._source)
           }
           this.loading = false
-          this.relatedDepictions = newDepictions
+          this.relatedIconography = newDepictions
         })
         .catch((error) => {
           console.log(error)
@@ -178,6 +178,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.relatedIconography = []
       let aggregations = {}
       aggregations["size"] = 0
       aggregations["query"] = {

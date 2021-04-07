@@ -46,15 +46,16 @@
           </v-list-item-title>
         </v-list-item>
         <v-list-group
+            sub-group
             :value="true"
             prepend-icon="mdi-filter"
           >
             <template v-slot:activator>
-              <v-list-item-title>Filter</v-list-item-title>
+              <v-list-item-title class="text-wrap" >Advanced Search</v-list-item-title>
             </template>
          <v-list-item to="/cave">
             <v-list-item-icon>
-              <v-icon >mdi-alpha-c-circle-outline</v-icon>
+              <v-icon >mdi-image-filter-hdr</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Cave</v-list-item-title>
 
@@ -77,7 +78,7 @@
             <v-list-item-icon>
               <v-icon >mdi-map-marker-path</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Iconography</v-list-item-title>
+            <v-list-item-title class="text-wrap" v-html="'Pictorial Elements/ Iconography'" ></v-list-item-title>
 
           </v-list-item>
         </v-list-group>
@@ -157,7 +158,7 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="css">
 
 .v-tab {
   padding: 8px;
@@ -177,5 +178,9 @@ export default {
 .v-treeview--dense .v-treeview-node__root
 {
   min-height: 10px;
+}
+.v-application--is-ltr .v-list-group--sub-group .v-list-group__header
+{
+  padding-left: 16px;
 }
 </style>

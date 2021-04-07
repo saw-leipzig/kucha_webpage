@@ -28,7 +28,7 @@
             <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
           </v-col>
           <v-col  style="min-width: 300px;">
-            <iconographySearch ref="iconographySearch" mode="depiction" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
+            <iconographySearch ref="iconographySearch" mode="depiction" :preSelected="selectedIcos" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
           </v-col>
         </v-row>
         <v-row>
@@ -80,6 +80,14 @@ export default {
     }
   },
   computed: {
+    selectedIcos(){
+      if (this.$route.query.iconography){
+        console.log("hello", this.$route.query.iconography);
+        return this.$route.query.iconography
+      } else {
+        return null
+      }
+    },
     getTextSearchParams(){
       return TextSearchDepiction
     },
@@ -315,6 +323,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.relatedDepictions = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
         console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
@@ -387,7 +396,7 @@ export default {
 
   },
   mounted:function () {
-    console.log("started Depiction filter");
+    console.log("started Depiction filter", this.$route);
 
     let locationRes = this.$refs.locationSearch.prepSearch();
     this.locationSearchObjects = locationRes.search

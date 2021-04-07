@@ -21,7 +21,8 @@ export default new Router({
     {
       path: '/depiction/',
       name: 'depictionFilter',
-      component: () => import('@/views/depictionFilter')
+      component: () => import('@/views/depictionFilter'),
+      props: true
     },
     {
       path: '/iconography/',

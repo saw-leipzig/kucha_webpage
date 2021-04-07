@@ -4,11 +4,15 @@ import axios from 'axios'
 
 
 // api calls
-
+const auth = {
+  username: "read_only_user",
+  password: "kaligram"
+}
 export function getDic() {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_dic/_search',
     method: 'post',
+    auth: auth,
     data: {
       "size" : 10000,
       "query": {
@@ -22,6 +26,7 @@ export function getKuchaMapping() {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_mapping',
     method: 'get',
+    auth: auth,
     data: {
     }
   })
@@ -30,6 +35,7 @@ export function getDepictionStats() {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: {
       "size":0,
       "aggs": {
@@ -61,6 +67,7 @@ export function getBibStats() {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: {
       "size":0,
       "aggs": {
@@ -85,6 +92,7 @@ export function postQuery(queryInput){
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: queryInput
   })
 }
@@ -151,6 +159,7 @@ export function searchRoot(params, source) {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: searchQuery
   })
 }
@@ -158,6 +167,7 @@ export function getItemById(params) {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: {
       'query': {
         'multi_match': {
@@ -173,6 +183,7 @@ export function getDepictionByAnnotation(params) {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: {
       "size": 2000,
       "query": {
@@ -197,6 +208,7 @@ export function getDepictionByBibliography(params) {
   return axios({
     url: 'http://127.0.0.1:9200/kucha_deep/_search',
     method: 'post',
+    auth: auth,
     data: {
       "size": 2000,
       "query": {

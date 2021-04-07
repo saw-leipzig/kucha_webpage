@@ -106,7 +106,7 @@ export default {
   },
   computed: {
     textFields(){
-      return Object.keys(this.textSearchParam)
+      return Object.keys(this.textSearchParam).sort()
     }
   },
   methods: {

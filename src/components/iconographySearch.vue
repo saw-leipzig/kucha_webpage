@@ -31,6 +31,7 @@ export default {
   props: {
     prefix:"",
     aggregations:{},
+    preSelected:null,
     mode:{
       default: "depiction",
       type: String
@@ -75,6 +76,41 @@ export default {
     },
   },
   methods: {
+    getPreSelectedByName(){
+      let selected = []
+      let names = []
+      if (this.preSelected){
+        if (Array.isArray(this.preSelected)){
+          names = this.preSelected
+        } else {
+          names = [this.preSelected]
+        }
+      }
+      for (const name of names){
+        for (const ico of this.iconography){
+          selected = selected.concat(this.getIcosByName(ico, name, false))
+        }
+      }
+      this.iconographySelected = selected
+    },
+    getIcosByName(ico, name, found){
+      let selected = []
+      if (ico.name === name){
+        found = true
+      }
+      if (found){
+        selected.push(ico)
+      }
+      if (ico.children){
+        if (ico.children.length > 0){
+          for (const child of ico.children) {
+            selected = selected.concat(this.getIcosByName(child, name, found))
+          }
+        }
+      }
+      return selected
+
+    },
     initiateIco(){
       this.iconography = []
       let icos = JSON.parse(JSON.stringify(this.$store.state.dic.iconography));
@@ -251,6 +287,9 @@ export default {
     },
   },
   watch: {
+    'preSelected': function(oldVal, newVal){
+      this.getPreSelectedByName()
+    },
     'iconographySelected': function(newVal, oldVal) {
       console.log("iconographySelected Updated", newVal);
       this.selected = []
@@ -273,7 +312,9 @@ export default {
 
   },
   mounted:function () {
+    console.log("preSelected:", this.preSelected);
     this.initiateIco()
+    this.getPreSelectedByName()
   },
   beforeUpdate:function () {
   }

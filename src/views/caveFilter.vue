@@ -295,6 +295,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.relatedCaves = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
         console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);

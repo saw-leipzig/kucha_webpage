@@ -6,7 +6,7 @@
       <v-col cols="10" sm="4" md="4" xl="3" v-for="(stats, index) in annoStatsDetailsApex" :key="index">
         <v-card class="statistic-card text-center" >
           <v-card-text>
-              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '300px' : ''" type="donut" :options="stats.chartOptions" :series="stats.series"></apexchart>
+              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '300px' : ''" type="donut" :options="stats.chartOptions" :series="stats.series" @dataPointSelection="stats.jumpTo" ></apexchart>
           </v-card-text>
         </v-card>
       </v-col>
@@ -36,6 +36,30 @@ export default {
     }
   },
   methods: {
+    pushToFilteredDepictions(event, chartContext, config) {
+      console.log("Chosen depiction");
+      console.log("chartContext", chartContext);
+      console.log("config", config.w.config.labels[config.dataPointIndex]);
+      console.log("chosen", config.dataPointIndex);
+      this.$router.push({name: 'depictionFilter'})
+    },
+    pushToFilteredBibs(event, chartContext, config) {
+      console.log("Chosen Bib");
+      console.log("chartContext", chartContext);
+      console.log("config", config.w.config.labels[config.dataPointIndex]);
+      console.log("chosen", config.dataPointIndex);
+      this.$router.push({name: 'bibliographyFilter'})
+    },
+    pushToFilteredAnnos(event, chartContext, config) {
+      console.log("Chosen Anno");
+      console.log("chartContext", chartContext);
+      console.log("config", config.w.config.labels[config.dataPointIndex]);
+      console.log("chosen", config.dataPointIndex);
+      this.$router.push({name: 'depictionFilter',
+        query:{
+          "iconography": [config.w.config.labels[config.dataPointIndex]]
+        }})
+    },
     getChartOptions() {
       return  {
         stroke: {
@@ -113,7 +137,7 @@ export default {
       if (Object.keys(this.kuchaStats).length > 0) {
         console.log(" anno is, kuchaStats: ", this.kuchaStats);
         data.series = [this.kuchaStats[1], this.kuchaStats[2], this.kuchaStats[3]]
-        data.chartOptions.labels = ["Iconography", "Pictorial Elemtents", "Ornaments"]
+        data.chartOptions.labels = ["Iconography", "Pictorial Elements", "Decoration & Ornaments"]
       }
       console.log("data for Stats: ", data);
 
@@ -131,10 +155,11 @@ export default {
       }
       if (Object.keys(this.annoStats).length > 0) {
         stats.series = [this.annoStats["1"], this.annoStats["2"], this.annoStats["3"]]
-        stats.chartOptions.labels = ["Iconography", "Pictorial Elemtents", "Ornaments"]
+        stats.chartOptions.labels = ["Iconography", "Pictorial Elements", "Decoration & Ornaments"]
       }
       stats.chartOptions.plotOptions.pie.donut.labels.total.label = "Annotations"
       stats.chartOptions.colors = ['#99C784', '#3f888f', '#ff9999', '#ff9999']
+      stats["jumpTo"] = this.pushToFilteredAnnos
       allStats.push(stats)
       let statsDepiction = {
         series: [],
@@ -153,6 +178,7 @@ export default {
       }
       statsDepiction.chartOptions.plotOptions.pie.donut.labels.total.label = "Painted Representations"
       statsDepiction.chartOptions.colors = ['#99C784', '#3f888f', '#ff9999', '#ffb90f', "#6495ed"]
+      statsDepiction["jumpTo"] = this.pushToFilteredDepictions
       allStats.push(statsDepiction)
       let statsbib = {
         series: [],
@@ -175,8 +201,7 @@ export default {
       }
       statsbib.chartOptions.plotOptions.pie.donut.labels.total.label = "Bibliography"
       statsbib.chartOptions.colors = ['#99C784', '#3f888f', '#ff9999', '#ffb90f', "#6495ed"]
-      console.log("statsbib: ", statsbib);
-
+      statsbib["jumpTo"] = this.pushToFilteredBibs
       allStats.push(statsbib)
       return allStats
     },

@@ -595,9 +595,9 @@ export default {
       var elm = document.createElement("dl");
       elm.id = "html-overlay"
       var titleHd = document.createElement("dt");
-      titleHd.innerHTML = "Title:"
+      titleHd.innerHTML = "Image ID:"
       var title = document.createElement("dd");
-      title.innerHTML = this.image.title
+      title.innerHTML = this.image.imageID
       var copyrightHd = document.createElement("dt");
       copyrightHd.innerHTML = "Copyright:"
       var copyright = document.createElement("dd");
