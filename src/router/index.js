@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import store from '../store'
 
 Vue.use(Router)
 
-export default new Router({
-
+const router =  new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -17,6 +18,11 @@ export default new Router({
       name: 'depiction',
       component: () => import('@/views/depiction'),
       props: true
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/login'),
     },
     {
       path: '/depiction/',
@@ -60,3 +66,18 @@ export default new Router({
     },
   ]
 })
+router.beforeEach((to, from, next) => {
+  console.log(store.getters.getAuthenticated);
+  if (store.getters.getAuthenticated){
+    next()
+  } else {
+    if (to.name !== 'login') {
+      next({
+        name: "login"
+      })
+    } else {
+      next()
+    }
+  }
+})
+export default router

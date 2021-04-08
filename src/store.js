@@ -9,6 +9,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
+    authenticated: false,
     result: 0,
     results: {},
     dic: {},
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     disableSearch:true,
   },
   mutations: {
+    setAuthenticated (state, id) {
+      state.authenticated = id
+    },
     setResult (state, id) {
       state.result = id
     },
@@ -45,6 +49,9 @@ export default new Vuex.Store({
     }
   },
   getters:{
+    getAuthenticated : state => {
+      return state.authenticated
+    },
     getSearchText : state => {
       return state.searchText
     },
