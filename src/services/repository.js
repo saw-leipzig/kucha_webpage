@@ -1,5 +1,6 @@
 import axios from 'axios'
 // helpers
+var config = require("./config.json");
 
 
 
@@ -10,7 +11,7 @@ const auth = {
 }
 export function getDic() {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_dic/_search',
+    url: config.url + 'kucha_dic/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -24,7 +25,7 @@ export function getDic() {
 }
 export function getKuchaMapping() {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_mapping',
+    url: config.url + 'kucha_deep/_mapping',
     method: 'get',
     auth: auth,
     data: {
@@ -33,7 +34,7 @@ export function getKuchaMapping() {
 }
 export function getDepictionStats() {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -65,7 +66,7 @@ export function getDepictionStats() {
 }
 export function getBibStats() {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -90,7 +91,7 @@ export function getBibStats() {
 }
 export function postQuery(queryInput){
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: queryInput
@@ -157,7 +158,7 @@ export function searchRoot(params, source) {
   }
   console.log("searchQuery", searchQuery);
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: searchQuery
@@ -165,7 +166,7 @@ export function searchRoot(params, source) {
 }
 export function getItemById(params) {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -181,7 +182,7 @@ export function getItemById(params) {
 export function getDepictionByAnnotation(params) {
   console.log("params", params);
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -206,7 +207,7 @@ export function getDepictionByAnnotation(params) {
 }
 export function getDepictionByBibliography(params) {
   return axios({
-    url: 'http://127.0.0.1:9200/kucha_deep/_search',
+    url: config.url + 'kucha_deep/_search',
     method: 'post',
     auth: auth,
     data: {
