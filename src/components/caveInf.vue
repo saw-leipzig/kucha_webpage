@@ -46,6 +46,7 @@
 
 <script>
 import {getCaveLabel, getSiteLabel, getRegionLabel, getDistrictLabel} from  "@/utils/helpers"
+var config = require("../services/config.json");
 export default {
 
   name: 'caveInf',
@@ -199,7 +200,7 @@ export default {
       this.caveScatches = []
       if (this.cave.caveSketchListcaveSketchList){
         for (let item of this.cave.caveSketchList){
-          var res = "http://127.0.0.1:8182/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
+          var res = config.imgUrl + "/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
           this.caveScatches.push(res)
         }
       }

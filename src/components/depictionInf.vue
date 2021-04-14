@@ -264,6 +264,7 @@ import {getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helper
 import * as d3 from "d3";
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
 import Annotorious from '../../static/openseadragon/openseadragon-annotorious.min.js'
+var config = require("../services/config.json");
 
 export default {
 
@@ -567,18 +568,18 @@ export default {
       console.log("annoSelected: ", this.annoSelected);
     },
     getThumbnail(image){
-      return "http://127.0.0.1:8182/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
     getOSDURLs(images){
       let tiles = []
       for (let ie of images) {
-        tiles.push("http://127.0.0.1:8182/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
+        tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
       }
       return tiles
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push("http://127.0.0.1:8182/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     mouseOver: function(){

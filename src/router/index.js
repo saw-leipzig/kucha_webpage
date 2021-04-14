@@ -14,15 +14,15 @@ const router =  new Router({
       component: Home
     },
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/login'),
+    },
+    {
       path: '/depiction/:id',
       name: 'depiction',
       component: () => import('@/views/depiction'),
       props: true
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/login'),
     },
     {
       path: '/depiction/',

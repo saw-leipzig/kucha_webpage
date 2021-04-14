@@ -105,8 +105,10 @@
 </template>
 
 <script>
+
 import {getBibTitle} from  "@/utils/helpers"
 import OpenSeadragon from "../../static/openseadragon/openseadragon.min.js"
+var config = require("../services/config.json");
 export default {
   name: 'bibliographyInf',
   props: {
@@ -165,7 +167,7 @@ export default {
   methods: {
     initOSDAnno(){
       if (this.bibliography.annotation){
-        let tile = "http://127.0.0.1:8182/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
+        let tile = config.imgUrl + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
         let tilesImg = []
         tilesImg.push(tile)
         console.log("images available, initiate OSDAnno");

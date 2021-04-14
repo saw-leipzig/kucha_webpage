@@ -128,6 +128,8 @@
 <script>
 import { getDepictionByAnnotation } from '@/services/repository'
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
+var config = require("../services/config.json");
+
 export default {
 
   name: 'iconographyInf',
@@ -261,7 +263,7 @@ export default {
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push("http://127.0.0.1:8182/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     initNewIconography(){
@@ -344,7 +346,7 @@ export default {
       return null
     },
     getThumbnail(image){
-      return "http://127.0.0.1:8182/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
   },
   mounted:function () {

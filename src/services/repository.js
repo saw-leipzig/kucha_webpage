@@ -7,7 +7,7 @@ var config = require("./config.json");
 // api calls
 const auth = {
   username: "read_only_user",
-  password: "kaligram"
+  password: "kuchaReadOnly"
 }
 export function getDic() {
   return axios({
