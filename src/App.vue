@@ -8,7 +8,8 @@
           clipped-left
         >
           <v-app-bar-nav-icon @click.stop="navigation = !navigation"></v-app-bar-nav-icon>
-          <v-toolbar-title>Kucha Information System</v-toolbar-title>
+          <v-img src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
+          <div class="logo" v-html="logo" style="position: absolute;right: 10px;"></div>
           <v-spacer></v-spacer>
         </v-app-bar>
         <v-navigation-drawer
@@ -114,14 +115,32 @@
             <router-view></router-view>
          </keep-alive>
     </v-main>
+    <v-footer
+      class="flex-column-reverse flex-sm-row flex-lg-row"
+      :app="$vuetify.breakpoint.mdAndUp"
 
+    >
+      <v-row
+        justify="center"
+        no-gutters
+      >
+        <v-col
+          cols="12"
+          sm="6"
+          md="4"
+        >
+          <div v-html="logoSmwk" class="logoSMWK" content position="center"></div>
+        </v-col>
+
+      </v-row>
+    </v-footer>
   </v-app>
 
 </template>
 
 <script>
 
-import {logo} from '@/utils/constants'
+import {logo, logoSmwk} from '@/utils/constants'
 
 
 export default {
@@ -134,6 +153,7 @@ export default {
       mini: false,
       query: '',
       logo: logo,
+      logoSmwk: logoSmwk,
       snackbar: {
         show: false,
         text:'test',

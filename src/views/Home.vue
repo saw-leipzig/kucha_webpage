@@ -1,5 +1,6 @@
 <template>
 <div>
+  <v-img src="@/assets/kucha_logo_homepage.png"></v-img>
   <search/>
   <v-container>
     <v-row class="justify-center">

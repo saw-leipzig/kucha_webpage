@@ -18,6 +18,7 @@ export default new Vuex.Store({
     totalRes:0,
     searchPack:0,
     disableSearch:true,
+    packageVersion: "© 2021 v 1.2.9"
   },
   mutations: {
     setAuthenticated (state, id) {
@@ -49,6 +50,9 @@ export default new Vuex.Store({
     }
   },
   getters:{
+    appVersion: (state) => {
+      return state.packageVersion
+    },
     getAuthenticated : state => {
       return state.authenticated
     },
