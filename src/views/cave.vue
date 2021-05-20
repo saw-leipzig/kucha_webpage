@@ -1,8 +1,6 @@
 <template>
 <div>
     <caveInf v-if=cave :cave="cave"></caveInf>
-    <hideRelatedItems title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
-    <hideRelatedItems title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
 </div>
 </template>
 <script>
@@ -20,7 +18,6 @@ export default {
   data () {
     return {
       cave: {},
-      relatedDepictions:[],
       showRelatedItems:false
     }
   },
@@ -48,7 +45,6 @@ export default {
       return null
     },
     getCave(){
-      this.getRelatedDepictions()
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.caveID === parseInt(this.$route.params.id))
         console.log("res after finding in results:", res);
@@ -61,22 +57,6 @@ export default {
       } else {
         this.getNewItem()
       }
-    },
-    getRelatedDepictions(){
-      var params = {}
-      params['type'] = "cave.caveID"
-      params['id'] = this.$route.params.id
-      getItemById(params)
-        .then( res => {
-          let results = []
-          for (let result of res.data.hits.hits){
-            results.push(result._source)
-          }
-          console.log("relatedDepictions", results)
-          this.relatedDepictions = results
-        }).catch(function (error) {
-          console.log(error)
-        })
     },
   },
   watch: {

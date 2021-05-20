@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;">
       <v-card-title > Information for Annotated Bibliography Entry {{bibliography.annotatedBibliographyID}} </v-card-title>
       <v-card-subtitle v-html="getBibTitle(bibliography)"> </v-card-subtitle>
 
@@ -101,6 +101,10 @@
           </v-card-text>
         </div>
       </v-expand-transition>
+      <div v-if="relatedDepictions">
+        <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+      </div>
+
     </v-card>
 </template>
 
@@ -112,7 +116,8 @@ var config = require("../services/config.json");
 export default {
   name: 'bibliographyInf',
   props: {
-    bibliography: {}
+    bibliography: {},
+    relatedDepictions:[],
   },
 
   components: {

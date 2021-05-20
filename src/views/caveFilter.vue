@@ -1,5 +1,5 @@
 <template>
-<div>
+<div  style="opacity:0.85">
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
@@ -28,8 +28,9 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedCaves.length > 0" :title="resultsTitle" :items="relatedCaves" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
-
+  <v-card v-if="relatedCaves.length > 0">
+    <hideRelatedItems :title="resultsTitle" :items="relatedCaves" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  </v-card>
 </div>
 
 </template>
@@ -379,4 +380,5 @@ export default {
 </script>
 
 <style lang = "css" >
+
 </style>

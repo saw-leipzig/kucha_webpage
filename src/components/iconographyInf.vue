@@ -1,5 +1,5 @@
 <template>
-    <v-card v-if="idealTypical">
+    <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;" v-if="idealTypical">
       <v-card-title > Information for Iconography Entry {{iconography.iconographyID}} </v-card-title>
       <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
       <v-treeview

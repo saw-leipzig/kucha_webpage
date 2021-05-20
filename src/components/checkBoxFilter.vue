@@ -57,10 +57,9 @@ export default {
           let findEl = Object.keys(this.aggregations).find(el => el === item.label)
           if (findEl !== undefined){
             if (this.aggregations[findEl] !== null){
-              if (this.aggregations[findEl][1] !== null){
-                if (this.aggregations[findEl][1]){
-                  return this.aggregations[findEl][1].doc_count
-                }
+              let findElCeck = this.aggregations[findEl].find(el => el.key === 1)
+              if (findElCeck !== undefined){
+                return findElCeck.doc_count
               }
             }
           }

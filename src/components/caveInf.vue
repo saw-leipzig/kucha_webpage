@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card raised width="98%" style="margin: auto;top: 20px;button:20px;padding-bottom: 15px;">
       <v-card-title>Information for cave {{getCaveLabel(cave)}} </v-card-title>
 
       <v-tabs
@@ -37,8 +37,10 @@
             </v-row>
           </v-col>
       </v-row>
-        </v-card>
+    </v-card>
 
+    <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+    <hideRelatedItems v-if="cave.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
 
 </v-card>
 
@@ -46,6 +48,8 @@
 
 <script>
 import {getCaveLabel, getSiteLabel, getRegionLabel, getDistrictLabel} from  "@/utils/helpers"
+import { getItemById } from '@/services/repository'
+
 var config = require("../services/config.json");
 export default {
 
@@ -61,6 +65,7 @@ export default {
     return {
       show: false,
       tab:[],
+      relatedDepictions:[],
       caveScatches:[]
     }
   },
@@ -192,6 +197,22 @@ export default {
     }
   },
   methods: {
+    getRelatedDepictions(){
+      var params = {}
+      params['type'] = "cave.caveID"
+      params['id'] = this.$route.params.id
+      getItemById(params)
+        .then( res => {
+          let results = []
+          for (let result of res.data.hits.hits){
+            results.push(result._source)
+          }
+          console.log("relatedDepictions", results)
+          this.relatedDepictions = results
+        }).catch(function (error) {
+          console.log(error)
+        })
+    },
     getCaveWidth(){
       console.log("window.innerWidth", window.innerWidth);
       return parseInt((window.innerWidth / 2) - 70)
@@ -224,6 +245,8 @@ export default {
   },
   mounted:function () {
     this.getCaveRes()
+    this.getRelatedDepictions()
+
   }
 
 }

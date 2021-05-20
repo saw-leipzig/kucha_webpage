@@ -1,32 +1,43 @@
 <template>
-<div>
-  <v-img src="@/assets/kucha_logo_homepage.png"></v-img>
-  <search/>
-  <v-container>
-    <v-row class="justify-center">
+<div style="height:100%;opacity:1;">
+<v-card style="height:100%" color="transparent">
+  <v-container fluid style="opacity:0.85">
+    <v-row class="justify-center" >
+      <v-col style="height:200px">
+      </v-col>
+    </v-row>
+    <v-row class="justify-center" align="center" >
+      <v-col align-self=centerc>
+      <div :absolute=true >
+        <va-global-search :xlarge="true"></va-global-search>
+      </div>
+      </v-col>
+
+
+    </v-row>
+    <v-row class="justify-center" >
       <v-col cols="10" sm="4" md="4" xl="3" v-for="(stats, index) in annoStatsDetailsApex" :key="index">
-        <v-card class="statistic-card text-center" >
           <v-card-text>
-              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '300px' : ''" type="donut" :options="stats.chartOptions" :series="stats.series" @dataPointSelection="stats.jumpTo" ></apexchart>
+              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '300px' : ''" type="donut" :options="stats.chartOptions" :series="stats.series" @dataPointSelection="stats.jumpTo"  style="opacity:0.9"></apexchart>
           </v-card-text>
-        </v-card>
       </v-col>
     </v-row>
 
 
   </v-container>
+</v-card>
 </div>
 </template>
 
 <script>
-import Search from '@/components/Search'
 import { getDepictionStats, getBibStats } from '@/services/repository'
 import VueApexCharts from 'vue-apexcharts'
+import GlobalSearch  from '@/components/GlobalSearch';
 
 export default {
   name: 'Home',
   components: {
-    Search,
+    'va-global-search': GlobalSearch,
     'apexchart': VueApexCharts
   },
   data(){
@@ -72,6 +83,7 @@ export default {
           enabled: false
         },
         dataLabels: {
+          position: 'bottom',
           enabled: false,
           enabledOnSeries: undefined,
           formatter: function (val) {
@@ -85,7 +97,7 @@ export default {
       let color = this.$vuetify.theme.dark ? '#FFF' : '#000'
       let fontSizeText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? '12px' : '16px'
       let fontSizeValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? '24px' : '42px'
-      let offsetText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? -10 : -15
+      let offsetText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 90 : 9
       let offsetValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 0 : 10
       return {
         pie: {
@@ -244,6 +256,9 @@ export default {
 
 .statistic-card {
   height: 100%;
+}
+.v-sheet.v-card {
+  opacity: 0.85;
 }
 
 

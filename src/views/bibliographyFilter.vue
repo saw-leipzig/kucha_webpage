@@ -41,8 +41,9 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedBibliography.length > 0" :title="resultsTitle" :items="relatedBibliography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
-
+  <v-card v-if="relatedBibliography.length > 0">
+    <hideRelatedItems v-if="relatedBibliography.length > 0" :title="resultsTitle" :items="relatedBibliography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  </v-card>
 </div>
 
 </template>
@@ -389,4 +390,5 @@ export default {
 </script>
 
 <style lang = "css" >
+
 </style>

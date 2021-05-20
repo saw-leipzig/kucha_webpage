@@ -15,8 +15,9 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
-  <hideRelatedItems v-if="relatedIconography.length > 0" :title="resultsTitle" :items="relatedIconography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
-
+  <v-card v-if="relatedIconography.length > 0">
+    <hideRelatedItems v-if="relatedIconography.length > 0" :title="resultsTitle" :items="relatedIconography" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+  </v-card>
 </div>
 
 </template>

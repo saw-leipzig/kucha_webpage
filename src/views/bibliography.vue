@@ -1,7 +1,6 @@
 <template>
   <div>
-    <bibliographyInf v-if=bibliography :bibliography="bibliography"></bibliographyInf>
-    <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+    <bibliographyInf v-if=bibliography :bibliography="bibliography" :relatedDepictions="relatedDepictions"></bibliographyInf>
   </div>
 </template>
 <script>
@@ -44,13 +43,14 @@ export default {
         })
     },
     getBibliography(){
+      console.log("initiate getting bibEntry");
       this.getRelatedDepictions()
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
         console.log("res after finding in results:", res);
         if (res !== undefined){
           console.log("reutrning stored result");
-          return res._source
+          this.bibliography = res._source
         } else {
           this.getNewBibliography()
         }

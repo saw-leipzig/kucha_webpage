@@ -1,6 +1,6 @@
 <template>
 
-    <div>
+    <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;">
 
       <v-card-title>{{getDepictionLabel()}} </v-card-title>
       <v-card-actions v-if="annos.length>0">
@@ -230,6 +230,8 @@
       <v-expand-transition v-if="images.length>0">
 
             <div v-show="showImage" style='height:650px'>
+            <v-container style='height:550'>
+              <v-card style='height:550px'>
             <v-tabs
             v-if="images.length"
               slider-color="yellow"
@@ -245,8 +247,6 @@
                       ></v-img>
               </v-tab>
             </v-tabs>
-            <v-container style='height:550'>
-              <v-card style='height:550px'>
 
                 <div id="openseadragonImg" style='height:500px'></div>
               </v-card>
@@ -254,7 +254,7 @@
             </div>
       </v-expand-transition>
       <hideRelatedItems v-if="depiction.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="depiction.relatedBibliographyList"></hideRelatedItems>
-</div>
+    </v-card>
 </template>
 
 <script>
@@ -410,6 +410,11 @@ export default {
           id: "openseadragonImg",
           prefixUrl: '/static/',
           tileSources: tilesImg,
+          ajaxWithCredentials: true,
+          loadTilesWithAjax: true,
+          tileRequestHeaders: {"SessionID": ""},
+          ajaxHeaders: {"SessionID": ""},
+
         })
 
         let infoButtonImg = new OpenSeadragon.Button({
@@ -436,6 +441,10 @@ export default {
           showFlipControl: true,
           maxZoomLevel: 100,
           minZoomLevel: 0.001,
+          ajaxWithCredentials: true,
+          loadTilesWithAjax: true,
+          tileRequestHeaders: {"SessionID": ""},
+          ajaxHeaders: {"SessionID": ""},
         })
         let infoButtonAnno = new OpenSeadragon.Button({
           tooltip: 'Shows Information to the right of the Image',
@@ -799,4 +808,8 @@ export default {
 }
 </script>
 <style lang="css" scoped>
+.v-sheet.v-card {
+  opacity: 0.85;
+}
+
 </style>

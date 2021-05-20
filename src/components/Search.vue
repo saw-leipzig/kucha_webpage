@@ -1,15 +1,7 @@
 <template>
   <div>
     <div style="position: relative;">
-      <v-carousel :height="$vuetify.breakpoint.smAndDown? '300' : '500'" hide-delimiters :cycle="true" :show-arrows="false" touchless class="home_carousel">
-        <v-carousel-item
-          v-for="(item,i) in items"
-          :key="i"
-          :src="item.src"
-        >
-        </v-carousel-item>
-      </v-carousel>
-      <v-overlay class="searchOverlay" :absolute=true :value="true" z-index="4" style="touch-action: initial" opacity=0.0>
+      <v-overlay class="searchOverlay" :absolute=true :value="true" z-index="4" style="top:200px;touch-action: initial" opacity=0.0>
         <va-global-search :xlarge="true"></va-global-search>
       </v-overlay>
     </div>

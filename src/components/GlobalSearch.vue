@@ -1,5 +1,5 @@
 <template>
-    <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}">
+    <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" style="width:50%;margin: 0 auto;">
       <v-text-field
       :disabled="searchDisabled"
       id="global-search-input-field"
@@ -10,6 +10,7 @@
       :filled="filled"
       :outlined="outlined"
       :dense="dense"
+      light
       prepend-inner-icon="mdi-magnify"
       v-model="searchtext"
       @keyup="countAndSubmit"
@@ -97,7 +98,7 @@ export default {
 
     filled: {
       type: Boolean,
-      default: false
+      default: true
     },
     outlined: {
       type: Boolean,
@@ -415,7 +416,7 @@ export default {
 
 .va-search.dense .v-menu__content {
   top: 44px !important;
-  max-width: 100%;
+  max-width: 200px;
 }
 
 .resultMenu .v-list-item__title {

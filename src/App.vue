@@ -1,15 +1,17 @@
 <template>
-    <v-app :class="{'mobileSmall': $vuetify.breakpoint.smAndDown, 'mobileExtraSmall': $vuetify.breakpoint.xs}" >
+    <v-app :class="{'mobileSmall': $vuetify.breakpoint.smAndDown, 'mobileExtraSmall': $vuetify.breakpoint.xs}">
+      <div class="bg" style="height:100%">
       <template v-if="!$route.path.includes('login')">
         <v-app-bar
           app
-          color="primary"
-          dark
+          color="white"
+          leight
           clipped-left
+          style="opacity:0.85;"
         >
-          <v-app-bar-nav-icon @click.stop="navigation = !navigation"></v-app-bar-nav-icon>
+          <v-app-bar-nav-icon @click.stop="navigation = !navigation" light></v-app-bar-nav-icon>
           <v-img src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
-          <div class="logo" v-html="logo" style="position: absolute;right: 10px;"></div>
+          <div class="logo" v-html="logo" style="color:green;position: absolute;right: 10px;"></div>
           <v-spacer></v-spacer>
         </v-app-bar>
         <v-navigation-drawer
@@ -19,6 +21,7 @@
           clipped
           bottom
           floating
+          style="opacity:0.85;"
         >
           <v-list>
             <v-subheader class="px-2">
@@ -111,9 +114,11 @@
         </v-navigation-drawer>
       </template>
     <v-main>
-         <keep-alive :include="['Login']">
-            <router-view></router-view>
-         </keep-alive>
+      <v-row justify="center">
+        <v-col no-gutters>
+          <router-view></router-view>
+        </v-col>
+      </v-row>
     </v-main>
     <v-footer
       class="flex-column-reverse flex-sm-row flex-lg-row"
@@ -134,15 +139,13 @@
 
       </v-row>
     </v-footer>
+    </div>
   </v-app>
 
 </template>
 
 <script>
-
 import {logo, logoSmwk} from '@/utils/constants'
-
-
 export default {
   name: 'App',
   data () {
@@ -168,7 +171,6 @@ export default {
   components: {
   },
   methods: {
-
   },
   beforeMount:function () {
     console.log("Initialize Dictionaries");
@@ -180,10 +182,18 @@ export default {
 </script>
 
 <style lang="css">
-
 .v-tab {
   padding: 8px;
   min-width: 20px;
+}
+.v-sheet.v-card {
+  opacity: 0.85;
+}
+.v-expansion-panel {
+  opacity: 0.85;
+}
+.v-main {
+  height: 100%;
 }
 .v-treeview-node__content, .v-treeview-node__label {
   flex-shrink: 1;
@@ -204,4 +214,11 @@ export default {
 {
   padding-left: 16px;
 }
+.v-expansion-panel-content__wrap{
+  padding: 34px 16px;
+}
+.bg {
+    background: url( '../static/backgroundKIS.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
 </style>
