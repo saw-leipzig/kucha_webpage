@@ -33,6 +33,8 @@
       </v-text-field>
       <v-btn
       v-if="! hideButton"
+      :dense="dense"
+      height="40"
       :style="!$vuetify.breakpoint.smAndUp ? 'min-width: 52px; padding: 0' : ''"
       color="primary"
       :x-large="xlarge"
@@ -126,7 +128,7 @@ export default {
     },
     dense: {
       type: Boolean,
-      default: false
+      default: true
     },
     persistentHint: {
       type: Boolean,

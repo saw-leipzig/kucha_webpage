@@ -1,24 +1,28 @@
 <template>
 <div style="height:100%;opacity:1;">
-<v-card style="height:100%" color="transparent">
-  <v-container fluid style="opacity:0.85">
-    <v-row class="justify-center" >
-      <v-col style="height:200px">
+
+<v-card class="justify-center"  style="top: 30%;" color="white" >
+  <v-container fluid style="opacity:0.95">
+    <v-row>
+      <v-col cols="3" >
+        <v-img width="200px" src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
+      </v-col>
+      <v-col>
+        <v-card-title style="line-height: 1.1; font-size: 46px;color:#80581D; font-weight: normal;">Buddhist Murals of Kucha <br> on the Northern Silk Road</v-card-title>
       </v-col>
     </v-row>
+
     <v-row class="justify-center" align="center" >
-      <v-col align-self=centerc>
+      <v-col>
       <div :absolute=true >
         <va-global-search :xlarge="true"></va-global-search>
       </div>
       </v-col>
-
-
     </v-row>
     <v-row class="justify-center" >
       <v-col cols="10" sm="4" md="4" xl="3" v-for="(stats, index) in annoStatsDetailsApex" :key="index">
           <v-card-text>
-              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '300px' : ''" type="donut" :options="stats.chartOptions" :series="stats.series" @dataPointSelection="stats.jumpTo"  style="opacity:0.9"></apexchart>
+              <apexchart width="100%"  :height="$vuetify.breakpoint.xs? '150px' : '150px'" type="donut" :options="stats.chartOptions" :series="stats.series" @dataPointSelection="stats.jumpTo"  style="opacity:0.9"></apexchart>
           </v-card-text>
       </v-col>
     </v-row>
@@ -26,6 +30,7 @@
 
   </v-container>
 </v-card>
+
 </div>
 </template>
 
@@ -96,9 +101,9 @@ export default {
     getPlotOptions() {
       let color = this.$vuetify.theme.dark ? '#FFF' : '#000'
       let fontSizeText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? '12px' : '16px'
-      let fontSizeValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? '24px' : '42px'
-      let offsetText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 90 : 9
-      let offsetValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 0 : 10
+      let fontSizeValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? '20px' : '35px'
+      let offsetText = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 90 : 80
+      let offsetValue = this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.md ? 0 : 0
       return {
         pie: {
           expandOnClick: false,
@@ -255,10 +260,10 @@ export default {
 <style lang="css" scoped>
 
 .statistic-card {
-  height: 100%;
+  height: 50%;
 }
 .v-sheet.v-card {
-  opacity: 0.85;
+  opacity: 0.70;
 }
 
 

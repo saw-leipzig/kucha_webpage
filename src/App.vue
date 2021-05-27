@@ -4,14 +4,11 @@
       <template v-if="!$route.path.includes('login')">
         <v-app-bar
           app
-          color="white"
+          color="green darken-4"
           leight
           clipped-left
-          style="opacity:0.85;"
+          height="5px"
         >
-          <v-app-bar-nav-icon @click.stop="navigation = !navigation" light></v-app-bar-nav-icon>
-          <v-img src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
-          <div class="logo" v-html="logo" style="color:green;position: absolute;right: 10px;"></div>
           <v-spacer></v-spacer>
         </v-app-bar>
         <v-navigation-drawer
@@ -114,7 +111,7 @@
         </v-navigation-drawer>
       </template>
     <v-main>
-      <v-row justify="center">
+      <v-row justify="center" Style="height: 100%;">
         <v-col no-gutters>
           <router-view></router-view>
         </v-col>
@@ -123,21 +120,22 @@
     <v-footer
       class="flex-column-reverse flex-sm-row flex-lg-row"
       :app="$vuetify.breakpoint.mdAndUp"
-
-    >
-      <v-row
-        justify="center"
-        no-gutters
+      color="green"
+      height="90px"
+      style="opacity:0.55"
       >
-        <v-col
-          cols="12"
-          sm="6"
-          md="4"
-        >
-          <div v-html="logoSmwk" class="logoSMWK" content position="center"></div>
-        </v-col>
+    </v-footer>
+    <v-footer
+      class="flex-column-reverse flex-sm-row flex-lg-row"
+      :app="$vuetify.breakpoint.mdAndUp"
+      color="black"
+      height="80px"
+    >
+                <div v-html="logoSmwk" class="logoSMWK" content style="color:white;position: absolute;right: 20px;"></div>
 
-      </v-row>
+                <div class="logo" v-html="logo" style="color:white;position: absolute;left: 20px;"></div>
+
+
     </v-footer>
     </div>
   </v-app>
@@ -153,7 +151,7 @@ export default {
       show: false,
       drawer: null,
       navigation: true,
-      mini: false,
+      mini: true,
       query: '',
       logo: logo,
       logoSmwk: logoSmwk,
