@@ -2,6 +2,9 @@
     <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;" v-if="idealTypical">
       <v-card-title > Information for Iconography Entry {{iconography.iconographyID}} </v-card-title>
       <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
+      <v-container>
+      <v-card>
+
       <v-treeview
           :items="icoTree"
           rounded
@@ -13,6 +16,9 @@
           <div v-html="getTitle(item)"></div>
         </template>
       </v-treeview>
+      </v-card>
+      </v-container>
+
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
           @click="mouseOver"
@@ -128,7 +134,6 @@
 <script>
 import { getDepictionByAnnotation } from '@/services/repository'
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
-var config = require("../services/config.json");
 
 export default {
 
@@ -175,6 +180,7 @@ export default {
       }
     },
     hasAdditionalInfo(){
+      console.log("idealtypical:", this.idealTypical);
       if (this.idealTypical){
         if (Object.keys(this.idealTypical).length > 0){
           return true
@@ -249,6 +255,7 @@ export default {
       var params = {}
       var allIds = this.getIdsOfChildren(this.iconographyWithChildren)
       params.iconographyID = allIds
+      console.log("params of getDepictions", params);
       getDepictionByAnnotation(params)
         .then( res => {
           var newDepictions = []
@@ -263,7 +270,7 @@ export default {
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     initNewIconography(){
@@ -346,7 +353,7 @@ export default {
       return null
     },
     getThumbnail(image){
-      return config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
   },
   mounted:function () {

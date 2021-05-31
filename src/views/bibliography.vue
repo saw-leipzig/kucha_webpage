@@ -1,10 +1,10 @@
 <template>
   <div>
-    <bibliographyInf v-if=bibliography :bibliography="bibliography" :relatedDepictions="relatedDepictions"></bibliographyInf>
+    <bibliographyInf v-if=bibliography :bibliography="bibliography" ></bibliographyInf>
   </div>
 </template>
 <script>
-import {getItemById, getDepictionByBibliography} from '@/services/repository'
+import {getItemById} from '@/services/repository'
 import bibliographyInf from '@/components/bibliographyInf'
 
 export default {
@@ -16,7 +16,6 @@ export default {
   data () {
     return {
       error:false,
-      relatedDepictions:[],
       bibliography:{}
     }
   },
@@ -44,7 +43,6 @@ export default {
     },
     getBibliography(){
       console.log("initiate getting bibEntry");
-      this.getRelatedDepictions()
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
         console.log("res after finding in results:", res);
@@ -57,21 +55,6 @@ export default {
       } else {
         this.getNewBibliography()
       }
-    },
-    getRelatedDepictions(){
-      var params = {}
-      params.annotatedBibliographyID = [parseInt(this.$route.params.id)]
-      getDepictionByBibliography(params)
-        .then( res => {
-          var newDepictions = []
-          for (var entry of res.data.hits.hits){
-            newDepictions.push(entry._source)
-          }
-          this.relatedDepictions = newDepictions
-          console.log("new Depictions:", newDepictions);
-        }).catch(function (error) {
-          console.log(error)
-        })
     },
   },
   watch: {

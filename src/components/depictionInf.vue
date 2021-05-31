@@ -41,7 +41,7 @@
             </v-tab>
           </v-tabs>
           <v-container style='height:550'>
-            <v-card style='height:550px'>
+            <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
               <div id="openseadragonAnno" style='height:500px'>
                 <v-row attach="#openseadragonAnno" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
@@ -139,7 +139,7 @@
 
           <v-card-text>
             <v-container>
-              <v-card>
+              <v-card style="background-color: rgba(255, 255, 255, 1) !important">
                 <v-card-title>
                   Basic Information for Painted Representation {{depiction.depictionID}}
                 </v-card-title>
@@ -231,7 +231,7 @@
 
             <div v-show="showImage" style='height:650px'>
             <v-container style='height:550'>
-              <v-card style='height:550px'>
+              <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
             <v-tabs
             v-if="images.length"
               slider-color="yellow"
@@ -264,7 +264,6 @@ import {getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helper
 import * as d3 from "d3";
 import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
 import Annotorious from '../../static/openseadragon/openseadragon-annotorious.min.js'
-var config = require("../services/config.json");
 
 export default {
 
@@ -577,18 +576,18 @@ export default {
       console.log("annoSelected: ", this.annoSelected);
     },
     getThumbnail(image){
-      return config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
     getOSDURLs(images){
       let tiles = []
       for (let ie of images) {
-        tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
+        tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
       }
       return tiles
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push(config.imgUrl + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     mouseOver: function(){
@@ -799,6 +798,7 @@ export default {
   },
   mounted:function () {
     console.log("Depiction mounted");
+    console.log("imgURL", this.$store.state);
     this.initNewDepiction()
   },
   created:function(){
@@ -809,7 +809,6 @@ export default {
 </script>
 <style lang="css" scoped>
 .v-sheet.v-card {
-  opacity: 0.85;
 }
 
 </style>

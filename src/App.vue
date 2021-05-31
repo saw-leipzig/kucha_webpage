@@ -1,5 +1,5 @@
 <template>
-    <v-app :class="{'mobileSmall': $vuetify.breakpoint.smAndDown, 'mobileExtraSmall': $vuetify.breakpoint.xs}">
+    <v-app >
       <div class="bg" style="height:100%">
       <template v-if="!$route.path.includes('login')">
         <v-app-bar
@@ -15,10 +15,8 @@
           v-model="navigation"
           :mini-variant="mini"
           app
-          clipped
-          bottom
-          floating
-          style="opacity:0.85;"
+          permanent
+          :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important;'"
         >
           <v-list>
             <v-subheader class="px-2">
@@ -47,9 +45,8 @@
               </v-list-item-title>
             </v-list-item>
             <v-list-group
-                sub-group
-                :value="true"
                 prepend-icon="mdi-filter"
+                :value="true"
               >
                 <template v-slot:activator>
                   <v-list-item-title class="text-wrap" >Advanced Search</v-list-item-title>
@@ -171,6 +168,9 @@ export default {
   methods: {
   },
   beforeMount:function () {
+    console.log("environment:", process.env);
+    this.$store.commit("setImgURL", process.env.IMGSERV)
+    this.$store.commit("setURL", process.env.URL)
     console.log("Initialize Dictionaries");
     this.$store.dispatch('getMapping')
     this.$store.dispatch('getDics')
@@ -185,10 +185,10 @@ export default {
   min-width: 20px;
 }
 .v-sheet.v-card {
-  opacity: 0.85;
+  background-color: rgba(255, 255, 255, 0.9) !important;
 }
 .v-expansion-panel {
-  opacity: 0.85;
+  background-color: rgba(255, 255, 255, 0.9) !important;
 }
 .v-main {
   height: 100%;

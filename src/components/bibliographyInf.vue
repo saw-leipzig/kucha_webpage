@@ -110,14 +110,13 @@
 
 <script>
 
+import {getDepictionByBibliography} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
 import OpenSeadragon from "../../static/openseadragon/openseadragon.min.js"
-var config = require("../services/config.json");
 export default {
   name: 'bibliographyInf',
   props: {
     bibliography: {},
-    relatedDepictions:[],
   },
 
   components: {
@@ -125,6 +124,7 @@ export default {
 
   data () {
     return {
+      relatedDepictions:[],
       showAddInf: false,
       showAnno: false,
       tab:[],
@@ -170,9 +170,24 @@ export default {
 
   },
   methods: {
+    getRelatedDepictions(){
+      var params = {}
+      params.annotatedBibliographyID = [parseInt(this.$route.params.id)]
+      getDepictionByBibliography(params)
+        .then( res => {
+          var newDepictions = []
+          for (var entry of res.data.hits.hits){
+            newDepictions.push(entry._source)
+          }
+          this.relatedDepictions = newDepictions
+          console.log("new Depictions:", newDepictions);
+        }).catch(function (error) {
+          console.log(error)
+        })
+    },
     initOSDAnno(){
       if (this.bibliography.annotation){
-        let tile = config.imgUrl + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
+        let tile = this.$store.state.imgURL + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
         let tilesImg = []
         tilesImg.push(tile)
         console.log("images available, initiate OSDAnno");
@@ -193,12 +208,13 @@ export default {
       this.showAnno = !this.showAnno
     },
     getBibTitle(bib){
-      console.log("bibentry: ", this.bibliography);
+      console.log("bibentry: ", bib);
       return getBibTitle(bib)
     }
   },
   mounted:function () {
     this.initOSDAnno()
+    this.getRelatedDepictions()
   }
 }
 </script>

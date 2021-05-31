@@ -29,6 +29,7 @@
       :style="$vuetify.breakpoint.smAndUp ? 'min-width: 300px;' : ''"
       autocomplete="off"
       accesskey="f"
+      style="background-color: rgba(255, 255, 255, 0.9) !important;"
       >
       </v-text-field>
       <v-btn

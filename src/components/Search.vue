@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="position: relative;">
-      <v-overlay class="searchOverlay" :absolute=true :value="true" z-index="4" style="top:200px;touch-action: initial" opacity=0.0>
+      <v-overlay class="searchOverlay" :absolute=true :value="true" z-index="4" style="top:200px;touch-action: initial" >
         <va-global-search :xlarge="true"></va-global-search>
       </v-overlay>
     </div>

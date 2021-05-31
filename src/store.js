@@ -18,9 +18,17 @@ export default new Vuex.Store({
     totalRes:0,
     searchPack:0,
     disableSearch:true,
-    packageVersion: "© 2021 v 1.2.9"
+    packageVersion: "© 2021 v 1.2.9",
+    imgURL: "",
+    URL: "",
   },
   mutations: {
+    setImgURL (state, id) {
+      state.imgURL = id
+    },
+    setURL (state, id) {
+      state.URL = id
+    },
     setAuthenticated (state, id) {
       state.authenticated = id
     },
@@ -52,6 +60,12 @@ export default new Vuex.Store({
   getters:{
     appVersion: (state) => {
       return state.packageVersion
+    },
+    getURL : state => {
+      return state.URL
+    },
+    getImgURL : state => {
+      return state.imgURL
     },
     getAuthenticated : state => {
       return state.authenticated

@@ -1,6 +1,8 @@
 <template>
     <v-card raised width="98%" style="margin: auto;top: 20px;button:20px;padding-bottom: 15px;">
       <v-card-title>Information for cave {{getCaveLabel(cave)}} </v-card-title>
+      <v-container>
+      <v-card>
 
       <v-tabs
       v-model="tab" v-if="Object.keys(caveInfo).length>0"
@@ -38,6 +40,8 @@
           </v-col>
       </v-row>
     </v-card>
+      </v-card>
+      </v-container>
 
     <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     <hideRelatedItems v-if="cave.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
@@ -50,7 +54,6 @@
 import {getCaveLabel, getSiteLabel, getRegionLabel, getDistrictLabel} from  "@/utils/helpers"
 import { getItemById } from '@/services/repository'
 
-var config = require("../services/config.json");
 export default {
 
   name: 'caveInf',
@@ -221,7 +224,7 @@ export default {
       this.caveScatches = []
       if (this.cave.caveSketchListcaveSketchList){
         for (let item of this.cave.caveSketchList){
-          var res = config.imgUrl + "/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
+          var res = this.$store.state.imgURL + "/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
           this.caveScatches.push(res)
         }
       }

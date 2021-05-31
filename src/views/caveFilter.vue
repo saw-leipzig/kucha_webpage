@@ -1,5 +1,5 @@
 <template>
-<div  style="opacity:0.85">
+<div  >
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>

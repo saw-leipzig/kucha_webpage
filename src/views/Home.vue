@@ -2,10 +2,10 @@
 <div style="height:100%;opacity:1;">
 
 <v-card class="justify-center"  style="top: 30%;" color="white" >
-  <v-container fluid style="opacity:0.95">
+  <v-container fluid>
     <v-row>
-      <v-col cols="3" >
-        <v-img width="200px" src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
+      <v-col cols="3" style="opacity:1" >
+        <v-img style="opacity:1" width="200px" src="../static/kucha_logo_homepage.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
       </v-col>
       <v-col>
         <v-card-title style="line-height: 1.1; font-size: 46px;color:#80581D; font-weight: normal;">Buddhist Murals of Kucha <br> on the Northern Silk Road</v-card-title>
@@ -263,7 +263,7 @@ export default {
   height: 50%;
 }
 .v-sheet.v-card {
-  opacity: 0.70;
+  background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 
