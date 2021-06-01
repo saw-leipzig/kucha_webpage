@@ -604,9 +604,9 @@ export default {
       var elm = document.createElement("dl");
       elm.id = "html-overlay"
       var titleHd = document.createElement("dt");
-      titleHd.innerHTML = "Image ID:"
+      titleHd.innerHTML = "Filename:"
       var title = document.createElement("dd");
-      title.innerHTML = this.image.imageID
+      title.innerHTML = this.image.filename
       var copyrightHd = document.createElement("dt");
       copyrightHd.innerHTML = "Copyright:"
       var copyright = document.createElement("dd");
@@ -626,9 +626,9 @@ export default {
       var elmAnno = document.createElement("dl");
       elmAnno.id = "html-overlay-anno"
       var titleHd = document.createElement("dt");
-      titleHd.innerHTML = "Title:"
+      titleHd.innerHTML = "Filename:"
       var title = document.createElement("dd");
-      title.innerHTML = this.annoImage.title
+      title.innerHTML = this.annoImage.filename
       var copyrightHd = document.createElement("dt");
       copyrightHd.innerHTML = "Copyright:"
       var copyright = document.createElement("dd");
