@@ -112,7 +112,7 @@
 
 import {getDepictionByBibliography} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
-import OpenSeadragon from "../../static/openseadragon/openseadragon.min.js"
+import OpenSeadragon from "openseadragon"
 export default {
   name: 'bibliographyInf',
   props: {
@@ -187,7 +187,7 @@ export default {
     },
     initOSDAnno(){
       if (this.bibliography.annotation){
-        let tile = this.$store.state.imgURL + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
+        let tile = process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
         let tilesImg = []
         tilesImg.push(tile)
         console.log("images available, initiate OSDAnno");

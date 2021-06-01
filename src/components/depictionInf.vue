@@ -262,8 +262,8 @@ import image from '@/views/image'
 import caveInf from '@/components/caveInf'
 import {getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
 import * as d3 from "d3";
-import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
-import Annotorious from '../../static/openseadragon/openseadragon-annotorious.min.js'
+import OpenSeadragon from 'openseadragon'
+import Annotorious from '../../static/openseadragon-annotorious.min.js'
 
 export default {
 
@@ -576,18 +576,18 @@ export default {
       console.log("annoSelected: ", this.annoSelected);
     },
     getThumbnail(image){
-      return this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
     getOSDURLs(images){
       let tiles = []
       for (let ie of images) {
-        tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
+        tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
       }
       return tiles
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     mouseOver: function(){

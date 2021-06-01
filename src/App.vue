@@ -168,9 +168,6 @@ export default {
   methods: {
   },
   beforeMount:function () {
-    console.log("environment:", process.env);
-    this.$store.commit("setImgURL", process.env.IMGSERV)
-    this.$store.commit("setURL", process.env.URL)
     console.log("Initialize Dictionaries");
     this.$store.dispatch('getMapping')
     this.$store.dispatch('getDics')

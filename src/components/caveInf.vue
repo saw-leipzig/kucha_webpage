@@ -224,7 +224,7 @@ export default {
       this.caveScatches = []
       if (this.cave.caveSketchListcaveSketchList){
         for (let item of this.cave.caveSketchList){
-          var res = this.$store.state.imgURL + "/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
+          var res = process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fcavesketches%2F" + item.caveSketchID + "." + item.imageType + "/full/" + this.getCaveWidth() + ",/0/default.jpg"
           this.caveScatches.push(res)
         }
       }

@@ -133,7 +133,7 @@
 
 <script>
 import { getDepictionByAnnotation } from '@/services/repository'
-import OpenSeadragon from '../../static/openseadragon/openseadragon.min.js'
+import OpenSeadragon from 'openseadragon'
 
 export default {
 
@@ -270,7 +270,7 @@ export default {
     },
     getOSDURL(image){
       let tiles = []
-      tiles.push(this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+      tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     initNewIconography(){
@@ -353,7 +353,7 @@ export default {
       return null
     },
     getThumbnail(image){
-      return this.$store.state.imgURL + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
+      return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
   },
   mounted:function () {

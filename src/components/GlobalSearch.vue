@@ -1,6 +1,6 @@
 <template>
-    <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" style="width:50%;margin: 0 auto;">
-      <v-text-field
+  <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" style="width:50%;margin: 0 auto;">
+    <v-text-field
       :disabled="searchDisabled"
       id="global-search-input-field"
       ref="globalSearchInput"
@@ -30,9 +30,9 @@
       autocomplete="off"
       accesskey="f"
       style="background-color: rgba(255, 255, 255, 0.9) !important;"
-      >
-      </v-text-field>
-      <v-btn
+    >
+    </v-text-field>
+    <v-btn
       v-if="! hideButton"
       :dense="dense"
       height="40"
@@ -43,48 +43,44 @@
       :small="small"
       :large="large"
       @click.stop="formSubmit(0)">
-        <span v-if="$vuetify.breakpoint.smAndUp">Search</span>
-        <v-icon v-else>mdi-magnify</v-icon>
-      </v-btn>
-      <v-menu attach activator="form.va-search" bottom light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
-
-        <v-list :dense="$vuetify.breakpoint.smAndDown">
-          <v-subheader style="padding: 0px;" class="search-results-header">
-            <v-list-item-action class="ml-n2">
-                <v-btn icon v-on:click="loadPrevious" :disabled="searchPack<=0">
-                  <v-icon >mdi-arrow-left</v-icon>
-                </v-btn>
-            </v-list-item-action>
-            <v-list-item-content class="text-center">
-              <v-list-item-title class="grey--text">{{"Results "+searchPack+"-"+searchPackEnd+" of "+totalres}}</v-list-item-title>
-              <v-list-item-subtitle>{{ 'Results for' + ': ' + searchtext}}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <va-legend :legendItems="legendItems" :buttonProps="legendButtonProps" @dialog_closed="focusOnInput">
-                <v-btn icon><v-icon>mdi-help</v-icon></v-btn>
-              </va-legend>
-            </v-list-item-action>
-            <v-list-item-action>
-                <v-btn icon v-on:click="loadNext" :disabled="searchPack+results.length===totalres">
-                  <v-icon>mdi-arrow-right</v-icon>
-                </v-btn>
-            </v-list-item-action>
-          </v-subheader>
-          <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
-              <v-list-item-content>
-                  <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
-                  <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-form>
-
+      <span v-if="$vuetify.breakpoint.smAndUp">Search</span>
+      <v-icon v-else>mdi-magnify</v-icon>
+    </v-btn>
+    <v-menu attach activator="form.va-search" bottom light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
+      <v-list :dense="$vuetify.breakpoint.smAndDown">
+        <v-subheader style="padding: 0px;" class="search-results-header">
+          <v-list-item-action class="ml-n2">
+            <v-btn icon v-on:click="loadPrevious" :disabled="searchPack<=0">
+              <v-icon >mdi-arrow-left</v-icon>
+            </v-btn>
+          </v-list-item-action>
+          <v-list-item-content class="text-center">
+            <v-list-item-title class="grey--text">{{"Results "+searchPack+"-"+searchPackEnd+" of "+totalres}}</v-list-item-title>
+            <v-list-item-subtitle>{{ 'Results for' + ': ' + searchtext}}</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
+            <va-legend :legendItems="legendItems" :buttonProps="legendButtonProps" @dialog_closed="focusOnInput">
+              <v-btn icon><v-icon>mdi-help</v-icon></v-btn>
+            </va-legend>
+          </v-list-item-action>
+          <v-list-item-action>
+              <v-btn icon v-on:click="loadNext" :disabled="searchPack+results.length===totalres">
+                <v-icon>mdi-arrow-right</v-icon>
+              </v-btn>
+          </v-list-item-action>
+        </v-subheader>
+        <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
+          <v-list-item-content>
+            <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
+            <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </v-form>
 </template>
 
 <script>
-import { CancelToken } from "@/utils/httpClient";
-import { createFrontendLink } from  "@/utils/urlHelper"
 import {getCaveLabel, getBibTitle, getWallLabels} from  "@/utils/helpers"
 import { searchRoot } from '@/services/repository'
 import Legend from '@/components/Legend'
@@ -151,7 +147,6 @@ export default {
       results: Array,
       start: 0,
       showResults: false,
-      cancelToken: null,
       previousUrl: '',
       nextUrl: '',
       loading: false
@@ -246,7 +241,6 @@ export default {
         return "unknown"
       }
     },
-    createFrontendLink: createFrontendLink,
     getCaveLabel(item){
       return 'Cave ' + getCaveLabel(item)
     },
@@ -339,8 +333,6 @@ export default {
     formSubmit(batch) {
       if (this.searchtext) {
         this.start = 0
-        this.cancelToken && this.cancelToken.cancel('Search canceled by new search');
-        this.cancelToken = CancelToken.source()
         var params = {}
         params["searchtext"] = this.searchtext
         params["batchStart"] = batch
