@@ -19,7 +19,7 @@
       >
        Output
       </v-stepper-step>
-  
+
     </v-stepper-header>
 
     <v-stepper-items>
