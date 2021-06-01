@@ -6,5 +6,4 @@ module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
   IMGSERV: '"http://127.0.0.1:8182"',
   URL: '"https://es.saw-leipzig.de/"'
-
 })
