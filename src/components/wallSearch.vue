@@ -73,6 +73,10 @@ export default {
     },
   },
   methods: {
+    clear(){
+      this.wallLocationSelected = [];
+      this.search = "";
+    },
     getCount(item){
       if (this.aggregations){
         let res = this.aggregations.find(el => el.key === item.wallLocationID)

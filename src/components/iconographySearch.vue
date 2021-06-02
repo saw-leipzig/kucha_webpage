@@ -76,6 +76,10 @@ export default {
     },
   },
   methods: {
+    clear(){
+      this.search = "";
+      this.iconographySelected = []
+    },
     getPreSelectedByName(){
       let selected = []
       let names = []

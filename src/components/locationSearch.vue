@@ -68,6 +68,9 @@ export default {
     },
   },
   methods: {
+    clear(){
+      this.locations = [];
+    },
     prepSearch(){
       let searchObjects = []
       let aggsObject = {}

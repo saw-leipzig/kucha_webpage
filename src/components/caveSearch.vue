@@ -139,6 +139,12 @@ export default {
 
   },
   methods: {
+    clear(){
+      this.sitesSelected = [];
+      this.caveTypesSelected = [];
+      this.districtsSelected = [];
+      this.regionsSelected = [];
+    },
     getCaveTypes(){
       this.caveTypes = []
       for (let caveType of this.$store.state.dic.caveType){

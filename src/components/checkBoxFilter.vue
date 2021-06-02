@@ -51,6 +51,9 @@ export default {
     }
   },
   methods: {
+    clear(){
+      this.model = [];
+    },
     getCount(item){
       if (this.aggregations){
         if (Object.keys(this.aggregations).length > 0){

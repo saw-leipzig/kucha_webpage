@@ -46,7 +46,7 @@
       <span v-if="$vuetify.breakpoint.smAndUp">Search</span>
       <v-icon v-else>mdi-magnify</v-icon>
     </v-btn>
-    <v-menu attach activator="form.va-search" bottom light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
+    <v-menu ref="menu" attach activator="form.va-search" light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
       <v-list :dense="$vuetify.breakpoint.smAndDown">
         <v-subheader style="padding: 0px;" class="search-results-header">
           <v-list-item-action class="ml-n2">
@@ -71,8 +71,15 @@
         </v-subheader>
         <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
           <v-list-item-content>
-            <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
-            <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
+            <v-row>
+              <v-col>
+                <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
+                <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
+              </v-col>
+              <v-col cols=2 v-if="hasThumb(item)">
+                <v-img height="50px" style="opacity:1" :src="getThumbNail(item)" @click.stop="navigation = !navigation" position="left" contain></v-img>
+              </v-col>
+            </v-row>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -215,6 +222,38 @@ export default {
   },
 
   methods: {
+    hasThumb(item){
+      if (item._source.depictionID) {
+        if (this.getThumbNail(item) !== null) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    },
+    getThumbNail(item){
+      if (item._source.depictionID) {
+        let masterImage = null
+        for (const image of item._source.relatedImages){
+          if (image.imageID === item._source.masterImageID){
+            masterImage = image
+          }
+        }
+        if (masterImage !== null){
+          if (masterImage.filename !== "accessNotPermitted.png"){
+            return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + masterImage.filename + "/full/!50,50/0/default.jpg"
+          } else {
+            return null
+          }
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    },
     getTitle(item){
       if (item._source.depictionID){
         return (item._source.cave === undefined || item._source.shortName === "") ? "Painted Representation " + item._source.depictionID :  "Painted Representation " + item._source.depictionID + " (" + item._source.shortName + ")"
@@ -391,6 +430,7 @@ export default {
         this.formSubmit(0)
       }
     }
+    console.log("refs:", this.$refs.menu.calcTop);
 
   },
   beforeDestroy() {
@@ -412,6 +452,7 @@ export default {
 .va-search.dense .v-menu__content {
   top: 44px !important;
   max-width: 200px;
+  max-height: 600px;
 }
 
 .resultMenu .v-list-item__title {

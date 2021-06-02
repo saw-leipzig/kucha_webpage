@@ -37,6 +37,9 @@
           <v-col>
             <v-btn @click="initiateSearch(2000)" :loading="loading" dense block color="success">{{"Show " + resAmount +" Results"}}</v-btn>
           </v-col>
+          <v-col cols=1>
+            <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
+          </v-col>
         </v-row>
       </v-expansion-panel-content>
     </v-expansion-panel>
@@ -125,6 +128,11 @@ export default {
     }
   },
   methods: {
+    clear(){
+      this.$refs.textSearch.clear();
+      this.$refs.bibKeywordSearch.clear();
+      this.$refs.bibCheckBoxSearch.clear();
+    },
     onTextSearchInput(value) {
       this.textSearch = value.search
       // this.buildTextAggs(value.aggs)

@@ -233,6 +233,11 @@ export default {
     checkClear(n) {
       this.textSearch[n] = '';
     },
+    clear() {
+      for (let field in this.textSearch){
+        this.textSearch[field] = '';
+      }
+    },
   },
   watch: {
     'advancedSearch': function(newVal, oldVal) {
