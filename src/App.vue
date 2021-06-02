@@ -212,6 +212,9 @@ export default {
 .v-expansion-panel-content__wrap{
   padding: 34px 16px;
 }
+.container{
+  max-width: 80%;
+}
 .bg {
     background: url( '../static/backgroundKIS.jpg') no-repeat center center fixed;
     background-size: cover;

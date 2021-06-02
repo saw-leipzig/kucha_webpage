@@ -40,7 +40,7 @@
               ></v-img>
             </v-tab>
           </v-tabs>
-          <v-container style='height:550'>
+          <v-container fluid style='width:100%;height:550'>
             <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
               <div id="openseadragonAnno" style='height:500px'>
                 <v-row attach="#openseadragonAnno" style='position: relative;z-index: 4'>
@@ -616,6 +616,7 @@ export default {
       elm.appendChild(copyrightHd)
       elm.appendChild(copyright)
       if (this.viewerImg.getOverlayById("html-overlay") === null) {
+        this.viewerImg.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
         var textPoint = new OpenSeadragon.Point(1.01, 0);
         this.viewerImg.addOverlay(elm, textPoint)
       } else {
@@ -639,6 +640,8 @@ export default {
       elmAnno.appendChild(copyright)
 
       if (this.viewerAnnos.getOverlayById("html-overlay-anno") === null){
+        this.viewerAnnos.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
+
         var textPoint = new OpenSeadragon.Point(1.01, 0);
         this.viewerAnnos.addOverlay(elmAnno, textPoint)
       } else {
