@@ -6,7 +6,14 @@
         :key="i"
         >
         <v-expansion-panel-header>
-            <div  v-html="getTitle(item)"></div>
+          <v-row >
+            <v-col>
+              <div  v-html="getTitle(item)"></div>
+            </v-col>
+            <v-col v-if="item.depictionID" cols=2>
+              <v-img height="50px" style="opacity:1" :src="getThumbNail(item)" @click.stop="navigation = !navigation" position="left" contain></v-img>
+            </v-col>
+          </v-row>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
             <depictionInf v-if="item.depictionID" :depiction="item" :presentCave="presentCave"></depictionInf>
@@ -52,6 +59,28 @@ export default {
   computed: {
   },
   methods: {
+    getThumbNail(item){
+      if (item.depictionID) {
+        let masterImage = null
+        for (const image of item.relatedImages){
+          if (image.imageID === item.masterImageID){
+            masterImage = image
+          }
+        }
+        if (masterImage !== null){
+          if (masterImage.filename !== "accessNotPermitted.png"){
+            return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + masterImage.filename + "/full/!50,50/0/default.jpg"
+          } else {
+            return null
+          }
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    },
+
     getTitle(item){
       // console.log(item);
       if (item.depictionID) {
