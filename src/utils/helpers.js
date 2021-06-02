@@ -364,13 +364,11 @@ export function getBuckets(element){
 }
 
 export function getDepictionLabel(depiction, wallLocation){
-  let depictionLabel =  "Information for Painted Representation " + depiction.depictionID
-  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
-  else if (depiction.shortName){
-    if (depiction.shortName !== ""){
-      depictionLabel += ", " + depiction.shortName
-    }
+  let depictionLabel =  "Information for Painted Representation ID " + depiction.depictionID
+  if (depiction.shortName){
+    depictionLabel += " (" + depiction.shortName + ")"
   }
+  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
   depictionLabel += ", " + getWallLabels(wallLocation, depiction, "")
   return depictionLabel
 }
