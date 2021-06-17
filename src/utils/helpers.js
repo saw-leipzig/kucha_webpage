@@ -197,6 +197,9 @@ export function getBibTitle(bibliography){
         tail = tail + ", " + bibliography.thesisType;
       }
     }
+    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+      tail = tail + ", " + bibliography.quotedPages;
+    }
     tail = tail + ". ";
     if (bibliography.hesHan){
       return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
@@ -251,6 +254,9 @@ export function getBibTitle(bibliography){
         tail = tail + " [" + bibliography.accessdateORG + "]";
       }
     }
+    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+      tail = tail + ", " + bibliography.quotedPages;
+    }
     tail = tail + ". ";
     if (bibliography.hesHan){
       return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
@@ -280,13 +286,17 @@ export function getBibTitle(bibliography){
     if (bibliography.issueORG !== "") {
       tail = tail + " " + bibliography.issueORG;
     }
-    if (bibliography.pagesORG !== "") {
+    if (bibliography.pagesORG !== "" ) {
       if (bibliography.publisher === "") {
         tail = tail + ". " + bibliography.pagesORG;
       } else {
         tail = tail + ", " + bibliography.pagesORG;
       }
     }
+    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+      tail = tail + ", " + bibliography.quotedPages;
+    }
+    tail = tail + ". ";
     if (bibliography.hesHan){
       return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
     } else {
