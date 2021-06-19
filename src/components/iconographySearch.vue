@@ -10,7 +10,7 @@
                 <div class="v-treeview-node__label">
                 {{ item.name }}
                   <v-badge v-if = "isDepiction"
-                    :content="item.count"
+                    :content="getCount(item)"
                     inline
                     color="grey"
                   >
@@ -76,9 +76,18 @@ export default {
     },
   },
   methods: {
+    getCount(item){
+      if (item.count){
+        return item.count.length
+      } else {
+        return -1
+      }
+    },
     clear(){
+      this.update = false;
       this.search = "";
-      this.iconographySelected = []
+      this.iconographySelected = [];
+      this.update = true;
     },
     getPreSelectedByName(){
       let selected = []
@@ -133,12 +142,13 @@ export default {
       // this.setAggs(this.iconography)
     },
     setAggsInElement(element){
-      element['count'] = 0
+      element['count'] = []
       let newChildren = []
       if (this.aggregations){
         for (let agg of this.aggregations){
           if (agg.key === element.iconographyID){
-            element['count'] = agg.doc_count
+            element['count'] = agg.test.depictionID.buckets
+            console.log("aggs found for elemen:", element);
             break
           }
         }
@@ -146,13 +156,18 @@ export default {
           for (let child of element.children){
             let res = this.setAggsInElement(child)
             if (res != null){
-              element.count += res.count
+              for (var depictionID of res.count){
+                let elDepictionID = element.count.find(item => item.key === depictionID.key)
+                if (elDepictionID === undefined){
+                  element.count.push(depictionID)
+                }
+              }
               newChildren.push(child)
             }
           }
         }
         element.children = newChildren
-        if (element.count > 0){
+        if (element.count.length > 0){
           return element
         } else {
           return null
@@ -238,13 +253,25 @@ export default {
             "aggs": {
               "iconographyID": {
                 "terms": {
+                  "field": "relatedAnnotationList.tags.iconographyID",
+                  "size": 10000
+                },
+                "aggs": {
+                  "test": {
+                    "reverse_nested": {},
+                    "aggs": {
+                      "depictionID": {
+                        "terms": {
+                          "field": "depictionID"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
           }
         }
-        icoAggs.agg.Tags.aggs.iconographyID.terms["field"] = icoPath
-        icoAggs.agg.Tags.aggs.iconographyID.terms["size"] = 10000
         console.log("searchObject", searchObjects)
       } else {
         let icoPath = this.prefix + "iconographyID"
