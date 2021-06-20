@@ -1,6 +1,6 @@
 <template>
     <v-card outlined>
-        <v-list-item-subtitle>Iconography</v-list-item-subtitle>
+        <v-list-item-subtitle>Annotations</v-list-item-subtitle>
         <v-text-field v-model="search" label="Search Iconography Tree" hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
         <v-lazy
             transition="scroll-x-reverse-transition"
