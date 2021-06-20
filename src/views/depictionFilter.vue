@@ -69,13 +69,14 @@ export default {
   },
   data () {
     return {
+      stoppAggs:false,
       panel: 0,
       aggregations:{},
       visible:[0],
       relatedDepictions:[],
+      aggsObject:{},
       textSearch:"",
       caveSearchObjects:null,
-      aggsObject:{},
       icoSearchObjects:null,
       locationSearchObjects:null,
       wallSearchObjects:null,
@@ -135,7 +136,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["text"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      console.log("aggregations textFacetts: ", aggregations);
       return aggregations
     },
     wallLocationFacets(){
@@ -143,7 +144,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["wallLocation"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      console.log("aggregations wallLocationFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -159,12 +160,31 @@ export default {
     }
   },
   methods: {
+    prepAggs(){
+      console.log("prepAggs started");
+      let locationRes = this.$refs.locationSearch.prepSearch();
+      this.locationSearchObjects = locationRes.search
+      buildAgg(locationRes.aggs, "location", this.aggsObject)
+      let caveRes = this.$refs.caveSearch.prepSearch();
+      this.caveSearchObjects = caveRes.search
+      this.buildCaveAggs(caveRes.aggs)
+      let icoRes = this.$refs.iconographySearch.prepSearch();
+      this.icoSearchObjects = icoRes.search
+      this.aggsObject["iconography"] = icoRes.aggs
+      let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
+      this.wallLocationSearch = wallLocationRes.search
+      this.aggsObject["wallLocation"] = wallLocationRes.aggs
+      this.initiateFacets()
+    },
     clear(){
+      this.stoppAggs = true;
       this.$refs.textSearch.clear();
       this.$refs.caveSearch.clear();
       this.$refs.locationSearch.clear();
       this.$refs.wallLocationSearch.clear();
       this.$refs.iconographySearch.clear();
+      this.stoppAggs = false
+      this.prepAggs();
     },
     onTextSearchInput(value) {
       this.textSearch = value.search
@@ -334,67 +354,71 @@ export default {
       return null
     },
     initiateFacets(){
-      this.relatedDepictions = []
-      let aggregations = {"aggs" : {}}
-      for (let aggProp in this.aggsObject){
-        console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
-        let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
-        for (let filterProp in this.aggsObject){
-          if (filterProp !== aggProp){
-            if (this.aggsObject[filterProp].filter){
-              let filter = JSON.parse(JSON.stringify(this.aggsObject[filterProp].filter))
-              if (filterProp === "iconography" || filterProp === "wallLocation"){
-                agg = this.appendFilterToAgg(agg, filter, "reverse_nested")
-              } else {
-                agg = this.appendFilterToAgg(agg, filter, "filter")
+      if (!this.stoppAggs){
+        console.log("initiateFacets");
+        this.relatedDepictions = []
+        let aggregations = {"aggs" : {}}
+        for (let aggProp in this.aggsObject){
+          console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
+          let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
+          for (let filterProp in this.aggsObject){
+            if (filterProp !== aggProp){
+              if (this.aggsObject[filterProp].filter){
+                let filter = JSON.parse(JSON.stringify(this.aggsObject[filterProp].filter))
+                if (filterProp === "iconography" || filterProp === "wallLocation"){
+                  agg = this.appendFilterToAgg(agg, filter, "reverse_nested")
+                  console.log("append filter to agg returned:", agg, "for: ", filterProp);
+                } else {
+                  agg = this.appendFilterToAgg(agg, filter, "filter")
+                }
               }
             }
           }
+          for (let finalAggProp in agg){
+            aggregations.aggs[aggProp] = agg[finalAggProp]
+          }
         }
-        for (let finalAggProp in agg){
-          aggregations.aggs[aggProp] = agg[finalAggProp]
-        }
-      }
-      aggregations["size"] = 0
-      aggregations["query"] = {
-        "bool": {
-          "must": [
-            {
-              "exists": {
-                "field": "depictionID"
+        aggregations["size"] = 0
+        aggregations["query"] = {
+          "bool": {
+            "must": [
+              {
+                "exists": {
+                  "field": "depictionID"
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
-      aggregations["post_filter"] = {}
-      aggregations["post_filter"]["bool"] = {}
-      aggregations["post_filter"]["bool"]["must"] = []
-      let queries = this.buildQueries()
-      let shouldQuery = {
-        "bool": {
-          "should": []
+        aggregations["post_filter"] = {}
+        aggregations["post_filter"]["bool"] = {}
+        aggregations["post_filter"]["bool"]["must"] = []
+        let queries = this.buildQueries()
+        let shouldQuery = {
+          "bool": {
+            "should": []
+          }
         }
-      }
 
-      for (let query of queries.must){
-        aggregations.post_filter.bool.must.push(query)
+        for (let query of queries.must){
+          aggregations.query.bool.must.push(query)
+        }
+        for (let query of queries.should){
+          shouldQuery.bool.should.push(query)
+        }
+        if (shouldQuery.bool.should.length > 0){
+          aggregations.query.bool.must.push(shouldQuery)
+        }
+        postQuery(aggregations)
+          .then( res => {
+            console.log("aggs results", res.data.aggregations);
+            this.aggregations = res.data.aggregations
+            this.resAmount = res.data.hits.total.value
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       }
-      for (let query of queries.should){
-        shouldQuery.bool.should.push(query)
-      }
-      if (shouldQuery.bool.should.length > 0){
-        aggregations.post_filter.bool.must.push(shouldQuery)
-      }
-      postQuery(aggregations)
-        .then( res => {
-          console.log("aggs results", res.data.aggregations);
-          this.aggregations = res.data.aggregations
-          this.resAmount = res.data.hits.total.value
-        })
-        .catch((error) => {
-          console.log(error)
-        })
     },
   },
   watch: {
@@ -408,20 +432,7 @@ export default {
   },
   mounted:function () {
     console.log("started Depiction filter", this.$route);
-
-    let locationRes = this.$refs.locationSearch.prepSearch();
-    this.locationSearchObjects = locationRes.search
-    buildAgg(locationRes.aggs, "location", this.aggsObject)
-    let caveRes = this.$refs.caveSearch.prepSearch();
-    this.caveSearchObjects = caveRes.search
-    this.buildCaveAggs(caveRes.aggs)
-    let icoRes = this.$refs.iconographySearch.prepSearch();
-    this.icoSearchObjects = icoRes.search
-    this.aggsObject["iconography"] = icoRes.aggs
-    let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
-    this.wallLocationSearch = wallLocationRes.search
-    this.aggsObject["wallLocation"] = wallLocationRes.aggs
-    this.initiateFacets()
+    this.prepAggs();
   },
   beforeUpdate:function () {
 

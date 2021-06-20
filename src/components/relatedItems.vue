@@ -1,6 +1,6 @@
 <template>
 <div>
-    <v-expansion-panels Focusable popout>
+    <v-expansion-panels Focusable popout multiple>
         <v-expansion-panel
         v-for="(item,i) in relatedItems"
         :key="i"
