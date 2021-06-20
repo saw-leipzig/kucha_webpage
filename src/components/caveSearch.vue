@@ -120,6 +120,7 @@ export default {
 
   data () {
     return {
+      update:true,
       visible:true,
       relatedDepictions:[],
       loading: false,
@@ -304,17 +305,24 @@ export default {
   },
   watch: {
     'caveTypesSelected': function(newVal, oldVal) {
-      this.startSearch()
+      if (this.update){
+        this.startSearch()
+      }
     },
     'sitesSelected': function(newVal, oldVal) {
-      console.log("sites changed");
-      this.startSearch()
+      if (this.update){
+        this.startSearch()
+      }
     },
     'districtsSelected': function(newVal, oldVal) {
-      this.startSearch()
+      if (this.update){
+        this.startSearch()
+      }
     },
     'regionsSelected': function(newVal, oldVal) {
-      this.startSearch()
+      if (this.update){
+        this.startSearch()
+      }
     },
     'aggregations': function(newVal, oldVal) {
       console.log("updated aggregations on caveSearch", this.aggregations);

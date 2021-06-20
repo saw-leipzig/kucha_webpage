@@ -70,6 +70,12 @@ export default {
   methods: {
     clear(){
       this.$refs.iconographySearch.clear();
+      this.textSearch = "";
+      this.caveSearchObjects = null;
+      this.icoSearchObjects = null;
+      this.locationSearchObjects = null;
+      this.wallSearchObjects = null;
+      this.initiateFacets();
     },
     changedIcoInput(value){
       console.log("new changed Ico Value:", value);

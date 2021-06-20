@@ -132,6 +132,10 @@ export default {
       this.$refs.textSearch.clear();
       this.$refs.bibKeywordSearch.clear();
       this.$refs.bibCheckBoxSearch.clear();
+      this.textSearch = "";
+      this.bibKeywordsSearchObjects = [];
+      this.bibCheckBoxSearchObjects = [];
+      this.initiateFacets();
     },
     onTextSearchInput(value) {
       this.textSearch = value.search

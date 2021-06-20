@@ -34,6 +34,7 @@ export default {
   },
   data () {
     return {
+      update:true,
       visible:true,
       relatedDepictions:[],
       loading: false,
@@ -74,8 +75,10 @@ export default {
   },
   methods: {
     clear(){
+      this.update = false
       this.wallLocationSelected = [];
       this.search = "";
+      this.update = true
     },
     getCount(item){
       if (this.aggregations){
@@ -234,16 +237,18 @@ export default {
   },
   watch: {
     'wallLocationSelected': function(newVal, oldVal) {
-      console.log("wallLocationSelected Updated", newVal);
-      this.selected = []
-      for (let node of newVal){
-        this.selected.push(node);
+      if (this.update){
+        console.log("wallLocationSelected Updated", newVal);
+        this.selected = []
+        for (let node of newVal){
+          this.selected.push(node);
+        }
+        for (let node of this.getWallLocations){
+          this.getSelectedParents(node, this.selected)
+        }
+        console.log("seletctedItems after adding parents: ", this.selected);
+        this.startSearch()
       }
-      for (let node of this.getWallLocations){
-        this.getSelectedParents(node, this.selected)
-      }
-      console.log("seletctedItems after adding parents: ", this.selected);
-      this.startSearch()
     },
 
 

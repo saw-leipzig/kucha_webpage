@@ -39,6 +39,7 @@ export default {
   },
   data () {
     return {
+      update:true,
       visible:true,
       relatedDepictions:[],
       loading: false,
@@ -322,22 +323,24 @@ export default {
       this.getPreSelectedByName()
     },
     'iconographySelected': function(newVal, oldVal) {
-      console.log("iconographySelected Updated", newVal);
-      this.selected = []
-      for (let node of newVal){
-        this.selected.push(node);
-      }
-      if (this.isDepiction){
-        for (let node of this.iconography){
-          this.getSelectedParents(node, this.selected)
+      if (this.update){
+        console.log("iconographySelected Updated", newVal);
+        this.selected = []
+        for (let node of newVal){
+          this.selected.push(node);
         }
+        if (this.isDepiction){
+          for (let node of this.iconography){
+            this.getSelectedParents(node, this.selected)
+          }
+        }
+        console.log("seletctedItems after adding parents: ", this.selected);
+        this.startSearch()
       }
-      console.log("seletctedItems after adding parents: ", this.selected);
-      this.startSearch()
     },
     'aggregations': function(newVal, oldVal) {
       console.log("updated aggregations on iconography", this.aggregations);
-      console.log("length of aggregations: ", this.aggregations.length);
+      // console.log("length of aggregations: ", this.aggregations.length);
       this.initiateIco()
     },
 

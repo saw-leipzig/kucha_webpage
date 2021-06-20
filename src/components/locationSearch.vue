@@ -43,6 +43,7 @@ export default {
   },
   data () {
     return {
+      update:false,
       locations:[],
     }
   },
@@ -69,7 +70,9 @@ export default {
   },
   methods: {
     clear(){
+      this.update = false
       this.locations = [];
+      this.update = true
     },
     prepSearch(){
       let searchObjects = []
@@ -104,7 +107,9 @@ export default {
   },
   watch: {
     'locations': function(newVal, oldVal) {
-      this.startSearch()
+      if (this.update){
+        this.startSearch()
+      }
     },
     'aggregations': function(newVal, oldVal) {
       console.log("updated aggregations on location", this.aggregations);

@@ -134,6 +134,9 @@ export default {
     clear(){
       this.$refs.caveSearch.clear();
       this.$refs.textSearch.clear();
+      this.textSearch = "";
+      this.caveSearchObjects = null;
+      this.initiateFacets();
     },
     onTextSearchInput(value) {
       this.textSearch = value.search
