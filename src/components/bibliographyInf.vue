@@ -1,5 +1,5 @@
 <template>
-    <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;">
+    <v-card raised width="98%" style="margin: auto;">
       <v-card-title > Information for Annotated Bibliography Entry {{bibliography.annotatedBibliographyID}} </v-card-title>
       <v-card-subtitle v-html="getBibTitle(bibliography)"> </v-card-subtitle>
 

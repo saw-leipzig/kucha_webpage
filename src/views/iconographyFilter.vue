@@ -185,6 +185,7 @@ export default {
       return null
     },
     initiateFacets(){
+      console.log("initFacets started");
       this.relatedIconography = []
       let aggregations = {}
       aggregations["size"] = 0

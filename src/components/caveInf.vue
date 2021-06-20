@@ -1,5 +1,5 @@
 <template>
-    <v-card raised width="98%" style="margin: auto;top: 20px;button:20px;padding-bottom: 15px;">
+    <v-card raised width="98%" style="margin: auto;button:20px;">
       <v-card-title>Information for cave {{getCaveLabel(cave)}} </v-card-title>
       <v-container>
       <v-card>

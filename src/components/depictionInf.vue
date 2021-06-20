@@ -1,6 +1,6 @@
 <template>
 
-    <v-card raised width="98%" style="margin: auto;top: 20px;padding-bottom: 15px;">
+    <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
 
       <v-card-title>{{getDepictionLabel()}} </v-card-title>
       <v-card-actions v-if="annos.length>0">

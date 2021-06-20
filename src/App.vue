@@ -107,7 +107,7 @@
           <v-divider></v-divider>
         </v-navigation-drawer>
       </template>
-    <v-main>
+    <v-main style="padding-bottom:100px!important">
       <v-row justify="center" Style="height: 100%;">
         <v-col no-gutters>
           <router-view></router-view>
@@ -173,6 +173,7 @@ export default {
 }
 .v-sheet.v-card {
   background-color: rgba(255, 255, 255, 0.9) !important;
+  padding-bottom: 25px;
 }
 .v-expansion-panel {
   background-color: rgba(255, 255, 255, 0.9) !important;
