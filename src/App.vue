@@ -117,22 +117,12 @@
     <v-footer
       class="flex-column-reverse flex-sm-row flex-lg-row"
       :app="$vuetify.breakpoint.mdAndUp"
-      color="green"
-      height="90px"
-      style="opacity:0.55"
-      >
-    </v-footer>
-    <v-footer
-      class="flex-column-reverse flex-sm-row flex-lg-row"
-      :app="$vuetify.breakpoint.mdAndUp"
       color="black"
       height="80px"
+      style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box;"
     >
                 <div v-html="logoSmwk" class="logoSMWK" content style="color:white;position: absolute;right: 20px;"></div>
-
                 <div class="logo" v-html="logo" style="color:white;position: absolute;left: 20px;"></div>
-
-
     </v-footer>
     </div>
   </v-app>
