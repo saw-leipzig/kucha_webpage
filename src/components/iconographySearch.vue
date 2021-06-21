@@ -88,7 +88,6 @@ export default {
       this.update = false;
       this.search = "";
       this.iconographySelected = [];
-      this.update = true;
     },
     getPreSelectedByName(){
       let selected = []
@@ -336,6 +335,8 @@ export default {
         }
         console.log("seletctedItems after adding parents: ", this.selected);
         this.startSearch()
+      } else {
+        this.update = true
       }
     },
     'aggregations': function(newVal, oldVal) {

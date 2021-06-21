@@ -78,7 +78,6 @@ export default {
       this.update = false
       this.wallLocationSelected = [];
       this.search = "";
-      this.update = true
     },
     getCount(item){
       if (this.aggregations){
@@ -231,8 +230,12 @@ export default {
       return result
     },
     startSearch(){
-      let result = this.prepSearch()
-      this.$emit('clicked', result)
+      if (this.update){
+        let result = this.prepSearch()
+        this.$emit('clicked', result)
+      } else {
+        this.update = true
+      }
     },
   },
   watch: {
@@ -248,6 +251,8 @@ export default {
         }
         console.log("seletctedItems after adding parents: ", this.selected);
         this.startSearch()
+      } else {
+        this.update = true
       }
     },
 

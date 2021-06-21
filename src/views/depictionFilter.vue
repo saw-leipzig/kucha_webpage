@@ -69,7 +69,6 @@ export default {
   },
   data () {
     return {
-      stoppAggs:false,
       panel: 0,
       aggregations:{},
       visible:[0],
@@ -174,16 +173,15 @@ export default {
       let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
       this.wallLocationSearch = wallLocationRes.search
       this.aggsObject["wallLocation"] = wallLocationRes.aggs
+      console.log("blubb");
       this.initiateFacets()
     },
     clear(){
-      this.stoppAggs = true;
       this.$refs.textSearch.clear();
       this.$refs.caveSearch.clear();
       this.$refs.locationSearch.clear();
       this.$refs.wallLocationSearch.clear();
       this.$refs.iconographySearch.clear();
-      this.stoppAggs = false
       this.prepAggs();
     },
     onTextSearchInput(value) {
@@ -193,6 +191,7 @@ export default {
     },
 
     changedCaveInput(value){
+      console.log("initiate facets over changedCaveInput");
       console.log("new changed Cave Value:", value);
       this.caveSearchObjects = value.search
       this.buildCaveAggs(value.aggs)
@@ -200,18 +199,21 @@ export default {
       console.log("built aggs:", this.aggsObject);
     },
     changedIcoInput(value){
+      console.log("initiate facets over changedIcoInput");
       console.log("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
       this.initiateFacets()
     },
     changedLocationInput(value){
+      console.log("initiate facets over changedLicationInput");
       console.log("new changed location Value:", value);
       this.locationSearchObjects = value.search
       buildAgg(value.aggs, "location", this.aggsObject)
       this.initiateFacets()
     },
     changedWallInput(value){
+      console.log("initiate facets over changedWallInput");
       console.log("new changed wall Value:", value);
       this.wallSearchObjects = value.search
       this.aggsObject["wallLocation"] = value.aggs

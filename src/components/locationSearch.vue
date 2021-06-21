@@ -72,7 +72,6 @@ export default {
     clear(){
       this.update = false
       this.locations = [];
-      this.update = true
     },
     prepSearch(){
       let searchObjects = []
@@ -109,6 +108,8 @@ export default {
     'locations': function(newVal, oldVal) {
       if (this.update){
         this.startSearch()
+      } else {
+        this.update = true
       }
     },
     'aggregations': function(newVal, oldVal) {

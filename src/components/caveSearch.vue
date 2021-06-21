@@ -120,7 +120,10 @@ export default {
 
   data () {
     return {
-      update:true,
+      updateSites:true,
+      updateTypes:true,
+      updateDistrics:true,
+      updateRegion:true,
       visible:true,
       relatedDepictions:[],
       loading: false,
@@ -141,6 +144,10 @@ export default {
   },
   methods: {
     clear(){
+      this.updateSites = false
+      this.updateTypes = false
+      this.updateDistrics = false
+      this.updateRegion = false
       this.sitesSelected = [];
       this.caveTypesSelected = [];
       this.districtsSelected = [];
@@ -305,23 +312,31 @@ export default {
   },
   watch: {
     'caveTypesSelected': function(newVal, oldVal) {
-      if (this.update){
+      if (this.updateTypes){
         this.startSearch()
+      } else {
+        this.updateTypes = true
       }
     },
     'sitesSelected': function(newVal, oldVal) {
-      if (this.update){
+      if (this.updateSites){
         this.startSearch()
+      } else {
+        this.updateSites = true
       }
     },
     'districtsSelected': function(newVal, oldVal) {
-      if (this.update){
+      if (this.updateDistrics){
         this.startSearch()
+      } else {
+        this.updateDistrics = true
       }
     },
     'regionsSelected': function(newVal, oldVal) {
-      if (this.update){
+      if (this.updateRegion){
         this.startSearch()
+      } else {
+        this.updateRegion = true
       }
     },
     'aggregations': function(newVal, oldVal) {
