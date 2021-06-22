@@ -299,7 +299,6 @@ export default {
       viewerImg :null,
       viwerAnnos:null,
       annoSelected: [],
-      annoSelectedWithParents:[],
       selectType:"leaf",
       idName:"iconographyID",
       dialog:false,
@@ -456,12 +455,65 @@ export default {
         this.viewerAnnos.addControl(infoButtonAnno.element, { anchor: OpenSeadragon.ControlAnchor.TOP_LEFT });
         var config = {};
         config["readOnly"] = true;
-        config["tagVocabulary"] = [];
-        config["tree"] = [];
+        config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
         config["image"] = this.viewerAnnos;
         this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
         this.viewerAnnos.setControlsEnabled(false);
         this.viewerAnnos.setMouseNavEnabled(false);
+        var _self = this;
+        this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, evt) {
+          _self.annotoriousplugin.highlightAnnotation(annotation)
+          // annotoriousplugin.highlightAnnotation(annotation)
+        });
+
+        this.annotoriousplugin.on('mouseLeaveAnnotation', function(annotation, evt) {
+          _self.updateSelectedAnnos()
+          // annotoriousplugin.hideAnnotation(annotation)
+        });
+        this.annotoriousplugin.on('selectAnnotation', function(annotation) {
+          // this.icoAnnos
+          let found = false
+          for (let anno of annotation.body){
+            const selectedIco = _self.annoSelected.find(el => el.iconographyID === anno.id)
+            console.log("selectedIco", selectedIco);
+            if (selectedIco !== undefined){
+              found = true
+              const index = _self.annoSelected.indexOf(selectedIco);
+              if (index > -1) {
+                _self.annoSelected.splice(index, 1);
+              }
+              console.log("_self.annoSelected", _self.annoSelected);
+            }
+          }
+          if (found){
+            _self.updateSelectedAnnos()
+          } else {
+            let annos = [];
+            for (let anno of annotation.body){
+              if (Array.isArray(_self.icoAnnos)){
+                for (let ico of _self.icoAnnos){
+                  let res = _self.getIco(ico, anno.id)
+                  if (res !== null){
+                    annos.push(res)
+                    break
+                  }
+                }
+              } else {
+                let res = _self.getIco(_self.icoAnnos, anno.id)
+                if (res !== null){
+                  annos.push(res)
+                }
+              }
+            }
+            for (let anno of annos){
+              if (_self.annoSelected.find(el => el.iconographyID === anno.iconographyID) === undefined){
+                _self.annoSelected.push(anno)
+              }
+            }
+            _self.updateSelectedAnnos()
+            console.log("annotation selected: ", _self.annoSelected)
+          }
+        });
         this.viewerAnnos.addHandler("pre-full-page", function (data) {
           data.preventDefaultAction = true;
           if (data.eventSource.element.requestFullscreen) {
@@ -560,6 +612,12 @@ export default {
           this.w3cAnnos.push(anno);
         }
         console.log("w3cAnnos:", this.w3cAnnos);
+        for (let anno of this.w3cAnnos){
+          this.annotoriousplugin.addAnnotation(anno)
+        }
+        for (let anno of this.w3cAnnos){
+          this.annotoriousplugin.hideAnnotation(anno.id)
+        }
         this.icoAnnos = this.getIconographyByAnnos(allAnnotationEntries)
         console.log("icoAnnos:", this.icoAnnos);
       }
@@ -623,6 +681,24 @@ export default {
         this.viewerImg.clearOverlays()
       }
     },
+    getIco(element, id){
+      console.log("elementId:", element.iconographyID, "searchID:", id);
+      if (element.iconographyID === id){
+        console.log(" found! elementId:", element.iconographyID, "searchID:", id);
+        let ico = JSON.parse(JSON.stringify(element))
+        ico.children = []
+        return ico
+      } else {
+        for (let child of element.children){
+          console.log("elementId:", element.iconographyID, "got to child:", child.iconographyID);
+          let res = this.getIco(child, id)
+          if (res !== null){
+            return res
+          }
+        }
+        return null
+      }
+    },
     setOSDImgOverlayAnno(){
       var elmAnno = document.createElement("dl");
       elmAnno.id = "html-overlay-anno"
@@ -669,9 +745,11 @@ export default {
       return annosFound
     },
     getAnnoByIcoID(item){
+      console.log("getAnnoByIco for: ", item);
       var annosFound = [];
       for ( var anno of this.depiction.relatedAnnotationList){
         for ( var ie of anno.tags){
+          console.log("compare", item.iconographyID, "with", ie.iconographyID);
           if (ie.iconographyID === item.iconographyID){
             annosFound.push(anno)
           }
@@ -712,7 +790,7 @@ export default {
     addAnnotation(w3cAnno){
       if (w3cAnno.target.id === this.annoImage.filename){
         console.log("started add annotation");
-        this.annotoriousplugin.addAnnotation(w3cAnno)
+        // this.annotoriousplugin.addAnnotation(w3cAnno)
         this.annotoriousplugin.highlightAnnotation(w3cAnno.id)
       }
     },
@@ -736,7 +814,11 @@ export default {
       }
     },
     updateSelectedAnnos(){
-      this.annotoriousplugin.setAnnotations([])
+      console.log("UpdateSelectedAnnos triggered");
+      // this.annotoriousplugin.setAnnotations([])
+      for (let anno of this.w3cAnnos){
+        this.annotoriousplugin.hideAnnotation(anno.id)
+      }
       for (var icoAnno of this.annoSelected) {
         console.log("found Annotated Iconography: ", icoAnno);
         for (var anno of this.getAnnoByIcoID(icoAnno)) {
