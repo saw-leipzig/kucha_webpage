@@ -182,6 +182,7 @@ export default {
       this.$refs.locationSearch.clear();
       this.$refs.wallLocationSearch.clear();
       this.$refs.iconographySearch.clear();
+      this.textSearch = "";
       this.prepAggs();
     },
     onTextSearchInput(value) {
