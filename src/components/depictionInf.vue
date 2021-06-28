@@ -42,13 +42,13 @@
           </v-tabs>
           <v-container fluid style='width:100%;height:550'>
             <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
-              <div id="openseadragonAnno" style='height:500px'>
-                <v-row attach="#openseadragonAnno" style='position: relative;z-index: 4'>
+              <div :id="'openseadragonAnnoDepiction' + depiction.depictionID" style='height:500px'>
+                <v-row :_attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
                     v-model="sheet"
                     inset
                     hide-overlay
-                    attach="#openseadragonAnno"
+                    :attach="'#openseadragonAnnoDepiction' + depiction.depictionID"
                   >
                     <template v-slot:activator="{ on, attrs }">
                       <v-row
@@ -62,7 +62,7 @@
                           outlined
                         >
                           <v-btn
-                          attach="#openseadragonAnno"
+                          :attach="'#openseadragonAnnoDepiction' + depiction.depictionID"
                             color="orange"
                             dark
                             v-bind="attrs"
@@ -86,7 +86,7 @@
                        </v-row>
                     </template>
                       <v-sheet
-                        attach="#openseadragonAnno"
+                        :attach="'#openseadragonAnnoDepiction' + depiction.depictionID"
                         class="text-center"
                         height="340px"
                       >
@@ -99,7 +99,7 @@
                         <v-lazy
                           transition="scroll-x-reverse-transition"
                         >
-                        <v-treeview selection-type="leaf" :filter="filter" :search="search" return-object v-model="annoSelected" rounded  selectable hoverable open-all :items="this.icoAnnos" dense >
+                        <v-treeview item-disabled="locked" selection-type="leaf" :filter="filter" :search="search" return-object v-model="annoSelected" rounded  selectable hoverable open-all :items="this.icoAnnos" dense >
                               <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                                 <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
                                 v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
@@ -397,6 +397,17 @@ export default {
     getDeptictionURL(){
       return "/depiction/" + this.depiction.depictionID
     },
+    disableTree() {
+      for (let rootItem of this.icoAnnos){
+        rootItem.locked = true
+      }
+    },
+    enableTree() {
+      for (let rootItem of this.icoAnnos){
+        rootItem.locked = false
+      }
+    },
+
     getDepictionLabel(){
       return getDepictionLabel(this.depiction, this.$store.state.dic.wallLocation);
     },
@@ -435,7 +446,7 @@ export default {
         tilesAnnos = this.getOSDURL(this.annos[0])
         this.annoImage = this.annos[0]
         this.viewerAnnos = OpenSeadragon({
-          id: "openseadragonAnno",
+          id: 'openseadragonAnnoDepiction' + this.depiction.depictionID,
           prefixUrl: '/static/',
           tileSources: tilesAnnos,
           showRotationControl: true,
@@ -540,7 +551,7 @@ export default {
       this.annos = []
       this.images = []
       for (var img of this.depiction.relatedImages){
-        if (this.depiction.relatedAnnotationList.find(element => element.image === img.filename)) {
+        if (this.depiction.relatedAnnotationList.find(element => parseInt(element.image.split(".")[0]) === img.imageID)) {
           this.annos.push(img)
         } else {
           this.images.push(img)
@@ -575,12 +586,6 @@ export default {
         }
         if (!this.viewerAnnos){
           this.initOSDanno()
-        }
-        if (this.images.length > 0){
-          this.setOSDimages(this.images[0])
-        }
-        if (this.annos.length > 0){
-          this.setOSDannos(this.annos[0])
         }
         var allAnnotationEntries = []
         this.w3cAnnos = []
@@ -623,6 +628,12 @@ export default {
         }
         this.icoAnnos = this.getIconographyByAnnos(allAnnotationEntries)
         console.log("icoAnnos:", this.icoAnnos);
+        if (this.images.length > 0){
+          this.setOSDimages(this.images[0])
+        }
+        if (this.annos.length > 0){
+          this.setOSDannos(this.annos[0])
+        }
       }
     },
     getChildren(item){
@@ -732,10 +743,18 @@ export default {
       console.log("change to ", this.getOSDURL(image));
       this.viewerImg.open(this.getOSDURL(image))
     },
+
     setOSDannos(image){
       this.annoImage = image
       console.log("change to ", this.getOSDURL(image));
       this.viewerAnnos.open(this.getOSDURL(image))
+      if (image.filename === "accessNotPermitted.png"){
+        this.disableTree();
+        console.log("tree disabled:", this.icoAnnos);
+      } else {
+        this.enableTree();
+
+      }
     },
     searchForAnnosByIcoID(id, annosFound){
       for ( var anno of this.depiction.relatedAnnotationList){
