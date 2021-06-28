@@ -1,6 +1,6 @@
 <template>
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;" v-if="idealTypical">
-      <v-card-title > Information for Iconography Entry {{iconography.iconographyID}} </v-card-title>
+      <v-card-title ><a :href="getIcoURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Iconography Entry {{iconography.iconographyID}}</a> </v-card-title>
       <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
       <v-container>
       <v-card>
@@ -239,6 +239,9 @@ export default {
 
   },
   methods: {
+    getIcoURL(){
+      return "/iconography/" + this.iconography.iconographyID
+    },
     getIdsOfChildren(ico, ids){
       var result = []
       if (ico.children){

@@ -1,6 +1,6 @@
 <template>
     <v-card raised width="98%" style="margin: auto;button:20px;">
-      <v-card-title>Information for cave {{getCaveLabel(cave)}} </v-card-title>
+      <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for cave {{getCaveLabel(cave)}} </a> </v-card-title>
       <v-container>
       <v-card>
 
@@ -44,7 +44,7 @@
       </v-container>
 
     <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
-    <hideRelatedItems v-if="cave.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
+    <hideRelatedItems v-if="(cave.relatedBibliographyList && cave.relatedBibliographyList.length>0)" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
 
 </v-card>
 
@@ -200,6 +200,9 @@ export default {
     }
   },
   methods: {
+    getCaveURL(){
+      return "/cave/" + this.cave.caveID
+    },
     getRelatedDepictions(){
       var params = {}
       params['type'] = "cave.caveID"

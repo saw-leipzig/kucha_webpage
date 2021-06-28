@@ -1,6 +1,6 @@
 <template>
     <v-card raised width="98%" style="margin: auto;">
-      <v-card-title > Information for Annotated Bibliography Entry {{bibliography.annotatedBibliographyID}} </v-card-title>
+      <v-card-title ><a :href="getBibURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Annotated Bibliography Entry {{bibliography.annotatedBibliographyID}}</a> </v-card-title>
       <v-card-subtitle v-html="getBibTitle(bibliography)"> </v-card-subtitle>
 
       <v-card-actions v-if="Object.keys(bibInfo).length>0">
@@ -170,6 +170,9 @@ export default {
 
   },
   methods: {
+    getBibURL(){
+      return "/bibliography/" + this.bibliography.annotatedBibliographyID
+    },
     getRelatedDepictions(){
       var params = {}
       params.annotatedBibliographyID = [parseInt(this.$route.params.id)]
