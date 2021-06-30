@@ -155,6 +155,13 @@ export function searchRoot(params, source) {
   for (var nestedQuery of nestedQueries){
     searchQuery.query.bool.should.push(nestedQuery)
   }
+  searchQuery["sort"] = [
+    {"shortName.keyword" : "asc"},
+    {"caveID" : "asc"},
+    {"iconographyID" : "asc"},
+    {"annotatedBibliographyID" : "asc"},
+    "_score"
+  ]
   console.log("searchQuery", searchQuery);
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
