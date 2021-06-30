@@ -141,14 +141,7 @@ export default {
       mini: true,
       query: '',
       logo: logo,
-      logoSmwk: logoSmwk,
-      snackbar: {
-        show: false,
-        text:'test',
-        type: this.HINT
-      },
-      appBarExtension: false,
-      accept_tracking: true,
+      logoSmwk: logoSmwk
     }
   },
   created() {
@@ -183,8 +176,11 @@ export default {
 }
 .v-treeview-node__content, .v-treeview-node__label {
   flex-shrink: 1;
-  word-break: break-all;
+  word-break: break-word;
   min-height: 10px;
+  text-align: left !important;
+  white-space: break-spaces;
+
 }
 .v-treeview-node__root {
   height: auto; min-height: 10px;
