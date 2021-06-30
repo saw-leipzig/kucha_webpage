@@ -40,10 +40,11 @@
               ></v-img>
             </v-tab>
           </v-tabs>
-          <v-container fluid style='width:100%;height:550'>
-            <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
-              <div :id="'openseadragonAnnoDepiction' + depiction.depictionID" style='height:500px'>
-                <v-row :_attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
+          <v-row justify="center" class="mx-5" style='height:550px'>
+            <v-col cols="8"  class="mt-3" >
+              <v-card  style='height:525px;background-color: rgba(255, 255, 255, 1) !important;'>
+                <div :id="'openseadragonAnnoDepiction' + depiction.depictionID"  style='height:500px'>
+                <v-row :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
                     v-model="sheet"
                     inset
@@ -59,6 +60,7 @@
                         >
                         </v-col>
                         <v-col
+                        v-if="isFullScreen"
                           outlined
                         >
                           <v-btn
@@ -99,7 +101,7 @@
                         <v-lazy
                           transition="scroll-x-reverse-transition"
                         >
-                        <v-treeview item-disabled="locked" selection-type="leaf" :filter="filter" :search="search" return-object v-model="annoSelected" rounded  selectable hoverable open-all :items="this.icoAnnos" dense >
+                        <v-treeview selection-type="leaf" :filter="filter" :search="search" return-object v-model="annoSelected" rounded  selectable hoverable open-all :items="this.icoAnnos" dense >
                               <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                                 <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
                                 v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
@@ -109,9 +111,47 @@
                   </v-sheet>
                 </v-bottom-sheet>
                 </v-row>
-                  </div>
-            </v-card>
-          </v-container>
+                </div>
+             </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-card
+                style='height:525px;overflow-y: scroll;overflow-x: hidden;'>
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="search"
+                      label="Search Iconography Tree"
+                      hide-details
+                      clearable
+                      clear-icon="mdi-close-circle-outline" ></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-lazy
+                  transition="scroll-x-reverse-transition"
+                >
+                  <v-treeview
+                    item-disabled="locked"
+                    selection-type="leaf"
+                    :filter="filter"
+                    :search="search"
+                    return-object
+                    v-model="annoSelected"
+                    rounded
+                    selectable
+                    hoverable
+                    open-all
+                    :items="this.icoAnnos"
+                    dense>
+                    <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
+                      <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
+                        v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
+                    </template>
+                  </v-treeview>
+                </v-lazy>
+              </v-card>
+            </v-col>
+           </v-row>
          </div>
       </v-expand-transition>
       <v-card-actions v-if="Object.keys(depictionInfo).length>0" >
@@ -299,11 +339,14 @@ export default {
       viewerImg :null,
       viwerAnnos:null,
       annoSelected: [],
+      annoPermanentSelected: [],
       selectType:"leaf",
       idName:"iconographyID",
       dialog:false,
       sheet:false,
       actControl:"Enable Controll",
+      isFullScreen: false,
+      doupdateSelectedAnnos: true,
     }
   },
   computed:{
@@ -472,11 +515,12 @@ export default {
         config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
         config["image"] = this.viewerAnnos;
         this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
-        this.viewerAnnos.setControlsEnabled(false);
-        this.viewerAnnos.setMouseNavEnabled(false);
+        this.viewerAnnos.setControlsEnabled(true);
+        this.viewerAnnos.setMouseNavEnabled(true);
         var _self = this;
         this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, evt) {
           _self.annotoriousplugin.highlightAnnotation(annotation)
+
           // annotoriousplugin.highlightAnnotation(annotation)
         });
 
@@ -528,8 +572,21 @@ export default {
             console.log("annotation selected: ", _self.annoSelected)
           }
         });
+        this.viewerAnnos.addHandler("full-page", function (data) {
+          console.log("fullscreen trigggered");
+        });
+        document.getElementById('openseadragonAnnoDepiction' + this.depiction.depictionID).addEventListener('fullscreenchange', (event) => {
+          if (document.fullscreenElement) {
+            _self.isFullScreen = true
+          } else {
+            _self.isFullScreen = false
+            _self.sheet = false
+          }
+        });
         this.viewerAnnos.addHandler("pre-full-page", function (data) {
           data.preventDefaultAction = true;
+          console.log("fullscreen trigggered");
+          // _self.isFullScreen = !_self.isFullScreen
           if (data.eventSource.element.requestFullscreen) {
             data.eventSource.element.requestFullscreen();
           } else if (data.eventSource.element.mozRequestFullScreen) {
@@ -895,8 +952,10 @@ export default {
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
-      this.updateSelectedAnnos()
-      console.log("updated Selected Annos", newVal);
+      this.annoPermanentSelected = newVal
+      if (this.doupdateSelectedAnnos){
+        this.updateSelectedAnnos()
+      }
     },
     depiction(newVal, oldVal){
       console.log("depiction changes");
