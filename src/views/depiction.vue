@@ -90,9 +90,10 @@ export default {
 }
 .v-treeview--dense .v-treeview-node__root
 {
+  max-height: 100%;
   min-height: 10px;
 }
 .v-treeview {
-
+  max-height: 100%;
 }
 </style>

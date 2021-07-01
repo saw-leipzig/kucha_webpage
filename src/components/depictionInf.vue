@@ -1,7 +1,6 @@
 <template>
 
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
-
       <v-card-title ><a :href="getDeptictionURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getDepictionLabel()}}</a> </v-card-title>
       <v-card-actions v-if="annos.length>0">
         <v-btn
@@ -11,9 +10,7 @@
         >
           Annotations
         </v-btn>
-
         <v-spacer></v-spacer>
-
         <v-btn
           icon
           @click="showAnno = !showAnno"
@@ -21,7 +18,6 @@
           <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-
       <v-expand-transition v-if="annos.length>0">
         <div v-show="showAnno" style='height:100%'>
           <v-tabs
@@ -41,7 +37,7 @@
             </v-tab>
           </v-tabs>
           <v-row justify="center" class="mx-5" style='height:550px'>
-            <v-col cols="8"  class="mt-3" >
+            <v-col :cols=colsAnnoImg  class="mt-3" >
               <v-card  style='height:525px;background-color: rgba(255, 255, 255, 1) !important;'>
                 <div :id="'openseadragonAnnoDepiction' + depiction.depictionID"  style='height:500px'>
                 <v-row :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
@@ -91,6 +87,7 @@
                         :attach="'#openseadragonAnnoDepiction' + depiction.depictionID"
                         class="text-center"
                         height="340px"
+                        style="overflow-y: scroll;"
                       >
                         <v-text-field
                           v-model="search"
@@ -101,23 +98,41 @@
                         <v-lazy
                           transition="scroll-x-reverse-transition"
                         >
-                        <v-treeview selection-type="leaf" :filter="filter" :search="search" return-object v-model="annoSelected" rounded  selectable hoverable open-all :items="this.icoAnnos" dense >
-                              <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
-                                <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
-                                v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
-                              </template>
+                        <v-treeview
+                          selection-type="leaf"
+                          :filter="filter"
+                          :search="search"
+                          return-object
+                          v-model="annoSelected"
+                          rounded
+                          selectable
+                          hoverable
+                          open-all
+                          :items="this.icoAnnos"
+                          dense
+                          activatable
+                          multiple-active
+                          :active="annoActivated"
+                        >
+                          <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
+                            <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
+                            v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
+                          </template>
                         </v-treeview>
-                        </v-lazy>
+                      </v-lazy>
                   </v-sheet>
                 </v-bottom-sheet>
                 </v-row>
                 </div>
              </v-card>
             </v-col>
-            <v-col cols="4">
+            <v-col :cols=colsAnnoTree>
               <v-card
                 style='height:525px;overflow-y: scroll;overflow-x: hidden;'>
                 <v-row>
+                  <v-col cols=1>
+                    <v-btn icon @click="changeSize()" dense block color="black"><v-icon>{{ annoArrow ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon></v-btn>
+                  </v-col>
                   <v-col>
                     <v-text-field
                       v-model="search"
@@ -141,6 +156,9 @@
                     selectable
                     hoverable
                     open-all
+                    activatable
+                    multiple-active
+                    :active="annoActivated"
                     :items="this.icoAnnos"
                     dense>
                     <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
@@ -339,14 +357,18 @@ export default {
       viewerImg :null,
       viwerAnnos:null,
       annoSelected: [],
+      annoActivated: [],
       annoPermanentSelected: [],
       selectType:"leaf",
       idName:"iconographyID",
       dialog:false,
       sheet:false,
-      actControl:"Enable Controll",
+      actControl:"Enable Controlls",
       isFullScreen: false,
-      doupdateSelectedAnnos: true,
+      hoveredAnno:{},
+      colsAnnoImg:8,
+      colsAnnoTree:4,
+      annoArrow: false
     }
   },
   computed:{
@@ -437,6 +459,17 @@ export default {
     }
   },
   methods: {
+    changeSize(){
+      if (this.annoArrow){
+        this.colsAnnoImg = 8
+        this.colsAnnoTree = 4
+        this.annoArrow = false
+      } else {
+        this.colsAnnoImg = 6
+        this.colsAnnoTree = 6
+        this.annoArrow = true
+      }
+    },
     getDeptictionURL(){
       return "/depiction/" + this.depiction.depictionID
     },
@@ -515,18 +548,41 @@ export default {
         config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
         config["image"] = this.viewerAnnos;
         this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
-        this.viewerAnnos.setControlsEnabled(true);
-        this.viewerAnnos.setMouseNavEnabled(true);
+        this.viewerAnnos.setControlsEnabled(false);
+        this.viewerAnnos.setMouseNavEnabled(false);
         var _self = this;
-        this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, evt) {
-          _self.annotoriousplugin.highlightAnnotation(annotation)
 
-          // annotoriousplugin.highlightAnnotation(annotation)
+        this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, evt) {
+          console.log("mouseEnterAnnotation", annotation)
+          let annos = []
+          for (let anno of annotation.body){
+            if (Array.isArray(_self.icoAnnos)){
+              for (let ico of _self.icoAnnos){
+                let res = _self.getIco(ico, anno.id)
+                if (res !== null){
+                  annos.push(res)
+                  console.log("adding annos:", res);
+                  break
+                }
+              }
+            } else {
+              let res = _self.getIco(_self.icoAnnos, anno.id)
+              if (res !== null){
+                annos.push(res)
+              }
+            }
+          }
+          for (let anno of annos){
+            _self.annoActivated.push(anno)
+          }
+          _self.hoveredAnno = annotation
+          _self.updateSelectedAnnos()
         });
 
         this.annotoriousplugin.on('mouseLeaveAnnotation', function(annotation, evt) {
+          _self.annoActivated = []
+          _self.hoveredAnno = null
           _self.updateSelectedAnnos()
-          // annotoriousplugin.hideAnnotation(annotation)
         });
         this.annotoriousplugin.on('selectAnnotation', function(annotation) {
           // this.icoAnnos
@@ -898,6 +954,7 @@ export default {
       for (let anno of this.w3cAnnos){
         this.annotoriousplugin.hideAnnotation(anno.id)
       }
+      console.log("annoSelected", this.annoSelected);
       for (var icoAnno of this.annoSelected) {
         console.log("found Annotated Iconography: ", icoAnno);
         for (var anno of this.getAnnoByIcoID(icoAnno)) {
@@ -912,6 +969,9 @@ export default {
             }
           }
         }
+      }
+      if (this.hoveredAnno !== null){
+        this.addAnnotation(this.hoveredAnno)
       }
     },
     mouseLeaveNode(item){
@@ -952,10 +1012,10 @@ export default {
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
-      this.annoPermanentSelected = newVal
-      if (this.doupdateSelectedAnnos){
-        this.updateSelectedAnnos()
-      }
+      this.updateSelectedAnnos()
+    },
+    'annoActivated': function(newVal, oldVal) {
+      console.log("annoAvtivated changed:", newVal);
     },
     depiction(newVal, oldVal){
       console.log("depiction changes");
@@ -974,7 +1034,9 @@ export default {
 }
 </script>
 <style lang="css" scoped>
-.v-sheet.v-card {
+.v-treeview {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 100% !important;
 }
-
 </style>
