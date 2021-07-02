@@ -37,10 +37,10 @@
             </v-tab>
           </v-tabs>
           <v-row justify="center" class="mx-5" style='height:550px'>
-            <v-col :cols=colsAnnoImg  class="mt-3" >
-              <v-card  style='height:525px;background-color: rgba(255, 255, 255, 1) !important;'>
+            <v-col :cols=colsAnnoImg  >
+              <v-card :style=" checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                 <div :id="'openseadragonAnnoDepiction' + depiction.depictionID"  style='height:500px'>
-                <v-row :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
+                <v-row class="mt-0" :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
                     v-model="sheet"
                     inset
@@ -125,6 +125,18 @@
                 </v-row>
                 </div>
              </v-card>
+             <v-card :style=" !checkAnnoPermitted() ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+               <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
+                 Access to the picture is restricted due to copyright reasons.
+               </v-card-title>
+               <v-card-text class="pa-10">
+                 Annotations are based on an Image from:<p>
+                 {{annoImage.copyright}}
+                 </p>
+                 <p>For further information, please contact <a href= "mailto:kucha@saw-leipzig.de">the project</a></p>
+               </v-card-text>
+             </v-card>
+
             </v-col>
             <v-col :cols=colsAnnoTree>
               <v-card
@@ -305,8 +317,18 @@
                       ></v-img>
               </v-tab>
             </v-tabs>
-
-                <div id="openseadragonImg" style='height:500px'></div>
+              <div id="openseadragonImg" :style=" checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
+              <v-card :style=" !checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+                <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-all;">
+                  Access to this picture is restricted due to copyright reasons.
+                </v-card-title>
+                <v-card-text class="pa-10">
+                  The is Image from:<p>
+                  {{image.copyright}}
+                  </p>
+                  <p>For further information, please contact <a href= "mailto:kucha@saw-leipzig.de">the project</a></p>
+                </v-card-text>
+              </v-card>
               </v-card>
             </v-container>
             </div>
@@ -459,6 +481,36 @@ export default {
     }
   },
   methods: {
+    checkAnnoPermitted(){
+      console.log("annoImg is here: ", this.annoImage);
+      let isPermit = false
+      if (this.annoImage.filename){
+        if (this.annoImage.filename !== 'accessNotPermitted.png'){
+          isPermit = true
+        } else {
+          isPermit = false
+        }
+      } else {
+        isPermit = true
+      }
+      console.log("annoImg is here: returning:", isPermit);
+      return isPermit
+    },
+    checkImgPermitted(){
+      console.log("annoImg is here: ", this.annoImage);
+      let isPermit = false
+      if (this.Image.filename){
+        if (this.Image.filename !== 'accessNotPermitted.png'){
+          isPermit = true
+        } else {
+          isPermit = false
+        }
+      } else {
+        isPermit = true
+      }
+      console.log("annoImg is here: returning:", isPermit);
+      return isPermit
+    },
     changeSize(){
       if (this.annoArrow){
         this.colsAnnoImg = 8

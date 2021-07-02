@@ -289,6 +289,6 @@ export default {
 .v-treeview {
 overflow-x: auto;
 overflow-y: auto;
-max-height: 100%;
+max-height: 300px;
 }
 </style>
