@@ -38,7 +38,7 @@
           </v-tabs>
           <v-row justify="center" class="mx-5" style='height:550px'>
             <v-col :cols=colsAnnoImg  >
-              <v-card :style=" checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+              <v-card :style=" checkAnnoPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                 <div :id="'openseadragonAnnoDepiction' + depiction.depictionID"  style='height:500px'>
                 <v-row class="mt-0" :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
@@ -125,7 +125,7 @@
                 </v-row>
                 </div>
              </v-card>
-             <v-card :style=" !checkAnnoPermitted() ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+             <v-card :style=" !checkAnnoPermitted ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
                  Access to the picture is restricted due to copyright reasons.
                </v-card-title>
@@ -309,8 +309,8 @@
                       ></v-img>
               </v-tab>
             </v-tabs>
-              <div id="openseadragonImg" :style=" checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
-              <v-card :style=" !checkAnnoPermitted() ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+              <div id="openseadragonImg" :style=" checkImgPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
+              <v-card :style=" !checkImgPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                 <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-all;">
                   Access to this picture is restricted due to copyright reasons.
                 </v-card-title>
@@ -322,7 +322,6 @@
                 </v-card-text>
               </v-card>
               </v-card>
-            </v-container>
             </div>
       </v-expand-transition>
       <hideRelatedItems v-if="depiction.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="depiction.relatedBibliographyList"></hideRelatedItems>
@@ -386,6 +385,48 @@ export default {
     }
   },
   computed:{
+    checkAnnoPermitted(){
+      console.log("annoImg is here: ", this.annoImage);
+      let isPermit = false
+      if (this.annoImage){
+        if (this.annoImage.filename){
+          if (this.annoImage.filename !== 'accessNotPermitted.png'){
+            isPermit = true
+          } else {
+            console.log("annoimg filename is accessNotPermitted.png");
+            isPermit = false
+          }
+        } else {
+          console.log("annoimg has no filename");
+          isPermit = false
+        }
+      } else {
+        console.log("annoimg no annoimg");
+        isPermit = false
+      }
+      console.log("annoImg is here: returning:", isPermit);
+      return isPermit
+    },
+    checkImgPermitted(){
+      let isPermit = false
+      if (this.image !== undefined){
+        if (this.image.filename){
+          console.log("found this.img");
+          if (this.image.filename !== 'accessNotPermitted.png'){
+            isPermit = true
+          } else {
+            isPermit = false
+          }
+        } else {
+          isPermit = false
+        }
+        console.log("annoImg is here: returning:", isPermit);
+      } else {
+        console.log("did not found this.img");
+        isPermit = false
+      }
+      return isPermit
+    },
     filter () {
       return  (item, search, textKey) => {
         return (item["search"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1 || item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1)
@@ -473,36 +514,6 @@ export default {
     }
   },
   methods: {
-    checkAnnoPermitted(){
-      console.log("annoImg is here: ", this.annoImage);
-      let isPermit = false
-      if (this.annoImage.filename){
-        if (this.annoImage.filename !== 'accessNotPermitted.png'){
-          isPermit = true
-        } else {
-          isPermit = false
-        }
-      } else {
-        isPermit = true
-      }
-      console.log("annoImg is here: returning:", isPermit);
-      return isPermit
-    },
-    checkImgPermitted(){
-      console.log("annoImg is here: ", this.annoImage);
-      let isPermit = false
-      if (this.Image.filename){
-        if (this.Image.filename !== 'accessNotPermitted.png'){
-          isPermit = true
-        } else {
-          isPermit = false
-        }
-      } else {
-        isPermit = true
-      }
-      console.log("annoImg is here: returning:", isPermit);
-      return isPermit
-    },
     changeSize(){
       if (this.annoArrow){
         this.colsAnnoImg = 8
@@ -777,11 +788,14 @@ export default {
           this.w3cAnnos.push(anno);
         }
         console.log("w3cAnnos:", this.w3cAnnos);
-        for (let anno of this.w3cAnnos){
-          this.annotoriousplugin.addAnnotation(anno)
-        }
-        for (let anno of this.w3cAnnos){
-          this.annotoriousplugin.hideAnnotation(anno.id)
+        if (Object.keys(this.annotoriousplugin).length > 0){
+          for (let anno of this.w3cAnnos){
+            this.annotoriousplugin.addAnnotation(anno)
+          }
+          for (let anno of this.w3cAnnos){
+            this.annotoriousplugin.hideAnnotation(anno.id)
+          }
+
         }
         this.icoAnnos = this.getIconographyByAnnos(allAnnotationEntries)
         console.log("icoAnnos:", this.icoAnnos);
@@ -853,15 +867,15 @@ export default {
       }
     },
     getIco(element, id){
-      console.log("elementId:", element.iconographyID, "searchID:", id);
+      // console.log("elementId:", element.iconographyID, "searchID:", id);
       if (element.iconographyID === id){
-        console.log(" found! elementId:", element.iconographyID, "searchID:", id);
+        // console.log(" found! elementId:", element.iconographyID, "searchID:", id);
         let ico = JSON.parse(JSON.stringify(element))
         ico.children = []
         return ico
       } else {
         for (let child of element.children){
-          console.log("elementId:", element.iconographyID, "got to child:", child.iconographyID);
+          // console.log("elementId:", element.iconographyID, "got to child:", child.iconographyID);
           let res = this.getIco(child, id)
           if (res !== null){
             return res
@@ -967,6 +981,7 @@ export default {
       return returnElement
     },
     addAnnotation(w3cAnno){
+      console.log("addAnnotation:", w3cAnno);
       if (w3cAnno.target.id === this.annoImage.filename){
         console.log("started add annotation");
         // this.annotoriousplugin.addAnnotation(w3cAnno)
@@ -1014,7 +1029,9 @@ export default {
           }
         }
       }
-      if (this.hoveredAnno !== null){
+      console.log("hoveredAnno:", this.hoveredAnno);
+      if (this.hoveredAnno !== null && this.checkAnnoPermitted){
+        console.log("found hovered Anno", this.hoveredAnno);
         this.addAnnotation(this.hoveredAnno)
       }
     },
