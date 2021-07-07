@@ -173,7 +173,13 @@ export default {
       console.log("idealtypical:", this.idealTypical);
       if (this.idealTypical){
         if (Object.keys(this.idealTypical).length > 0){
-          return true
+          if (Object.keys(this.idealTypical.data).length > 0){
+            console.log("idealtypical returned true:", Object.keys(this.idealTypical).length);
+            return true
+          } else {
+            return false
+
+          }
         } else {
           return false
         }
@@ -320,7 +326,7 @@ export default {
       if (item.iconographyID === this.iconography.iconographyID){
         return "<b>" + item.name + "</b>"
       } else {
-        return "<a href=\"#" + this.getItemURL(item) + "\" style=\"color: inherit;text-decoration: none\">" + item.name + "</a>"
+        return "<a href=\"" + this.getItemURL(item) + "\" style=\"color: inherit;text-decoration: none\">" + item.name + "</a>"
       }
     },
     searchTree(element, ids){

@@ -5,7 +5,7 @@
         <v-lazy
             transition="scroll-x-reverse-transition"
         >
-        <v-treeview :selection-type="getSelectionType" :filter="filter" item-key="iconographyID" :search="search" return-object v-model="iconographySelected" rounded  selectable hoverable open-all :items="iconography" dense >
+        <v-treeview style="max-height: 300px!important;" :selection-type="getSelectionType" :filter="filter" item-key="iconographyID" :search="search" return-object v-model="iconographySelected" rounded  selectable hoverable open-all :items="iconography" dense >
                 <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
                 {{ item.name }}

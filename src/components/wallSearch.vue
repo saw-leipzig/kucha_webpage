@@ -5,8 +5,8 @@
         <v-lazy
             transition="scroll-x-reverse-transition"
         >
-        <v-treeview selection-type="leaf" :filter="filter" item-key="wallLocationID" :search="search" v-model="wallLocationSelected" rounded  selectable hoverable open-all :items="getWallLocations" dense >
-                <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
+        <v-treeview style="max-height: 300px!important;" selection-type="leaf" :filter="filter" item-key="wallLocationID" :search="search" v-model="wallLocationSelected" rounded  selectable hoverable open-all :items="getWallLocations" dense >
+                <template  class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
                   {{ item.name }}
                   <v-badge v-if="item.count"

@@ -152,155 +152,159 @@ export function getWallTreeLabels(wallTree, label){
   return results
 }
 export function getBibTitle(bibliography){
-  var bib = "";
-  var translit = "";
-  var bold = "";
-  var translat = "";
-  var tail = "";
-  if ((bibliography.publicationType.publicationTypeID === 1) || (bibliography.publicationType.publicationTypeID === 3)) {
-    if (getAuthors(bibliography) === "") {
-      if (getEditors(bibliography) !== "") {
-        bib = bib + getEditors(bibliography) + " (ed.)";
-      }
-    } else {
-      bib = bib + getAuthors(bibliography);
-    }
-    if (bibliography.yearORG !== "") {
-      bib = bib + ", " + bibliography.yearORG + ",";
-    }
-    if (getTitleTRFull(bibliography) !== "") {
-      translit = " " + getTitleTRFull(bibliography);
-    }
-    if (getTitleORGFull(bibliography) !== "") {
-      bold = " " + getTitleORGFull(bibliography);
-    }
-    if (getTitleENFull(bibliography) !== "") {
-      translat = " " + getTitleENFull(bibliography);
-    }
-    if (bibliography.volumeORG !== "") {
-      tail = tail + ", Vol." + bibliography.volumeORG;
-    }
-    if (bibliography.editionORG !== "") {
-      tail = tail + ", Edition: " + bibliography.editionORG;
-    }
-    if (bibliography.seriesORG !== "") {
-      tail = tail + ", Series: " + bibliography.seriesORG;
-    }
-    tail = tail + ". ";
-    if (bibliography.publisher !== "") {
-      tail = tail + bibliography.publisher;
-    }
-    if (bibliography.thesisType !== "") {
-      if (bibliography.publisher === "") {
-        tail = tail + bibliography.thesisType + " thesis";
+  if (bibliography.publicationType){
+    var bib = "";
+    var translit = "";
+    var bold = "";
+    var translat = "";
+    var tail = "";
+    if ((bibliography.publicationType.publicationTypeID === 1) || (bibliography.publicationType.publicationTypeID === 3)) {
+      if (getAuthors(bibliography) === "") {
+        if (getEditors(bibliography) !== "") {
+          bib = bib + getEditors(bibliography) + " (ed.)";
+        }
       } else {
-        tail = tail + ", " + bibliography.thesisType;
+        bib = bib + getAuthors(bibliography);
       }
-    }
-    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
-      tail = tail + ", " + bibliography.quotedPages;
-    }
-    tail = tail + ". ";
-    if (bibliography.hesHan){
-      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+      if (bibliography.yearORG !== "") {
+        bib = bib + ", " + bibliography.yearORG + ",";
+      }
+      if (getTitleTRFull(bibliography) !== "") {
+        translit = " " + getTitleTRFull(bibliography);
+      }
+      if (getTitleORGFull(bibliography) !== "") {
+        bold = " " + getTitleORGFull(bibliography);
+      }
+      if (getTitleENFull(bibliography) !== "") {
+        translat = " " + getTitleENFull(bibliography);
+      }
+      if (bibliography.volumeORG !== "") {
+        tail = tail + ", Vol." + bibliography.volumeORG;
+      }
+      if (bibliography.editionORG !== "") {
+        tail = tail + ", Edition: " + bibliography.editionORG;
+      }
+      if (bibliography.seriesORG !== "") {
+        tail = tail + ", Series: " + bibliography.seriesORG;
+      }
+      tail = tail + ". ";
+      if (bibliography.publisher !== "") {
+        tail = tail + bibliography.publisher;
+      }
+      if (bibliography.thesisType !== "") {
+        if (bibliography.publisher === "") {
+          tail = tail + bibliography.thesisType + " thesis";
+        } else {
+          tail = tail + ", " + bibliography.thesisType;
+        }
+      }
+      if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+        tail = tail + ", " + bibliography.quotedPages;
+      }
+      tail = tail + ". ";
+      if (bibliography.hesHan){
+        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
 
-    } else {
-      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
-    }
-  } else if ((bibliography.publicationType.publicationTypeID === 4) || (bibliography.publicationType.publicationTypeID === 7)) {
-    bib = bib + getAuthors(bibliography);
-    if (bibliography.yearORG !== "") {
-      bib = bib + ", " + bibliography.yearORG + ",";
-    }
-    if (getTitleTRFull(bibliography) !== "") {
-      bib = bib + " " + getTitleTRFull(bibliography);
-    }
-    if (getTitleORGFull(bibliography) !== "") {
-      bib = bib + " " + getTitleORGFull(bibliography);
-    }
-    if (getTitleENFull(bibliography) !== "") {
-      bib = bib + " " + getTitleENFull(bibliography);
-    }
-    bib = bib + ". In: ";
-    if (getEditors(bibliography)  !== "") {
-      bib = bib + getEditors(bibliography);
-      if (bibliography.editorType === "") {
-        bib = bib + " (" + bibliography.editorType + ")";
-      }
-    }
-    if (bibliography.parentTitleTR !== "") {
-      translit = translit + " " + getTitleTRFull(bibliography);
-    }
-    if (bibliography.parentTitleORG !== "") {
-      bold = bold + " " + bibliography.parentTitleORG;
-    }
-    if (bibliography.parentTitleEN !== "") {
-      translat = translat + " [" + bibliography.parentTitleEN + "]";
-    }
-    tail = tail + ". ";
-    if (bibliography.publisher !== "") {
-      tail = tail + bibliography.publisher;
-    }
-    if (bibliography.pagesORG !== "") {
-      if (bibliography.publisher === "") {
-        tail = tail + ". " + bibliography.pagesORG;
       } else {
-        tail = tail + ", " + bibliography.pagesORG;
+        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
       }
-    }
-    if (bibliography.url !== "") {
-      tail = tail + ", " + bibliography.url;
-      if (bibliography.accessdateORG !== "") {
-        tail = tail + " [" + bibliography.accessdateORG + "]";
+    } else if ((bibliography.publicationType.publicationTypeID === 4) || (bibliography.publicationType.publicationTypeID === 7)) {
+      bib = bib + getAuthors(bibliography);
+      if (bibliography.yearORG !== "") {
+        bib = bib + ", " + bibliography.yearORG + ",";
       }
-    }
-    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
-      tail = tail + ", " + bibliography.quotedPages;
-    }
-    tail = tail + ". ";
-    if (bibliography.hesHan){
-      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
-    } else {
-      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
-    }
-  } else if (bibliography.publicationType.publicationTypeID === 8) {
-    bib = bib + getAuthors(bibliography);
-    if (bibliography.yearORG !== "") {
-      bib = bib + ", " + bibliography.yearORG + ",";
-    }
-    if (getTitleTRFull(bibliography) !== "") {
-      translit = " " + getTitleTRFull(bibliography);
-    }
-    if (getTitleORGFull(bibliography) !== "") {
-      bold = " " + getTitleORGFull(bibliography);
-    }
-    if (getTitleENFull(bibliography) !== "") {
-      translat = " " + getTitleENFull(bibliography);
-    }
-    if (bibliography.parentTitleORG !== "") {
-      tail = tail + ", " + bibliography.parentTitleORG;
-    }
-    if (bibliography.volumeORG !== "") {
-      tail = tail + " " + bibliography.volumeORG;
-    }
-    if (bibliography.issueORG !== "") {
-      tail = tail + " " + bibliography.issueORG;
-    }
-    if (bibliography.pagesORG !== "" ) {
-      if (bibliography.publisher === "") {
-        tail = tail + ". " + bibliography.pagesORG;
+      if (getTitleTRFull(bibliography) !== "") {
+        bib = bib + " " + getTitleTRFull(bibliography);
+      }
+      if (getTitleORGFull(bibliography) !== "") {
+        bib = bib + " " + getTitleORGFull(bibliography);
+      }
+      if (getTitleENFull(bibliography) !== "") {
+        bib = bib + " " + getTitleENFull(bibliography);
+      }
+      bib = bib + ". In: ";
+      if (getEditors(bibliography)  !== "") {
+        bib = bib + getEditors(bibliography);
+        if (bibliography.editorType === "") {
+          bib = bib + " (" + bibliography.editorType + ")";
+        }
+      }
+      if (bibliography.parentTitleTR !== "") {
+        translit = translit + " " + getTitleTRFull(bibliography);
+      }
+      if (bibliography.parentTitleORG !== "") {
+        bold = bold + " " + bibliography.parentTitleORG;
+      }
+      if (bibliography.parentTitleEN !== "") {
+        translat = translat + " [" + bibliography.parentTitleEN + "]";
+      }
+      tail = tail + ". ";
+      if (bibliography.publisher !== "") {
+        tail = tail + bibliography.publisher;
+      }
+      if (bibliography.pagesORG !== "") {
+        if (bibliography.publisher === "") {
+          tail = tail + ". " + bibliography.pagesORG;
+        } else {
+          tail = tail + ", " + bibliography.pagesORG;
+        }
+      }
+      if (bibliography.url !== "") {
+        tail = tail + ", " + bibliography.url;
+        if (bibliography.accessdateORG !== "") {
+          tail = tail + " [" + bibliography.accessdateORG + "]";
+        }
+      }
+      if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+        tail = tail + ", " + bibliography.quotedPages;
+      }
+      tail = tail + ". ";
+      if (bibliography.hesHan){
+        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
       } else {
-        tail = tail + ", " + bibliography.pagesORG;
+        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
       }
-    }
-    if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
-      tail = tail + ", " + bibliography.quotedPages;
-    }
-    tail = tail + ". ";
-    if (bibliography.hesHan){
-      return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+    } else if (bibliography.publicationType.publicationTypeID === 8) {
+      bib = bib + getAuthors(bibliography);
+      if (bibliography.yearORG !== "") {
+        bib = bib + ", " + bibliography.yearORG + ",";
+      }
+      if (getTitleTRFull(bibliography) !== "") {
+        translit = " " + getTitleTRFull(bibliography);
+      }
+      if (getTitleORGFull(bibliography) !== "") {
+        bold = " " + getTitleORGFull(bibliography);
+      }
+      if (getTitleENFull(bibliography) !== "") {
+        translat = " " + getTitleENFull(bibliography);
+      }
+      if (bibliography.parentTitleORG !== "") {
+        tail = tail + ", " + bibliography.parentTitleORG;
+      }
+      if (bibliography.volumeORG !== "") {
+        tail = tail + " " + bibliography.volumeORG;
+      }
+      if (bibliography.issueORG !== "") {
+        tail = tail + " " + bibliography.issueORG;
+      }
+      if (bibliography.pagesORG !== "" ) {
+        if (bibliography.publisher === "") {
+          tail = tail + ". " + bibliography.pagesORG;
+        } else {
+          tail = tail + ", " + bibliography.pagesORG;
+        }
+      }
+      if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+        tail = tail + ", " + bibliography.quotedPages;
+      }
+      tail = tail + ". ";
+      if (bibliography.hesHan){
+        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+      } else {
+        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+      }
     } else {
-      return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+      return ("undefined")
     }
   } else {
     return ("undefined")
