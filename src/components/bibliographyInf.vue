@@ -42,7 +42,7 @@
                   </v-tab>
                 </v-tabs>
 
-                  <v-card flat>
+                  <v-card flat style="min-height:50%">
                     <v-tabs-items v-model="tab">
                       <v-tab-item
                         v-for="(item_value, item_name, item_key) in bibInfo"
@@ -60,8 +60,6 @@
 
 
               </v-card>
-            </v-container>
-          </v-card-text>
         </div>
       </v-expand-transition>
       <v-card-actions v-if="bibliography.annotation">
@@ -87,16 +85,19 @@
           <v-divider></v-divider>
 
               <v-card class="mx-10" >
-            <v-container>
-              <v-card>
                 <v-card-title>
+                  <a :href="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'">
                   Annotation for Annotated Bibliography {{bibliography.annotatedBibliographyID}}
+                  </a>
                 </v-card-title>
-                <div id="openseadragonAnno" style='height:500px'>
+                <div>
+                  <vue-pdf-app
+                  style="height: 80vh;"
+                    :pdf="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'"
+                  ></vue-pdf-app>
                 </div>
+
               </v-card>
-            </v-container>
-          </v-card-text>
         </div>
       </v-expand-transition>
       <div v-if="relatedDepictions">
@@ -110,7 +111,10 @@
 
 import {getDepictionByBibliography} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
-import OpenSeadragon from "openseadragon"
+import VuePdfApp from "vue-pdf-app";
+// import this to use default icons for buttons
+import "vue-pdf-app/dist/icons/main.css";
+
 export default {
   name: 'bibliographyInf',
   props: {
@@ -118,56 +122,65 @@ export default {
   },
 
   components: {
+    VuePdfApp
   },
 
   data () {
     return {
       relatedDepictions:[],
       showAddInf: false,
-      showAnno: false,
+      showAnno: true,
       tab:[],
-      viewerImg:{}
+      viewerImg:{},
+      currentPage: 0,
+      pageCount: 0
     }
   },
   computed: {
     bibInfo (){
-      console.log("bibentry: ", this.bibliography);
-      var bibInfo = {}
-      var basciInf = {}
-      var content = {}
-      if (this.bibliography.abstractText !== ""){
-        content["Abstract"] = this.bibliography.abstractText
-      }
-      if (this.bibliography.comments !== ""){
-        content["Comments"] = this.bibliography.comments
-      }
-      if (this.bibliography.keywordList.length > 0){
-        let keywords = ""
-        for (let keyword of this.bibliography.keywordList){
-          if (keywords === ""){
-            keywords += keyword.bibKeyword
-          }
+      if (this.bibliography.annotatedBibliographyID){
+        console.log("bibentry: ", this.bibliography);
+        var bibInfo = {}
+        var basciInf = {}
+        var content = {}
+        if (this.bibliography.abstractText !== ""){
+          content["Abstract"] = this.bibliography.abstractText
         }
-        basciInf["Keywords"] = keywords
-      }
-      if (this.bibliography.url !== ""){
-        basciInf["Url"] = this.bibliography.url
-      }
-      if (this.bibliography.notes !== ""){
-        content["Notes"] = this.bibliography.notes
-      }
-      if (Object.keys(basciInf).length > 0){
-        bibInfo["Basic Inforamtion"] = basciInf
-      }
-      if (Object.keys(content).length > 0){
-        bibInfo["Content"] = content
-      }
+        if (this.bibliography.comments !== ""){
+          content["Comments"] = this.bibliography.comments
+        }
+        if (this.bibliography.keywordList.length > 0){
+          let keywords = ""
+          for (let keyword of this.bibliography.keywordList){
+            if (keywords === ""){
+              keywords += keyword.bibKeyword
+            }
+          }
+          basciInf["Keywords"] = keywords
+        }
+        if (this.bibliography.url !== ""){
+          basciInf["Url"] = this.bibliography.url
+        }
+        if (this.bibliography.notes !== ""){
+          content["Notes"] = this.bibliography.notes
+        }
+        if (Object.keys(basciInf).length > 0){
+          bibInfo["Basic Inforamtion"] = basciInf
+        }
+        if (Object.keys(content).length > 0){
+          bibInfo["Content"] = content
+        }
 
-      return bibInfo
+        return bibInfo
+      } else {
+        return {}
+      }
     }
-
   },
   methods: {
+    getAllPages(){
+
+    },
     getBibURL(){
       return "/bibliography/" + this.bibliography.annotatedBibliographyID
     },
@@ -186,22 +199,7 @@ export default {
           console.log(error)
         })
     },
-    initOSDAnno(){
-      if (this.bibliography.annotation){
-        let tile = process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fdocuments%2FAnnotatedBibliography." + this.bibliography.annotatedBibliographyID + "-annotation.pdf/info.json"
-        let tilesImg = []
-        tilesImg.push(tile)
-        console.log("images available, initiate OSDAnno");
-        this.viewerImg = OpenSeadragon({
-          id: "openseadragonAnno",
-          sequenceMode: true,
-          showReferenceStrip: true,
-          prefixUrl: '/static/',
-          tileSources: tilesImg,
-        })
-      }
 
-    },
     mouseOver: function(){
       this.showAddInf = !this.showAddInf
     },
@@ -214,7 +212,6 @@ export default {
     }
   },
   mounted:function () {
-    this.initOSDAnno()
     this.getRelatedDepictions()
   }
 }
