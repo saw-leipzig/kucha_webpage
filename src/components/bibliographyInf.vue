@@ -26,9 +26,7 @@
         <div v-show="showAddInf">
           <v-divider></v-divider>
 
-          <v-card-text>
-            <v-container>
-              <v-card>
+              <v-card class="mx-10">
                 <v-card-title>
                   Additional Information for Annotated Bibliography {{bibliography.annotatedBibliographyID}}
                 </v-card-title>
@@ -88,7 +86,7 @@
         <div v-show="showAnno">
           <v-divider></v-divider>
 
-          <v-card-text>
+              <v-card class="mx-10" >
             <v-container>
               <v-card>
                 <v-card-title>

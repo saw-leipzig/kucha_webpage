@@ -1,9 +1,7 @@
 <template>
-    <v-card raised width="98%" style="margin: auto;button:20px;">
-      <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for cave {{getCaveLabel(cave)}} </a> </v-card-title>
-      <v-container>
-      <v-card>
-
+  <v-card raised width="98%" style="margin: auto;button:20px;">
+    <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for cave {{getCaveLabel(cave)}} </a> </v-card-title>
+    <v-card class="mx-10">
       <v-tabs
       v-model="tab" v-if="Object.keys(caveInfo).length>0"
 
@@ -15,33 +13,31 @@
           {{ item_name }}
         </v-tab>
       </v-tabs>
-
-        <v-card flat>
-          <v-row>
-            <v-col style="width:50%">
-              <v-tabs-items v-model="tab">
-                <v-tab-item
-                v-for="(item_value, item_name, item_key) in caveInfo"
-                :key="item_key"
-                >
-                  <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
-                    <v-list-item-content>
-                      <v-list-item-title>{{name}}</v-list-item-title>
-                      <div style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-tab-item>
-              </v-tabs-items>
-            </v-col>
+      <v-card flat>
+        <v-row>
+          <v-col style="width:50%">
+            <v-tabs-items v-model="tab">
+              <v-tab-item
+              v-for="(item_value, item_name, item_key) in caveInfo"
+              :key="item_key"
+              >
+                <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
+                  <v-list-item-content>
+                    <v-list-item-title>{{name}}</v-list-item-title>
+                    <div style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-col>
           <v-col v-if="cave.caveSketchList">
             <v-row v-for="(item,key) in caveScatches" :key="key">
               <v-img v-resize="getCaveRes" contain width="inherit" :src="item"></v-img>
             </v-row>
           </v-col>
-      </v-row>
-    </v-card>
+        </v-row>
       </v-card>
-      </v-container>
+    </v-card>
 
     <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     <hideRelatedItems v-if="(cave.relatedBibliographyList && cave.relatedBibliographyList.length>0)" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
@@ -206,7 +202,11 @@ export default {
     getRelatedDepictions(){
       var params = {}
       params['type'] = "cave.caveID"
-      params['id'] = this.$route.params.id
+      if (this.$route.params.id){
+        params['id'] = this.$route.params.id
+      } else {
+        params['id'] = this.cave.caveID
+      }
       getItemById(params)
         .then( res => {
           let results = []

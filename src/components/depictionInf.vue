@@ -206,49 +206,44 @@
       <v-expand-transition v-if="Object.keys(depictionInfo).length>0">
         <div v-show="showDescription">
           <v-divider></v-divider>
+            <v-card class="mx-10" style="background-color: rgba(255, 255, 255, 1) !important">
+              <v-card-title>
+                Basic Information for Painted Representation {{depiction.depictionID}}
+              </v-card-title>
+              <v-tabs
+              v-model="tab"
 
-          <v-card-text>
-            <v-container>
-              <v-card style="background-color: rgba(255, 255, 255, 1) !important">
-                <v-card-title>
-                  Basic Information for Painted Representation {{depiction.depictionID}}
-                </v-card-title>
-                <v-tabs
-                v-model="tab"
-
+              >
+                <v-tab
+                  v-for="(item_value, item_name, item_key) in depictionInfo"
+                  :key="item_key"
                 >
-                  <v-tab
-                    v-for="(item_value, item_name, item_key) in depictionInfo"
-                    :key="item_key"
-                  >
-                    {{ item_name }}
-                  </v-tab>
-                </v-tabs>
+                  {{ item_name }}
+                </v-tab>
+              </v-tabs>
 
-                  <v-card flat>
-                    <v-tabs-items v-model="tab">
-                      <v-tab-item
-                        v-for="(item_value, item_name, item_key) in depictionInfo"
-                        :key="item_key"
-                      >
-                        <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
-                          <v-list-item-content>
-                            <v-list-item-title >{{name}}</v-list-item-title>
-                            <div v-if="name !== 'Wall Location'" style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
-                            <v-treeview
-                                v-if="name === 'Wall Location'"
-                                :items="value"
-                            ></v-treeview>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-tab-item>
-                    </v-tabs-items>
-                  </v-card>
+                <v-card flat>
+                  <v-tabs-items v-model="tab">
+                    <v-tab-item
+                      v-for="(item_value, item_name, item_key) in depictionInfo"
+                      :key="item_key"
+                    >
+                      <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
+                        <v-list-item-content>
+                          <v-list-item-title >{{name}}</v-list-item-title>
+                          <div v-if="name !== 'Wall Location'" style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                          <v-treeview
+                              v-if="name === 'Wall Location'"
+                              :items="value"
+                          ></v-treeview>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-tab-item>
+                  </v-tabs-items>
+                </v-card>
 
 
-              </v-card>
-            </v-container>
-          </v-card-text>
+            </v-card>
         </div>
       </v-expand-transition>
       <v-card-actions v-if="depiction.cave && presentCave">
@@ -272,9 +267,7 @@
       <v-expand-transition v-if="depiction.cave && presentCave">
         <div v-show="showCave">
           <v-divider></v-divider>
-            <v-container>
-              <caveInf v-if=depiction.cave :cave="depiction.cave"></caveInf>
-            </v-container>
+              <caveInf class="mx-10" v-if=depiction.cave :cave="depiction.cave"></caveInf>
         </div>
       </v-expand-transition>
 
@@ -300,8 +293,7 @@
       <v-expand-transition v-if="images.length>0">
 
             <div v-show="showImage" style='height:650px'>
-            <v-container style='height:550'>
-              <v-card style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
+              <v-card class="mx-10" style='height:550px;background-color: rgba(255, 255, 255, 1) !important'>
             <v-tabs
             v-if="images.length"
               slider-color="yellow"

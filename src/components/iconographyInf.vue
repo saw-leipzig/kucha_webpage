@@ -2,8 +2,7 @@
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;" v-if="idealTypical">
       <v-card-title ><a :href="getIcoURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Iconography Entry {{iconography.iconographyID}}</a> </v-card-title>
       <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
-      <v-container>
-      <v-card>
+      <v-card class="mx-10">
 
       <v-treeview
           :items="icoTree"
@@ -17,7 +16,6 @@
         </template>
       </v-treeview>
       </v-card>
-      </v-container>
 
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
@@ -42,9 +40,7 @@
         <div v-show="showDec">
           <v-divider></v-divider>
 
-          <v-card-text>
-            <v-container>
-              <v-card>
+              <v-card class="mx-10">
                 <v-card-title>
                   Additional Information for Iconography Entry {{iconography.iconographyID}} ({{iconography.text}})
                 </v-card-title>
@@ -77,8 +73,6 @@
                   </v-card>
 
               </v-card>
-            </v-container>
-          </v-card-text>
         </div>
       </v-expand-transition>
       <v-card-actions v-if="hasImages">
@@ -102,29 +96,25 @@
 
       <v-expand-transition>
 
-            <div v-show="showImage" style='height:650px'>
-            <v-tabs
-            v-if="hasImages"
-              slider-color="yellow"
-              centered
-            >
-              <v-tab
-                v-for="(item, index) in idealTypical.images"
-                :key="index"
-                @click="setOSDimages(item)"
-            >
-                    <v-img
-                        :src="getThumbnail(item)"
-                      ></v-img>
-              </v-tab>
-            </v-tabs>
-            <v-container style='height:550'>
-              <v-card style='height:550px'>
 
+              <v-card class="mx-10" style='height:550px' v-if="hasImages">
+                <v-tabs
+                v-if="hasImages"
+                  slider-color="yellow"
+                  centered
+                >
+                  <v-tab
+                    v-for="(item, index) in idealTypical.images"
+                    :key="index"
+                    @click="setOSDimages(item)"
+                >
+                        <v-img
+                            :src="getThumbnail(item)"
+                          ></v-img>
+                  </v-tab>
+                </v-tabs>
                 <div id="openseadragonImg" style='height:500px'></div>
               </v-card>
-            </v-container>
-            </div>
       </v-expand-transition>
       <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     </v-card>

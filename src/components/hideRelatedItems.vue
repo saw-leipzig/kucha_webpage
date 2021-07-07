@@ -22,7 +22,7 @@
         <v-expand-transition>
         <div v-show="showRelatedItems">
             <v-divider></v-divider>
-                <relatedItems :relatedItems="items" :presentCave="presentCave"></relatedItems>
+                <relatedItems class="mx-5" :relatedItems="items" :presentCave="presentCave"></relatedItems>
             </div>
         </v-expand-transition>
     </div>
