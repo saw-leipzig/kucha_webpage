@@ -51,23 +51,23 @@
                 <template v-slot:activator>
                   <v-list-item-title class="text-wrap" >Advanced Search</v-list-item-title>
                 </template>
-            <v-list-item to="/cave">
-                <v-list-item-icon>
-                  <v-icon >mdi-image-filter-hdr</v-icon>
+            <v-list-item to="/cave" style="padding:0 0px">
+                <v-list-item-icon style="min-width: 56px;">
+                  <iconCave width=56 height=56 ></iconCave>
                 </v-list-item-icon>
                 <v-list-item-title>Cave</v-list-item-title>
 
               </v-list-item>
-            <v-list-item to="/depiction">
-                <v-list-item-icon>
-                  <v-icon >mdi-image-search</v-icon>
+            <v-list-item to="/depiction" style="padding:0 0px">
+                <v-list-item-icon style="min-width: 56px;">
+                  <iconPaintedRepresentation width=56 height=56 ></iconPaintedRepresentation>
                 </v-list-item-icon>
                 <v-list-item-title>Painted Representation</v-list-item-title>
 
               </v-list-item>
-            <v-list-item to="/bibliography">
-                <v-list-item-icon>
-                  <v-icon >mdi-book-open-variant</v-icon>
+            <v-list-item to="/bibliography" style="padding:0 0px">
+                <v-list-item-icon style="min-width: 56px;">
+                  <iconBibliography width=56 height=56 ></iconBibliography>
                 </v-list-item-icon>
                 <v-list-item-title>Annotated Bibliography</v-list-item-title>
 
@@ -131,6 +131,10 @@
 
 <script>
 import {logo, logoSmwk} from '@/utils/constants'
+import iconCave from '@/components/icons/iconCave'
+import iconPaintedRepresentation from '@/components/icons/iconPaintedRepresentation'
+import iconBibliography from '@/components/icons/iconBibliography'
+
 export default {
   name: 'App',
   data () {
@@ -147,6 +151,9 @@ export default {
   created() {
   },
   components: {
+    iconCave,
+    iconPaintedRepresentation,
+    iconBibliography,
   },
   methods: {
   },
