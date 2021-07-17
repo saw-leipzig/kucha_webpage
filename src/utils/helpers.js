@@ -1,5 +1,6 @@
 import 'leaflet'
 import store from '../store'
+import OpenSeadragon from 'openseadragon'
 
 function getName(author) {
   return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
@@ -44,6 +45,7 @@ function getTitleTRFull(bibliography) {
   var result = bibliography.subtitleTR === "" ? bibliography.titleTR : bibliography.titleTR + ": " + bibliography.subtitleTR;
   return result;
 }
+
 function getTitleENFull(bibliography) {
   var result = "";
   if (bibliography.titleEN === "") {
@@ -99,6 +101,58 @@ export function getWallTree(wallLocationTree, entries){
     return null
   }
 }
+
+export function checkAnnoPermitted(item){
+  console.log("checkAnnoPermitted", item);
+  let isPermit = false
+  if (item){
+    if (item.filename){
+      if (item.filename !== 'accessNotPermitted.png'){
+        isPermit = true
+      } else {
+        isPermit = false
+      }
+    } else {
+      isPermit = false
+    }
+  } else {
+    isPermit = false
+  }
+  return isPermit
+}
+export function fillPicsContainer(relatedImages, relatedAnnotationList){
+  let images = {
+    annos: [],
+    images: []
+  }
+  for (var img of relatedImages){
+    if (relatedAnnotationList.find(element => parseInt(element.image.split(".")[0]) === img.imageID)) {
+      images.annos.push(img)
+    } else {
+      images.images.push(img)
+    }
+  }
+  return images
+}
+
+export function checkImgPermitted(item){
+  let isPermit = false
+  if (item !== undefined){
+    if (item.filename){
+      if (item.filename !== 'accessNotPermitted.png'){
+        isPermit = true
+      } else {
+        isPermit = false
+      }
+    } else {
+      isPermit = false
+    }
+  } else {
+    isPermit = false
+  }
+  return isPermit
+}
+
 export function getWallTreeByIDs(wallIDs, wallLocation){
   var wallClone = Object.assign({}, wallLocation)
   var walls = []
@@ -310,6 +364,44 @@ export function getBibTitle(bibliography){
     return ("undefined")
   }
 }
+export function getOSDURLs(images){
+  let tiles = []
+  for (let ie of images) {
+    tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
+  }
+  return tiles
+}
+
+export function setOSDImgOverlayImg(image, viewer){
+  var elm = document.createElement("dl");
+  elm.id = "html-overlay"
+  var titleHd = document.createElement("dt");
+  titleHd.innerHTML = "Filename:"
+  var title = document.createElement("dd");
+  title.innerHTML = image.filename
+  var copyrightHd = document.createElement("dt");
+  copyrightHd.innerHTML = "Copyright:"
+  var copyright = document.createElement("dd");
+  copyright.innerHTML = image.copyright
+  elm.appendChild(titleHd)
+  elm.appendChild(title)
+  elm.appendChild(copyrightHd)
+  elm.appendChild(copyright)
+  if (viewer.getOverlayById("html-overlay") === null) {
+    viewer.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
+    var textPoint = new OpenSeadragon.Point(1.01, 0);
+    viewer.addOverlay(elm, textPoint)
+  } else {
+    viewer.clearOverlays()
+  }
+}
+
+export function getOSDURL(image){
+  let tiles = []
+  tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
+  return tiles
+}
+
 export function getSiteLabel(item, sites){
   let site = item > 0 ? store.getters.getDics.sites.find(site => site.siteID === item).name : "";
   return site

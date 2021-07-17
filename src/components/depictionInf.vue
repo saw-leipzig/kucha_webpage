@@ -31,14 +31,15 @@
               :key="index"
               @click="setOSDannos(item)"
             >
-              <v-img
+            <v-img v-if="checkImgPermitted"
                 :src="getThumbnail(item)"
               ></v-img>
+            <v-icon v-if="!checkImgPermitted">mdi-lock</v-icon>
             </v-tab>
           </v-tabs>
           <v-row justify="center" class="mx-5" style='height:550px'>
             <v-col :cols=colsAnnoImg  >
-              <v-card :style=" checkAnnoPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+              <v-card :style=" checkAnnoPermitted(annoImage) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                 <div :id="'openseadragonAnnoDepiction' + depiction.depictionID"  style='height:500px'>
                 <v-row class="mt-0" :attach="'#openseadragonAnnoDepiction' + depiction.depictionID" style='position: relative;z-index: 4'>
                   <v-bottom-sheet
@@ -125,7 +126,7 @@
                 </v-row>
                 </div>
              </v-card>
-             <v-card :style=" !checkAnnoPermitted ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+             <v-card :style=" !checkAnnoPermitted(annoImage) ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
                  Access to the picture is restricted due to copyright reasons.
                </v-card-title>
@@ -138,7 +139,10 @@
              </v-card>
 
             </v-col>
-            <v-col :cols=colsAnnoTree>
+            <v-col :cols=colsAnnoTree  :ref="'cardAnnoDepiction' + depiction.depictionID">
+              <v-tooltip :position-y="yTag" :position-x="xTag" right v-if="!(hoveredTags(hoveredAnno) === '')" v-model="showTag" >
+                <span >{{hoveredTags(hoveredAnno)}}</span>
+              </v-tooltip>
               <v-card
                 style='height:525px;overflow-y: scroll;overflow-x: hidden;'>
                 <v-row>
@@ -304,13 +308,14 @@
                 :key="index"
                 @click="setOSDimages(item)"
             >
-                    <v-img
-                        :src="getThumbnail(item)"
-                      ></v-img>
+            <v-img v-if="checkImgPermitted(item)"
+                :src="getThumbnail(item)"
+              ></v-img>
+            <v-icon x-large v-if="!checkImgPermitted(item)">mdi-lock</v-icon>
               </v-tab>
             </v-tabs>
-              <div id="openseadragonImg" :style=" checkImgPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
-              <v-card :style=" !checkImgPermitted ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+              <div id="openseadragonImg" :style=" checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
+              <v-card :style=" !checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
                 <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-all;">
                   Access to this picture is restricted due to copyright reasons.
                 </v-card-title>
@@ -331,7 +336,7 @@
 <script>
 import image from '@/views/image'
 import caveInf from '@/components/caveInf'
-import {getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
+import {checkImgPermitted, checkAnnoPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
 import * as d3 from "d3";
 import OpenSeadragon from 'openseadragon'
 import Annotorious from '../../static/openseadragon-annotorious.min.js'
@@ -349,11 +354,11 @@ export default {
   },
 
   data () {
-    console.log("depiction", this.depiction);
     return {
       tab:[],
       search: null,
       showDescription: false,
+      showTag:true,
       annoImage:{},
       image:{},
       annotoriousplugin: {},
@@ -385,47 +390,19 @@ export default {
     }
   },
   computed:{
-    checkAnnoPermitted(){
-      console.log("annoImg is here: ", this.annoImage);
-      let isPermit = false
-      if (this.annoImage){
-        if (this.annoImage.filename){
-          if (this.annoImage.filename !== 'accessNotPermitted.png'){
-            isPermit = true
-          } else {
-            console.log("annoimg filename is accessNotPermitted.png");
-            isPermit = false
-          }
-        } else {
-          console.log("annoimg has no filename");
-          isPermit = false
-        }
-      } else {
-        console.log("annoimg no annoimg");
-        isPermit = false
-      }
-      console.log("annoImg is here: returning:", isPermit);
-      return isPermit
+    yTag(){
+      if (this.$refs['cardAnnoDepiction' + this.depiction.depictionID]){
+        console.log("hoveredAnno triggered", this.$refs['cardAnnoDepiction' + this.depiction.depictionID].getBoundingClientRect());
+        return this.$refs['cardAnnoDepiction' + this.depiction.depictionID].getBoundingClientRect().y - 10
+      } else return 0
+
     },
-    checkImgPermitted(){
-      let isPermit = false
-      if (this.image !== undefined){
-        if (this.image.filename){
-          console.log("found this.img");
-          if (this.image.filename !== 'accessNotPermitted.png'){
-            isPermit = true
-          } else {
-            isPermit = false
-          }
-        } else {
-          isPermit = false
-        }
-        console.log("annoImg is here: returning:", isPermit);
-      } else {
-        console.log("did not found this.img");
-        isPermit = false
-      }
-      return isPermit
+    xTag(){
+      if (this.$refs['cardAnnoDepiction' + this.depiction.depictionID]){
+        console.log("hoveredAnno triggered", this.$refs['cardAnnoDepiction' + this.depiction.depictionID]);
+        return this.$refs['cardAnnoDepiction' + this.depiction.depictionID].getBoundingClientRect().x
+      } else return 0
+
     },
     filter () {
       return  (item, search, textKey) => {
@@ -514,6 +491,27 @@ export default {
     }
   },
   methods: {
+    hoveredTags(hoveredAnno){
+      let tags = ""
+      if (hoveredAnno){
+        if (hoveredAnno.body){
+          for (let tag of hoveredAnno.body){
+            if (tags === ""){
+              tags = tag.value
+            } else {
+              tags += "/" + tag.value
+            }
+          }
+        }
+      }
+      return tags
+    },
+    checkAnnoPermitted(item){
+      return checkAnnoPermitted(item)
+    },
+    checkImgPermitted(item){
+      return checkImgPermitted(item)
+    },
     changeSize(){
       if (this.annoArrow){
         this.colsAnnoImg = 8
@@ -547,7 +545,7 @@ export default {
       console.log("Initializing Images: ", this.images);
       if (this.images.length > 0){
         console.log("images available, initiate OSDIMG");
-        tilesImg = this.getOSDURL(this.images[0])
+        tilesImg = getOSDURL(this.images[0])
         this.image = this.images[0]
         this.viewerImg = OpenSeadragon({
           id: "openseadragonImg",
@@ -574,7 +572,7 @@ export default {
     initOSDanno(){
       let tilesAnnos = []
       if (this.annos.length > 0){
-        tilesAnnos = this.getOSDURL(this.annos[0])
+        tilesAnnos = getOSDURL(this.annos[0])
         this.annoImage = this.annos[0]
         this.viewerAnnos = OpenSeadragon({
           id: 'openseadragonAnnoDepiction' + this.depiction.depictionID,
@@ -606,9 +604,8 @@ export default {
         this.viewerAnnos.setControlsEnabled(false);
         this.viewerAnnos.setMouseNavEnabled(false);
         var _self = this;
-
-        this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, evt) {
-          console.log("mouseEnterAnnotation", annotation)
+        this.annotoriousplugin.disableEditor = true
+        this.annotoriousplugin.on('mouseEnterAnnotation', function(annotation, event) {
           let annos = []
           for (let anno of annotation.body){
             if (Array.isArray(_self.icoAnnos)){
@@ -639,8 +636,11 @@ export default {
           _self.hoveredAnno = null
           _self.updateSelectedAnnos()
         });
-        this.annotoriousplugin.on('selectAnnotation', function(annotation) {
-          // this.icoAnnos
+        this.annotoriousplugin.on('cancelSelected', function(annotation, evt) {
+          console.log("deselection", evt);
+        });
+        this.annotoriousplugin.on('selectAnnotation', function(annotation, evt) {
+          console.log("selection", evt);
           let found = false
           for (let anno of annotation.body){
             const selectedIco = _self.annoSelected.find(el => el.iconographyID === anno.id)
@@ -821,18 +821,6 @@ export default {
     getThumbnail(image){
       return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
     },
-    getOSDURLs(images){
-      let tiles = []
-      for (let ie of images) {
-        tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + ie.filename + "/info.json")
-      }
-      return tiles
-    },
-    getOSDURL(image){
-      let tiles = []
-      tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
-      return tiles
-    },
     mouseOver: function(){
       this.showDescription = !this.showDescription
     },
@@ -844,27 +832,7 @@ export default {
       }
     },
     setOSDImgOverlayImg(){
-      var elm = document.createElement("dl");
-      elm.id = "html-overlay"
-      var titleHd = document.createElement("dt");
-      titleHd.innerHTML = "Filename:"
-      var title = document.createElement("dd");
-      title.innerHTML = this.image.filename
-      var copyrightHd = document.createElement("dt");
-      copyrightHd.innerHTML = "Copyright:"
-      var copyright = document.createElement("dd");
-      copyright.innerHTML = this.image.copyright
-      elm.appendChild(titleHd)
-      elm.appendChild(title)
-      elm.appendChild(copyrightHd)
-      elm.appendChild(copyright)
-      if (this.viewerImg.getOverlayById("html-overlay") === null) {
-        this.viewerImg.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
-        var textPoint = new OpenSeadragon.Point(1.01, 0);
-        this.viewerImg.addOverlay(elm, textPoint)
-      } else {
-        this.viewerImg.clearOverlays()
-      }
+      setOSDImgOverlayImg(this.image, this.viewerImg)
     },
     getIco(element, id){
       // console.log("elementId:", element.iconographyID, "searchID:", id);
@@ -885,40 +853,18 @@ export default {
       }
     },
     setOSDImgOverlayAnno(){
-      var elmAnno = document.createElement("dl");
-      elmAnno.id = "html-overlay-anno"
-      var titleHd = document.createElement("dt");
-      titleHd.innerHTML = "Filename:"
-      var title = document.createElement("dd");
-      title.innerHTML = this.annoImage.filename
-      var copyrightHd = document.createElement("dt");
-      copyrightHd.innerHTML = "Copyright:"
-      var copyright = document.createElement("dd");
-      copyright.innerHTML = this.annoImage.copyright
-      elmAnno.appendChild(titleHd)
-      elmAnno.appendChild(title)
-      elmAnno.appendChild(copyrightHd)
-      elmAnno.appendChild(copyright)
-
-      if (this.viewerAnnos.getOverlayById("html-overlay-anno") === null){
-        this.viewerAnnos.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
-
-        var textPoint = new OpenSeadragon.Point(1.01, 0);
-        this.viewerAnnos.addOverlay(elmAnno, textPoint)
-      } else {
-        this.viewerAnnos.clearOverlays()
-      }
+      setOSDImgOverlayImg(this.annoImage, this.viewerAnnos)
     },
     setOSDimages(image){
       this.image = image
-      console.log("change to ", this.getOSDURL(image));
-      this.viewerImg.open(this.getOSDURL(image))
+      console.log("change to ", getOSDURL(image));
+      this.viewerImg.open(getOSDURL(image))
     },
 
     setOSDannos(image){
       this.annoImage = image
-      console.log("change to ", this.getOSDURL(image));
-      this.viewerAnnos.open(this.getOSDURL(image))
+      console.log("change to ", getOSDURL(image));
+      this.viewerAnnos.open(getOSDURL(image))
       if (image.filename === "accessNotPermitted.png"){
         this.disableTree();
         console.log("tree disabled:", this.icoAnnos);
@@ -1030,7 +976,7 @@ export default {
         }
       }
       console.log("hoveredAnno:", this.hoveredAnno);
-      if (this.hoveredAnno !== null && this.checkAnnoPermitted){
+      if (this.hoveredAnno !== null && this.checkAnnoPermitted(this.annoImage)){
         console.log("found hovered Anno", this.hoveredAnno);
         this.addAnnotation(this.hoveredAnno)
       }
@@ -1085,12 +1031,8 @@ export default {
   },
   mounted:function () {
     console.log("Depiction mounted");
-    console.log("imgURL", this.$store.state);
     this.initNewDepiction()
   },
-  created:function(){
-    this.fillPicsContainer();
-  }
 
 }
 </script>

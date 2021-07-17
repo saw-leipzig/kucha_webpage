@@ -16,7 +16,25 @@
         </template>
       </v-treeview>
       </v-card>
-
+      <v-card-actions v-if="idealTypical.annos.length>0">
+        <v-btn
+          @click="showAnno = !showAnno"
+          color="orange lighten-2"
+          text
+        >
+          Annotations
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn
+          icon
+          @click="showAnno = !showAnno"
+        >
+          <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        </v-btn>
+      </v-card-actions>
+      <v-expand-transition v-if="idealTypical.annos.length>0">
+        <annotatedImage v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+      </v-expand-transition>
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
           @click="mouseOver"
@@ -123,7 +141,9 @@
 
 <script>
 import { getDepictionByAnnotation } from '@/services/repository'
+import {fillPicsContainer} from '@/utils/helpers'
 import OpenSeadragon from 'openseadragon'
+import annotatedImage from '@/components/annotatedImage'
 
 export default {
 
@@ -132,14 +152,16 @@ export default {
     iconography: {}
   },
   components: {
+    annotatedImage,
   },
   data () {
     return {
       tab:[],
       showDec:false,
-      showImage:false,
+      showImage:true,
       relatedDepictions:[],
-      iconographyWithChildren:{}
+      iconographyWithChildren:{},
+      showAnno: true,
     }
   },
   computed: {
@@ -155,9 +177,10 @@ export default {
       }
     },
     hasImages(){
+      console.log("hasImages:", this.idealTypical);
       if (this.idealTypical){
         if (this.idealTypical.images){
-          if (this.idealTypical.images.length > 1){
+          if (this.idealTypical.images.length > 0){
             return true
           } else {
             return false
@@ -209,8 +232,15 @@ export default {
       if (this.iconography.search !== "" && this.iconography.search !== this.iconography.text){
         basicInf["Alternative Terms"] = this.iconography.search
       }
+      console.log(this.$store.state.dic.ornaments);
       let idealTypical = this.$store.state.dic.ornaments.find(el => el.iconographyID === this.iconography.iconographyID)
+      icoInf.annos = []
+      icoInf.relatedAnnotationList = []
       if (idealTypical !== undefined){
+        console.log("idealTypical", idealTypical);
+        let res = fillPicsContainer(idealTypical.images, idealTypical.relatedAnnotationList)
+        console.log("idealTypical res", res);
+        icoInf.relatedAnnotationList = idealTypical.relatedAnnotationList
         if (idealTypical.description){
           desc["Description"] = idealTypical.description
         }
@@ -218,9 +248,10 @@ export default {
           desc["General Remarks"] = idealTypical.remarks
         }
         icoInf['images'] = []
-        if (idealTypical.images){
+        if (res.images.length > 0){
           icoInf['images'] = idealTypical.images
         }
+        icoInf['annos'] = res.annos
       }
       if (Object.keys(basicInf).length > 0){
         data['Basic Information'] = basicInf
@@ -230,6 +261,7 @@ export default {
       }
       this.getRelatedDepictions()
       icoInf['data'] = data
+      console.log("idealtypical.relatedAnnotationList", icoInf.relatedAnnotationList);
       return icoInf
     },
 
@@ -240,14 +272,17 @@ export default {
     },
     getIdsOfChildren(ico, ids){
       var result = []
-      if (ico.children){
-        if (ico.children.length > 0){
-          for (var child of ico.children){
-            result = result.concat(this.getIdsOfChildren(child, []))
+      if (ico.iconographyID){
+        if (ico.children){
+          if (ico.children.length > 0){
+            for (var child of ico.children){
+              result = result.concat(this.getIdsOfChildren(child, []))
+            }
           }
         }
+        result.push(ico.iconographyID)
+
       }
-      result.push(ico.iconographyID)
       return result
     },
     getRelatedDepictions(){
