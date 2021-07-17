@@ -33,13 +33,14 @@
               </v-btn>
             </v-subheader>
             <v-list-item
-              class="px-2"
+            class="px-0"
               to="/"
-
-            >
-              <v-list-item-avatar>
-                <v-icon>mdi-home</v-icon>
-              </v-list-item-avatar>
+              style="padding:0 0px!important">
+              <v-list-item style="padding:0 0px"  >
+                <v-list-item-icon style="min-width: 56px;">
+                  <iconHome width=56 height=56 ></iconHome>
+                </v-list-item-icon>
+              </v-list-item>
               <v-list-item-title>
               Home
               </v-list-item-title>
@@ -72,9 +73,9 @@
                 <v-list-item-title>Annotated Bibliography</v-list-item-title>
 
               </v-list-item>
-            <v-list-item to="/iconography">
-                <v-list-item-icon>
-                  <v-icon >mdi-map-marker-path</v-icon>
+            <v-list-item to="/iconography" style="padding:0 0px">
+                <v-list-item-icon style="min-width: 56px;">
+                  <iconIconography width=56 height=56 ></iconIconography>
                 </v-list-item-icon>
                 <v-list-item-title class="text-wrap" v-html="'Pictorial Elements/ Iconography'" ></v-list-item-title>
 
@@ -134,6 +135,8 @@ import {logo, logoSmwk} from '@/utils/constants'
 import iconCave from '@/components/icons/iconCave'
 import iconPaintedRepresentation from '@/components/icons/iconPaintedRepresentation'
 import iconBibliography from '@/components/icons/iconBibliography'
+import iconHome from '@/components/icons/iconHome'
+import iconIconography from '@/components/icons/iconIconography'
 
 export default {
   name: 'App',
@@ -154,6 +157,8 @@ export default {
     iconCave,
     iconPaintedRepresentation,
     iconBibliography,
+    iconHome,
+    iconIconography
   },
   methods: {
   },
