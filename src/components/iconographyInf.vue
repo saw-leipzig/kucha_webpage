@@ -33,7 +33,7 @@
         </v-btn>
       </v-card-actions>
       <v-expand-transition v-if="idealTypical.annos.length>0">
-        <annotatedImage v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+        <annotatedImage v-show="showAnno" v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
       </v-expand-transition>
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
