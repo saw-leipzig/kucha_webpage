@@ -64,6 +64,12 @@ const router =  new Router({
       component: () => import('@/views/cave'),
       props: true
     },
+    {
+      path: '/impressum/',
+      name: 'impressum',
+      component: () => import('@/views/impressum'),
+      props: true
+    },
   ]
 })
 router.beforeEach((to, from, next) => {

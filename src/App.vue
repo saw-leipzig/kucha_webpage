@@ -77,7 +77,7 @@
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
                 </v-list-item-icon>
             </v-list-item>
-            <v-list-item style="padding:0 0px!important" :ripple="false"
+            <v-list-item to="/impressum" style="padding:0 0px!important" :ripple="false"
               class="px-2"
             >
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">

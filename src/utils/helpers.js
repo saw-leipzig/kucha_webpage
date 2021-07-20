@@ -136,8 +136,9 @@ export function fillPicsContainer(relatedImages, relatedAnnotationList){
 }
 
 export function checkImgPermitted(item){
+  console.log("checkImgPermitted input", item);
   let isPermit = false
-  if (item !== undefined){
+  if (item){
     if (item.filename){
       if (item.filename !== 'accessNotPermitted.png'){
         isPermit = true

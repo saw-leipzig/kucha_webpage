@@ -1,5 +1,4 @@
 <template>
-
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
       <v-card-title ><a :href="getDeptictionURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getDepictionLabel()}}</a> </v-card-title>
       <v-card-actions v-if="annos.length>0">
