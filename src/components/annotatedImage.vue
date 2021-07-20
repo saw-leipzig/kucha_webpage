@@ -1,5 +1,5 @@
 <template>
-  <div v-show="showAnno" style='height:100%'>
+  <div style='height:100%'>
     <v-tabs
       v-if="annos.length>1"
       v-model="annoImg"
@@ -206,7 +206,6 @@ export default {
       annoImg: null,
       colsAnnoImg:8,
       colsAnnoTree:4,
-      showAnno:true,
       hoveredAnno:{},
       sheet:false,
     }
@@ -231,12 +230,35 @@ export default {
       if (this.item.iconographyID){
         res = "iconography" + this.item.iconographyID.toString()
         console.log("IcoID", res);
+      } else if (this.item.depictionID){
+        res = "depiction" + this.item.depictionID.toString()
+        console.log("depictionID", res);
       }
       return res
     },
 
   },
   methods: {
+    changeSize(){
+      if (this.annoArrow){
+        this.colsAnnoImg = 8
+        this.colsAnnoTree = 4
+        this.annoArrow = false
+      } else {
+        this.colsAnnoImg = 6
+        this.colsAnnoTree = 6
+        this.annoArrow = true
+      }
+    },
+    switchAnnoImageControl(){
+      if (this.viewerAnnos.areControlsEnabled()){
+        this.actControl = "Disable Controlls"
+      } else {
+        this.actControl = "Enable Controlls"
+      }
+      this.viewerAnnos.setControlsEnabled(!this.viewerAnnos.areControlsEnabled())
+      this.viewerAnnos.setMouseNavEnabled(!this.viewerAnnos.isMouseNavEnabled())
+    },
     mouseOverNode(item){
       var foundAnnos = this.getAnnoByIcoID(item)
       this.choosPicForAnno(item)
@@ -288,6 +310,7 @@ export default {
       }
     },
     hoveredTags(hoveredAnno){
+      console.log("hoveredTags", hoveredAnno);
       let tags = ""
       if (hoveredAnno){
         if (hoveredAnno.body){
@@ -593,7 +616,11 @@ export default {
             allAnnotationEntries.push(ie.iconographyID);
             var body = {};
             body["type"] = "TextualBody";
-            body["value"] = ie.name;
+            if (ie.name){
+              body["value"] = ie.name;
+            } else {
+              body["value"] = ie.text;
+            }
             body["id"] = ie.iconographyID;
             body["image"] = ae.image;
             console.log("Body:", body, " for: ", ie);
@@ -614,6 +641,7 @@ export default {
         target["selector"] = selector;
         target["id"] = ae.image
         anno["target"] = target;
+        console.log("w3cAnno", anno);
         this.w3cAnnos.push(anno);
       }
       console.log("w3cAnnos:", this.w3cAnnos);
