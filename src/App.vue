@@ -16,14 +16,12 @@
           :mini-variant="mini"
           app
           permanent
-          :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important;'"
+          :ripple="false"
+          :width="mini ? '56': '100'"
+          :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important'"
         >
           <v-list>
-            <v-subheader class="px-2">
-              <v-list-item-title
-                v-if="!mini"
-                class="pl-3"
-              >Navigation</v-list-item-title>
+            <v-subheader>
               <v-btn
                 icon
                 @click.stop="mini = !mini"
@@ -36,73 +34,55 @@
             class="px-0"
               to="/"
               style="padding:0 0px!important">
-              <v-list-item style="padding:0 0px"  >
-                <v-list-item-icon style="min-width: 56px;">
-                  <iconHome width=56 height=56 ></iconHome>
+              <v-list-item style="padding:0 0px" :ripple="false" >
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconHome :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconHome>
                 </v-list-item-icon>
               </v-list-item>
-              <v-list-item-title>
-              Home
-              </v-list-item-title>
             </v-list-item>
             <v-list-group
-                prepend-icon="mdi-filter"
                 :value="true"
+                append-icon=null
               >
-                <template v-slot:activator>
-                  <v-list-item-title class="text-wrap" >Advanced Search</v-list-item-title>
-                </template>
-            <v-list-item to="/cave" style="padding:0 0px">
-                <v-list-item-icon style="min-width: 56px;">
-                  <iconCave width=56 height=56 ></iconCave>
+                <v-list-item-icon slot="prependIcon" :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'" :ripple="false">
+                  <iconFilter :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconFilter>
                 </v-list-item-icon>
-                <v-list-item-title>Cave</v-list-item-title>
-
+            <v-list-item to="/cave" style="padding:0 0px" :ripple="false">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconCave :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconCave>
+                </v-list-item-icon>
               </v-list-item>
-            <v-list-item to="/depiction" style="padding:0 0px">
-                <v-list-item-icon style="min-width: 56px;">
-                  <iconPaintedRepresentation width=56 height=56 ></iconPaintedRepresentation>
+            <v-list-item to="/depiction" style="padding:0 0px" :ripple="false">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconPaintedRepresentation :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconPaintedRepresentation>
                 </v-list-item-icon>
-                <v-list-item-title>Painted Representation</v-list-item-title>
-
               </v-list-item>
-            <v-list-item to="/bibliography" style="padding:0 0px">
-                <v-list-item-icon style="min-width: 56px;">
-                  <iconBibliography width=56 height=56 ></iconBibliography>
+            <v-list-item to="/bibliography" style="padding:0 0px" :ripple="false">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconBibliography :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconBibliography>
                 </v-list-item-icon>
-                <v-list-item-title>Annotated Bibliography</v-list-item-title>
-
               </v-list-item>
-            <v-list-item to="/iconography" style="padding:0 0px">
-                <v-list-item-icon style="min-width: 56px;">
-                  <iconIconography width=56 height=56 ></iconIconography>
+            <v-list-item to="/iconography" style="padding:0 0px" :ripple="false">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconIconography :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconIconography>
                 </v-list-item-icon>
-                <v-list-item-title class="text-wrap" v-html="'Pictorial Elements/ Iconography'" ></v-list-item-title>
-
               </v-list-item>
             </v-list-group>
 
-            <v-list-item
+            <v-list-item style="padding:0 0px!important" :ripple="false"
               class="px-2"
               href="https://www.saw-leipzig.de/de/projekte/wissenschaftliche-bearbeitung-der-buddhistischen-hoehlenmalereien-in-der-kucha-region-der-noerdlichen-seidenstrasse/intro"
             >
-              <v-list-item-avatar>
-                <v-icon>mdi-information</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-title>
-                About
-              </v-list-item-title>
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
+                </v-list-item-icon>
             </v-list-item>
-            <v-list-item
+            <v-list-item style="padding:0 0px!important" :ripple="false"
               class="px-2"
-              disabled
             >
-              <v-list-item-avatar>
-                <v-icon>mdi-security</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-title>
-                Privacy
-              </v-list-item-title>
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconImpressum :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconImpressum>
+                </v-list-item-icon>
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
@@ -137,6 +117,9 @@ import iconPaintedRepresentation from '@/components/icons/iconPaintedRepresentat
 import iconBibliography from '@/components/icons/iconBibliography'
 import iconHome from '@/components/icons/iconHome'
 import iconIconography from '@/components/icons/iconIconography'
+import iconAbout from '@/components/icons/iconAbout'
+import iconImpressum from '@/components/icons/iconImpressum'
+import iconFilter from '@/components/icons/iconFilter'
 
 export default {
   name: 'App',
@@ -158,7 +141,10 @@ export default {
     iconPaintedRepresentation,
     iconBibliography,
     iconHome,
-    iconIconography
+    iconIconography,
+    iconAbout,
+    iconImpressum,
+    iconFilter
   },
   methods: {
   },
@@ -172,6 +158,15 @@ export default {
 </script>
 
 <style lang="css">
+.v-list-item__icon {
+  margin: 4px 0;
+}
+.v-navigation-drawer__content {
+  scrollbar-width: none;
+}
+.v-list-item {
+  padding: 0 0px;
+}
 .v-tab {
   padding: 8px;
   min-width: 20px;
