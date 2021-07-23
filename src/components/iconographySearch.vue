@@ -1,11 +1,19 @@
 <template>
     <v-card outlined>
         <v-list-item-subtitle>Annotations</v-list-item-subtitle>
-        <v-text-field v-model="search" label="Search Iconography Tree" hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
+        <v-row>
+          <v-col cols="8">
+            <v-text-field v-model="search" label="Search Iconography Tree" hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
+          </v-col>
+          <v-col cols="4">
+            <v-combobox label="Selection Type" v-model="selectedSelectionType" :items="selectionTypes"></v-combobox>
+          </v-col>
+        </v-row>
         <v-lazy
             transition="scroll-x-reverse-transition"
         >
-        <v-treeview style="max-height: 300px!important;" :selection-type="getSelectionType" :filter="filter" item-key="iconographyID" :search="search" return-object v-model="iconographySelected" rounded  selectable hoverable open-all :items="iconography" dense >
+        <v-treeview ref="tree" @input="select" style="max-height: 300px!important;" :selection-type="selectedSelectionType" :filter="filter" item-key="iconographyID" :search="search" return-object v-model="iconographySelected" rounded  selectable hoverable open-all :items="iconography" dense >
+                <template slot="append" @click="selectedIco(item)"></template>
                 <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
                 {{ item.name }}
@@ -46,19 +54,18 @@ export default {
       search: null,
       textSearch:"",
       iconographySelected:[],
+      iconographySelectedWhileReload:[],
       selected:[],
+      checkedSelected:[],
       iconography:[],
-      icocounts:{}
+      icocounts:{},
+      selectionTypes: ["leaf", "independent"],
+      selectedSelectionType: "leaf",
+      selectedGroups: [],
+      selectedTriggered:false
     }
   },
   computed: {
-    getSelectionType(){
-      if (!this.isDepiction){
-        return "independent"
-      } else {
-        return "leaf"
-      }
-    },
     isDepiction(){
       if (this.mode === "iconography"){
         return false
@@ -77,6 +84,9 @@ export default {
     },
   },
   methods: {
+    selectedIco(item){
+      console.log("selectedIco", item);
+    },
     getCount(item){
       if (item.count){
         return item.count.length
@@ -104,6 +114,7 @@ export default {
           selected = selected.concat(this.getIcosByName(ico, name, false))
         }
       }
+      console.log("getPreSelectedByName found selected:", selected);
       this.iconographySelected = selected
     },
     getIcosByName(ico, name, found){
@@ -125,20 +136,37 @@ export default {
 
     },
     initiateIco(){
+      if (this.iconographySelected.length > 0){
+        this.selectedTriggered = true
+      }
+      console.log("select triggered initiateICO")
+      console.log("iconographySelectedLocal before initiate Ico", this.iconographySelected.length);
       this.iconography = []
+      this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
+      this.iconographySelected = []
       let icos = JSON.parse(JSON.stringify(this.$store.state.dic.iconography));
       console.log("Iconography", icos);
+      let icoTree = []
       for (let element of icos){
         if (this.mode === "depiction"){
           let res = this.setAggsInElement(element)
           if (res !== null){
-            this.iconography.push(res)
+            icoTree.push(res)
           }
         } else if (this.mode === "iconography") {
-          this.iconography.push(element)
+          icoTree.push(element)
         }
       }
-      console.log("Igonography after filtering", this.iconography);
+      if (this.$refs.tree) {
+        console.log("iconographySelectedLocal refs.tree found");
+        this.$refs.tree.updateAll(false)
+      }
+      this.iconography = icoTree
+      this.iconographySelected = this.iconographySelectedWhileReload
+      if (this.$refs.tree) {
+        this.$refs.tree.updateAll(true)
+      }
+      console.log("iconographySelectedLocal", this.iconographySelected.length);
       // this.setAggs(this.iconography)
     },
     setAggsInElement(element){
@@ -148,7 +176,6 @@ export default {
         for (let agg of this.aggregations){
           if (agg.key === element.iconographyID){
             element['count'] = agg.test.depictionID.buckets
-            console.log("aggs found for elemen:", element);
             break
           }
         }
@@ -156,10 +183,12 @@ export default {
           for (let child of element.children){
             let res = this.setAggsInElement(child)
             if (res != null){
-              for (var depictionID of res.count){
-                let elDepictionID = element.count.find(item => item.key === depictionID.key)
-                if (elDepictionID === undefined){
-                  element.count.push(depictionID)
+              if (this.selectedSelectionType === "leaf"){
+                for (var depictionID of res.count){
+                  let elDepictionID = element.count.find(item => item.key === depictionID.key)
+                  if (elDepictionID === undefined){
+                    element.count.push(depictionID)
+                  }
                 }
               }
               newChildren.push(child)
@@ -167,10 +196,30 @@ export default {
           }
         }
         element.children = newChildren
-        if (element.count.length > 0){
-          return element
+        if (this.selectedSelectionType === 'leaf'){
+          if (element.count.length > 0){
+            return element
+          } else {
+            let selectedItem = this.iconographySelectedWhileReload.find(el => el.iconographyID === element.iconographyID)
+            if (selectedItem) {
+              console.log("found idden selected item:", selectedItem);
+              const index = this.iconographySelectedWhileReload.indexOf(selectedItem);
+              if (index > -1) {
+                this.iconographySelectedWhileReload.splice(index, 1);
+              }
+            }
+            return null
+          }
         } else {
-          return null
+          if (element.children.length > 0){
+            return element
+          } else {
+            if (element.count.length > 0){
+              return element
+            } else {
+              return element
+            }
+          }
         }
       } else {
         return element
@@ -190,60 +239,143 @@ export default {
       }
       if (selectedItems.includes(element) || foundAll){
         if (!selectedItems.includes(element)){
-          selectedItems.push(element)
+          this.selected.push(element)
         }
         return true
       } else {
         return null
       }
     },
+    buildAggs(aggs, icoIDs, icoPath){
+      console.log("icoAggs buildaggs", icoIDs);
+      let newAggs = {}
+      if (Object.keys(aggs).length === 0){
+        newAggs = {
+          "Tags": {
+            "nested": {
+              "path": "relatedAnnotationList.tags"
+            },
+            "aggs": {
+              "iconographyID": {
+                "filter": {
+                  "terms": {
+                  }
+                },
+                "aggs": {
+                  "comment_to_issue": {
+                    "reverse_nested": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else {
+        newAggs = {
+          "Tags": {
+            "nested": {
+              "path": "relatedAnnotationList.tags"
+            },
+            "aggs": {
+              "iconographyID": {
+                "filter": {
+                  "terms": {
+                  }
+                },
+              }
+            }
+          }
+        }
+        newAggs.Tags.aggs.iconographyID['aggs'] = aggs
+      }
+      newAggs.Tags.aggs.iconographyID.filter.terms[icoPath] = icoIDs.pop()
+      if (icoIDs.length > 0){
+        this.buildAggs(newAggs, icoIDs, icoPath)
+      }
+      return newAggs
+    },
+    select(){
+      console.log("select triggered");
+      if (this.update){
+        console.log("iconographySelected Updated");
+        this.selected = []
+        for (let node of this.iconographySelected){
+          this.selected.push(node);
+        }
+        console.log("this.selected", this.selected);
+        if (this.selectedSelectionType === "leaf"){
+          if (this.isDepiction){
+            for (let node of this.iconography){
+              this.getSelectedParents(node, this.selected)
+            }
+          }
+          console.log(" getTreeGroups selected after adding parents: ", this.selected);
+          this.checkedSelected = []
+          this.selectedGroups = []
+          for (let root of this.iconography) {
+            this.getTreeGroups(root)
+          }
+          for (let group of this.selectedGroups){
+            console.log("getTreeGroups", group);
+          }
+
+        }
+        if (!this.selectedTriggered || this.iconographySelected.length === 0){
+          this.startSearch()
+        }
+        this.selectedTriggered = false
+      } else {
+        this.update = true
+      }
+    },
+    getTreeGroups(tree){
+      if (this.selected.find(el => el.iconographyID === tree.iconographyID)){
+        this.checkedSelected.push(tree.iconographyID)
+        let found = false
+        for (let selectedGroup of this.selectedGroups){
+          if (selectedGroup.find(el => el === tree.parentID)){
+            found = true
+            selectedGroup.push(tree.iconographyID)
+          }
+        }
+        if (!found) {
+          this.selectedGroups.push([tree.iconographyID])
+        }
+      }
+      if (this.selected.length > this.checkedSelected.length){
+        for (let child of tree.children){
+          this.getTreeGroups(child)
+        }
+      }
+
+    },
     prepSearch(){
+      console.log("prepsearch triggered", this.selected);
       let searchObjects = []
       let icoAggs = {}
       let icoPath = this.prefix + "iconographyID"
       if (this.isDepiction){
         if (this.selected.length > 0){
-          let iconographySearchIDs = []
-          for (let ico of this.selected){
-            iconographySearchIDs.push(ico.iconographyID)
-          }
-          let icoSearch = {
-            "nested": {
-              "path": "relatedAnnotationList",
-              "query": {
-                "nested": {
-                  "path": "relatedAnnotationList.tags",
-                  "query": {
-                    "terms": {
-                    }
-                  }
-                }
-              }
-            }
-          }
-          icoSearch.nested.query.nested.query.terms[icoPath] = iconographySearchIDs
-          searchObjects.push(icoSearch)
-          icoAggs.filter = {
-            "Tags": {
+          for (let ico of this.selectedGroups){
+            console.log("preparing group for:", ico);
+            let icoSearch = {
               "nested": {
-                "path": "relatedAnnotationList.tags"
-              },
-              "aggs": {
-                "iconographyID": {
-                  "filter": {
-                    "terms": {
-                    }
-                  },
-                  "aggs": {
-                    "comment_to_issue": {
-                      "reverse_nested": {}
+                "path": "relatedAnnotationList",
+                "query": {
+                  "nested": {
+                    "path": "relatedAnnotationList.tags",
+                    "query": {
+                      "terms": {
+                      }
                     }
                   }
                 }
               }
             }
+            icoSearch.nested.query.nested.query.terms[icoPath] = ico
+            searchObjects.push(icoSearch)
           }
-          icoAggs.filter.Tags.aggs.iconographyID.filter.terms[icoPath] = iconographySearchIDs
+          icoAggs.filter = this.buildAggs({}, this.selectedGroups, icoPath)
         }
         icoAggs.agg = {
           "Tags": {
@@ -272,6 +404,7 @@ export default {
             }
           }
         }
+        console.log("icoAggs:", icoAggs);
         console.log("searchObject", searchObjects)
       } else {
         let icoPath = this.prefix + "iconographyID"
@@ -310,11 +443,13 @@ export default {
         "search": searchObjects,
         "aggs":  icoAggs
       }
+      console.log("prepsearch ended");
       return result
     },
     startSearch(){
       let result = this.prepSearch()
       this.$emit('clicked', result)
+      console.log("start search ended");
     },
   },
   watch: {
@@ -322,32 +457,19 @@ export default {
       this.getPreSelectedByName()
     },
     'iconographySelected': function(newVal, oldVal) {
-      if (this.update){
-        console.log("iconographySelected Updated", newVal);
-        this.selected = []
-        for (let node of newVal){
-          this.selected.push(node);
-        }
-        if (this.isDepiction){
-          for (let node of this.iconography){
-            this.getSelectedParents(node, this.selected)
-          }
-        }
-        console.log("seletctedItems after adding parents: ", this.selected);
-        this.startSearch()
-      } else {
-        this.update = true
-      }
+
+    },
+    'selectedSelectionType': function(newVal, oldVal){
+      this.initiateIco()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on iconography", this.aggregations);
+      console.log("select triggered updated aggregations on iconography");
       // console.log("length of aggregations: ", this.aggregations.length);
       this.initiateIco()
     },
 
   },
   mounted:function () {
-    console.log("preSelected:", this.preSelected);
     this.initiateIco()
     this.getPreSelectedByName()
   },
