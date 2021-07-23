@@ -141,8 +141,8 @@
                 :key="index"
                 @click="setOSDimages(item)"
             >
-            <v-img v-if="checkImgPermitted(image)" :src="getThumbnail(item)"></v-img>
-            <v-icon x-large v-if="!checkImgPermitted(image)">mdi-lock</v-icon>
+            <v-img v-if="checkImgPermitted(item)" :src="getThumbnail(item)"></v-img>
+            <v-icon x-large v-if="!checkImgPermitted(item)">mdi-lock</v-icon>
               </v-tab>
             </v-tabs>
               <div id="openseadragonImg" ref="test" :style=" checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
