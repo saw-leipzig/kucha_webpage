@@ -12,8 +12,10 @@
         <v-lazy
             transition="scroll-x-reverse-transition"
         >
-        <v-treeview ref="tree" @input="select" style="max-height: 300px!important;" :selection-type="selectedSelectionType" :filter="filter" item-key="iconographyID" :search="search" return-object v-model="iconographySelected" rounded  selectable hoverable open-all :items="iconography" dense >
-                <template slot="append" @click="selectedIco(item)"></template>
+        <v-treeview  ref="tree" @input="select" style="max-height: 300px!important;"  :filter="filter" item-key="iconographyID" :search="search" return-object  rounded  hoverable open-all :items="iconography" dense >
+                <template v-slot:prepend="{item}" >
+                  <v-checkbox dense  @click="selectedIco(item)" v-model="item.checked" ></v-checkbox>
+                </template>
                 <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
                 {{ item.name }}
@@ -47,6 +49,7 @@ export default {
   },
   data () {
     return {
+      newSelected:[],
       update:true,
       visible:true,
       relatedDepictions:[],
@@ -84,8 +87,24 @@ export default {
     },
   },
   methods: {
+    setCheckedInChildren(item, checked){
+      item.checked = checked
+      this.selected.push(item)
+      for (let child of item.children){
+        this.setCheckedInChildren(child, checked)
+      }
+    },
     selectedIco(item){
-      console.log("selectedIco", item);
+      this.setCheckedInChildren(item, item.checked)
+      this.selectedGroups = []
+      for (let root of this.iconography) {
+        this.getTreeGroups(root)
+      }
+      for (let group of this.selectedGroups){
+        console.log("getTreeGroups", group);
+      }
+      this.startSearch()
+
     },
     getCount(item){
       if (item.count){
@@ -141,13 +160,12 @@ export default {
       }
       console.log("select triggered initiateICO")
       console.log("iconographySelectedLocal before initiate Ico", this.iconographySelected.length);
-      this.iconography = []
-      this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
-      this.iconographySelected = []
-      let icos = JSON.parse(JSON.stringify(this.$store.state.dic.iconography));
-      console.log("Iconography", icos);
+      // this.iconography = []
+      // this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
+      // this.iconographySelected = []
+      // console.log("Iconography", icos);
       let icoTree = []
-      for (let element of icos){
+      for (let element of this.iconography){
         if (this.mode === "depiction"){
           let res = this.setAggsInElement(element)
           if (res !== null){
@@ -171,7 +189,21 @@ export default {
     },
     setAggsInElement(element){
       element['count'] = []
-      let newChildren = []
+      if (!element.oldChildren){
+        element.oldChildren = JSON.parse(JSON.stringify(element.children));
+      } else {
+        for (let oldChild of element.oldChildren){
+          let child = element.children.find(el => el.iconographyID === oldChild.iconographyID)
+          if (child){
+            oldChild.checked = child.checked
+          } else {
+            oldChild.checked = false
+          }
+        }
+      }
+      if (!element.checked){
+        element['checked'] = false
+      }
       if (this.aggregations){
         for (let agg of this.aggregations){
           if (agg.key === element.iconographyID){
@@ -179,8 +211,9 @@ export default {
             break
           }
         }
-        if (element.children){
-          for (let child of element.children){
+        element.children = []
+        if (element.oldChildren){
+          for (let child of element.oldChildren){
             let res = this.setAggsInElement(child)
             if (res != null){
               if (this.selectedSelectionType === "leaf"){
@@ -191,23 +224,22 @@ export default {
                   }
                 }
               }
-              newChildren.push(child)
+              element.children.push(child)
             }
           }
         }
-        element.children = newChildren
         if (this.selectedSelectionType === 'leaf'){
           if (element.count.length > 0){
             return element
           } else {
-            let selectedItem = this.iconographySelectedWhileReload.find(el => el.iconographyID === element.iconographyID)
-            if (selectedItem) {
-              console.log("found idden selected item:", selectedItem);
-              const index = this.iconographySelectedWhileReload.indexOf(selectedItem);
-              if (index > -1) {
-                this.iconographySelectedWhileReload.splice(index, 1);
-              }
-            }
+            // let selectedItem = this.selected.find(el => el.iconographyID === element.iconographyID)
+            // if (selectedItem) {
+            //   console.log("found idden selected item:", selectedItem);
+            //   const index = this.selected.indexOf(selectedItem);
+            //   if (index > -1) {
+            //     this.selected.splice(index, 1);
+            //   }
+            // }
             return null
           }
         } else {
@@ -329,8 +361,7 @@ export default {
       }
     },
     getTreeGroups(tree){
-      if (this.selected.find(el => el.iconographyID === tree.iconographyID)){
-        this.checkedSelected.push(tree.iconographyID)
+      if (tree.checked){
         let found = false
         for (let selectedGroup of this.selectedGroups){
           if (selectedGroup.find(el => el === tree.parentID)){
@@ -355,7 +386,7 @@ export default {
       let icoAggs = {}
       let icoPath = this.prefix + "iconographyID"
       if (this.isDepiction){
-        if (this.selected.length > 0){
+        if (this.selectedGroups.length > 0){
           for (let ico of this.selectedGroups){
             console.log("preparing group for:", ico);
             let icoSearch = {
@@ -470,6 +501,7 @@ export default {
 
   },
   mounted:function () {
+    this.iconography = JSON.parse(JSON.stringify(this.$store.state.dic.iconography));
     this.initiateIco()
     this.getPreSelectedByName()
   },
@@ -503,5 +535,12 @@ export default {
 overflow-x: auto;
 overflow-y: auto;
 max-height: 300px;
+}
+.v-messages {
+  min-height: 0px;
+}
+.v-input--selection-controls {
+    margin-top: 5px;
+    padding-top: 0px;
 }
 </style>
