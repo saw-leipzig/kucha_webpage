@@ -1,7 +1,7 @@
 <template>
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
       <v-card-title ><a :href="getDeptictionURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getDepictionLabel()}}</a> </v-card-title>
-      <v-card-actions v-if="annos.length>0">
+      <v-card-actions v-if="depiction.relatedAnnotationList.length>0">
         <v-btn
           @click="showAnno = !showAnno"
           color="orange lighten-2"
@@ -17,8 +17,8 @@
           <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-      <v-expand-transition v-if="annos.length>0">
-        <annotatedImage v-show="showAnno" v-if="annos.length>0" :item="depiction"  :annos="annos" :relatedAnnotations="depiction  .relatedAnnotationList"/>
+      <v-expand-transition v-if="depiction.relatedAnnotationList.length>0">
+        <annotatedImage style="min-height:500px" v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="depiction"  :annos="annos" :relatedAnnotations="depiction.relatedAnnotationList"/>
       </v-expand-transition>
 
       <v-card-actions v-if="Object.keys(depictionInfo).length>0" >
@@ -334,8 +334,6 @@ export default {
       if (this.depiction){
         console.log("started Depiction");
         console.log("Depiction: ", this.depiction);
-        console.log("Annos:", this.annos);
-        console.log("Images:", this.images);
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
         OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
         OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
@@ -351,7 +349,8 @@ export default {
         OpenSeadragon.setString('Tool.rotate', 'Rotate');
         OpenSeadragon.setString('Tool.close', 'Close');
         this.fillPicsContainer()
-        console.log("Images", this.images);
+        console.log("Annos:", this.annos);
+        console.log("Images:", this.images);
         if (this.images.length > 0){
           this.image = this.images[0]
           console.log("first image", this.image);
