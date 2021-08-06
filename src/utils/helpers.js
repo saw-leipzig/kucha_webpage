@@ -46,6 +46,42 @@ function getTitleTRFull(bibliography) {
   return result;
 }
 
+function searchTree(element, ids){
+  var newChildren = []
+  if (element.children !== null){
+    for (var child of element.children) {
+      var hasChildren = searchTree(child, ids);
+      if (hasChildren !== null){
+        newChildren.push(hasChildren)
+      }
+    }
+  }
+  let copy = Object.assign({}, element)
+  copy.children = newChildren;
+  if ((ids.includes(copy.iconographyID)) || (copy.children.length > 0)){
+    copy.id = copy.iconographyID
+    return copy
+  } else {
+    return null
+  }
+}
+function searchTreeMinuParents(element, id){
+  if ((id === element.iconographyID)){
+    let copy = Object.assign({}, element)
+    copy.id = copy.iconographyID
+    return copy
+  } else {
+    if (element.children !== null){
+      for (var child of element.children) {
+        var ico = searchTreeMinuParents(child, id);
+        if (ico !== null){
+          return ico
+        }
+      }
+    }
+  } return null
+}
+
 function getTitleENFull(bibliography) {
   var result = "";
   if (bibliography.titleEN === "") {
@@ -101,25 +137,6 @@ export function getWallTree(wallLocationTree, entries){
     return null
   }
 }
-
-export function checkAnnoPermitted(item){
-  console.log("checkAnnoPermitted", item);
-  let isPermit = false
-  if (item){
-    if (item.filename){
-      if (item.filename !== 'accessNotPermitted.png'){
-        isPermit = true
-      } else {
-        isPermit = false
-      }
-    } else {
-      isPermit = false
-    }
-  } else {
-    isPermit = false
-  }
-  return isPermit
-}
 export function fillPicsContainer(relatedImages, relatedAnnotationList){
   let images = {
     annos: [],
@@ -134,13 +151,36 @@ export function fillPicsContainer(relatedImages, relatedAnnotationList){
   }
   return images
 }
+export function getIconographyByAnnos(ids){
+  var returnElement = []
+  for (var rootElement of store.state.dic.iconography){
+    var dummy = Object.assign({}, rootElement)
+    var result = searchTree(dummy, ids)
+    if (result !== null){
+      returnElement.push(result)
+    }
+  }
+  return returnElement
+}
+export function getIconographyByID(id){
+  var returnElement = {}
+  for (var rootElement of store.state.dic.iconography){
+    var dummy = Object.assign({}, rootElement)
+    var result = searchTreeMinuParents(dummy, id)
+    if (result !== null){
+      returnElement = result
+      break
+    }
+  }
+  return returnElement
+}
 
 export function checkImgPermitted(item){
   console.log("checkImgPermitted input", item);
   let isPermit = false
   if (item){
     if (item.filename){
-      if (item.filename !== 'accessNotPermitted.png'){
+      if (item.accessLevel > 1){
         isPermit = true
       } else {
         isPermit = false
@@ -166,21 +206,23 @@ export function getWallTreeByIDs(wallIDs, wallLocation){
   return walls
 }
 export function getWallLabels(wallLocation, depiction, label){
-  var wallTrees = getWallTreeByIDs(depiction.wallIDs, wallLocation)
   var results = ""
-  for (var wallTree of wallTrees){
-    var result = getWallTreeLabels(wallTree, label)
-    if (results === ""){
-      results += result
-    } else {
-      results += "/ " + result
+  if (depiction){
+    var wallTrees = getWallTreeByIDs(depiction.wallIDs, wallLocation)
+    for (var wallTree of wallTrees){
+      var result = getWallTreeLabels(wallTree, label)
+      if (results === ""){
+        results += result
+      } else {
+        results += "/ " + result
+      }
     }
-  }
-  if (depiction.positionNotes && depiction.positionNotes !== null){
-    if (results !== ""){
-      results += ", " + depiction.positionNotes
-    } else {
-      results += depiction.positionNotes
+    if (depiction.positionNotes && depiction.positionNotes !== null){
+      if (results !== ""){
+        results += ", " + depiction.positionNotes
+      } else {
+        results += depiction.positionNotes
+      }
     }
   }
   return results

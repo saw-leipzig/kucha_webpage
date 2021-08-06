@@ -40,9 +40,21 @@
                 </v-list-item-icon>
               </v-list-item>
             </v-list-item>
+            <v-list-item
+            class="px-0"
+            to="/tour"
+            style="padding:0 0px!important">
+            <v-list-item to="/tour" style="padding:0 0px" :ripple="false">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                  <iconTour :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconTour>
+                </v-list-item-icon>
+              </v-list-item>
+
+              </v-list-item>
             <v-list-group
                 :value="true"
                 append-icon=null
+                :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'"
               >
                 <v-list-item-icon slot="prependIcon" :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'" :ripple="false">
                   <iconFilter :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconFilter>
@@ -80,7 +92,7 @@
             <v-list-item to="/impressum" style="padding:0 0px!important" :ripple="false"
               class="px-2"
             >
-                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+                <v-list-item-icon :style="mini ? 'width: 56px;' : 'width: 100px;'">
                   <iconImpressum :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconImpressum>
                 </v-list-item-icon>
             </v-list-item>
@@ -88,8 +100,8 @@
           <v-divider></v-divider>
         </v-navigation-drawer>
       </template>
-    <v-main style="padding-bottom:100px!important">
-      <v-row justify="center" Style="height: 100%;">
+    <v-main>
+      <v-row justify="center" >
         <v-col no-gutters>
           <router-view></router-view>
         </v-col>
@@ -120,6 +132,7 @@ import iconIconography from '@/components/icons/iconIconography'
 import iconAbout from '@/components/icons/iconAbout'
 import iconImpressum from '@/components/icons/iconImpressum'
 import iconFilter from '@/components/icons/iconFilter'
+import iconTour from '@/components/icons/iconTour'
 
 export default {
   name: 'App',
@@ -144,7 +157,8 @@ export default {
     iconIconography,
     iconAbout,
     iconImpressum,
-    iconFilter
+    iconFilter,
+    iconTour
   },
   methods: {
   },
@@ -160,6 +174,9 @@ export default {
 <style lang="css">
 .v-list-item__icon {
   margin: 4px 0;
+}
+.v-list-item {
+  padding: 0px!important;
 }
 .v-navigation-drawer__content {
   scrollbar-width: none;
@@ -213,4 +230,7 @@ export default {
     background: url( '../static/backgroundKIS.jpg') no-repeat center center fixed;
     background-size: cover;
   }
+.v-main__wrap {
+    display: flex;
+}
 </style>

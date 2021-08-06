@@ -14,7 +14,7 @@
         >
         <v-treeview  ref="tree" @input="select" style="max-height: 300px!important;"  :filter="filter" item-key="iconographyID" :search="search" return-object  rounded  hoverable open-all :items="iconography" dense >
                 <template v-slot:prepend="{item}" >
-                  <v-checkbox dense  @click="selectedIco(item)" v-model="item.checked" ></v-checkbox>
+                  <v-checkbox hide-details class="shrink mr-2 mt-0" dense  @click="selectedIco(item)" v-model="item.checked" ></v-checkbox>
                 </template>
                 <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
@@ -95,7 +95,9 @@ export default {
       }
     },
     selectedIco(item){
-      this.setCheckedInChildren(item, item.checked)
+      if (this.selectedSelectionType === "leaf"){
+        this.setCheckedInChildren(item, item.checked)
+      }
       this.selectedGroups = []
       for (let root of this.iconography) {
         this.getTreeGroups(root)

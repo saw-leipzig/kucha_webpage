@@ -70,6 +70,12 @@ const router =  new Router({
       component: () => import('@/views/impressum'),
       props: true
     },
+    {
+      path: '/tour/',
+      name: 'Virtuel Tour',
+      component: () => import('@/views/tour'),
+      props: true
+    },
   ]
 })
 router.beforeEach((to, from, next) => {
