@@ -1,9 +1,10 @@
 <template>
-  <div style='height:100%'>
-    <v-tabs
+  <div :style="'display:flex;flex-direction:column;'">
+    <v-tabs ref="tabs"
       v-if="annos.length>1"
       v-model="annoImg"
       centered
+      light
       slider-color="yellow"
       return-object
       style="rgba(255, 255, 255, 0.2) !important;"
@@ -15,17 +16,18 @@
         @click="setOSDannos(item)"
         style="rgba(255, 255, 255, 0.2) !important;"
       >
-            <v-img v-if="checkAnnoPermitted(item)"
+            <v-img v-if="getAccessLevel(item) === 2"
                 :src="getThumbnail(item)"
               ></v-img>
-            <v-icon x-large v-if="!checkAnnoPermitted(item)">mdi-lock</v-icon>
+            <v-icon x-large v-if="getAccessLevel(item) < 2">mdi-lock</v-icon>
       </v-tab>
     </v-tabs>
-    <v-row justify="center" class="mx-5" style='height:550px'>
-      <v-col :cols=colsAnnoImg  >
-        <v-card :style=" checkAnnoPermitted(annoImage) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
-          <div :id="'openseadragonAnno' + itemId"  style='height:500px'>
-          <v-row class="mt-0" :attach="'#openseadragonAnno' + itemId" style='position: relative;z-index: 4'>
+    <v-checkbox v-if="treeShowOption" dense class="mx-5 py-0 my-0" hide-details label="Hide tree."  v-model="hideTree"></v-checkbox>
+    <v-row justify="center" class="mx-5" :style="'flex:1;'">
+      <v-col order="2" :cols=colsAnnoImg  :style="'flex:1;'">
+        <v-card height="100%" :style="getAccessLevel(annoImage) === 2 ? 'flex-direction: column;background-color: rgba(255, 255, 255, 1) !important;display:flex' : 'display: none;background-color: rgba(255, 255, 255, 1) !important;display:flex;flex-direction: column;'">
+          <div ref="osdDiv" :id="'openseadragonAnno' + itemId"  style='margin:0;padding:0;height:100%;'>
+          <v-row height="100%" class="mt-0" :attach="'#openseadragonAnno' + itemId" style='position: relative;z-index: 4'>
             <v-bottom-sheet
               v-model="sheet"
               inset
@@ -95,7 +97,6 @@
                     open-all
                     :items="this.icoAnnos"
                     dense
-                    activatable
                     multiple-active
                     :active="annoActivated"
                   >
@@ -110,25 +111,34 @@
           </v-row>
           </div>
         </v-card>
-        <v-card :style=" !checkAnnoPermitted(annoImage) ? 'overflow-y: scroll;height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+        <v-card :style=" getAccessLevel(annoImage) < 2 ? 'overflow-y: scroll;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
           <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
-            Access to the picture is restricted due to copyright reasons.
+            {{getAnnoTitle(annoImage)}}
           </v-card-title>
-          <v-card-text class="pa-10">
+          <v-card-text  v-if="getAccessLevel(annoImage) === 1" class="pa-10">
             Annotations are based on an Image from:<p>
             {{annoImage.copyright}}
             </p>
             <p>For further information, please contact <a href= "mailto:kucha@saw-leipzig.de">the project</a></p>
           </v-card-text>
+          <v-card-text  v-if="getAccessLevel(annoImage) === 0" class="pa-10">
+            No image available!
+            <p>For further information, please contact <a href= "mailto:kucha@saw-leipzig.de">the project</a></p>
+          </v-card-text>
         </v-card>
 
       </v-col>
-      <v-col :cols=colsAnnoTree  :ref="'cardAnno' + itemId">
+      <v-col style="display: flex;
+              flex-direction: column;"
+              v-if="!hideTree"
+              :order="left ? 1 : 3" :cols=colsAnnoTree  :ref="'cardAnno' + itemId">
         <v-tooltip :position-y="yTag" :position-x="xTag" right v-if="!(hoveredTags(hoveredAnno) === '')" v-model="showTag" >
           <span >{{hoveredTags(hoveredAnno)}}</span>
         </v-tooltip>
         <v-card
-          style='height:525px;overflow-y: scroll;overflow-x: hidden;'>
+          style='overflow-y: scroll;
+            overflow-x: hidden;
+            flex: 1 1 0;'>
           <v-row>
             <v-col cols=1>
               <v-btn icon @click="changeSize()" dense block color="black"><v-icon>{{ annoArrow ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon></v-btn>
@@ -156,13 +166,12 @@
               selectable
               hoverable
               open-all
-              activatable
               multiple-active
               :active="annoActivated"
               :items="this.icoAnnos"
               dense>
               <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
-                <a v-on:click="test(item)" v-on:mouseover="mouseOverNode(item)"
+                <a v-on:mouseover="mouseOverNode(item)"
                   v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a>
               </template>
             </v-treeview>
@@ -173,10 +182,11 @@
     </div>
 </template>
 <script>
-import {getOSDURL, checkAnnoPermitted} from  "@/utils/helpers"
+import {getOSDURL, getIconographyByAnnos} from  "@/utils/helpers"
 import * as d3 from "d3";
 import OpenSeadragon from 'openseadragon'
 import Annotorious from '../../static/openseadragon-annotorious.min.js'
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: 'annotatedImage',
@@ -187,10 +197,37 @@ export default {
     annos: {
       type: Array
     },
+    left: {
+      type: Boolean,
+      default: false
+    },
+    hideTree: {
+      type: Boolean,
+      default: false
+    },
+    preSelected: {
+      type: Array,
+      default: function () {
+        return []
+      },
+    },
+    treeShowOption: {
+      type: Boolean,
+      default: function () {
+        return false
+      }
+    },
+    height: {
+      type: String,
+      default: function () {
+        return "550"
+      }
+    },
     relatedAnnotations: null,
   },
   data () {
     return {
+      showTree: true,
       showTag:true,
       viewerAnnos: null,
       w3cAnnos: [],
@@ -208,37 +245,60 @@ export default {
       colsAnnoTree:4,
       hoveredAnno:{},
       sheet:false,
+      uniqueID: uuidv4()
+
     }
   },
   computed: {
     yTag(){
       if (this.$refs['cardAnno' + this.itemId]){
-        console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId].getBoundingClientRect());
-        return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().y - 10
+        if (this.hideTree){
+          return this.$refs['osdDiv'].getBoundingClientRect().y - 10
+        } else {
+          return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().y - 10
+        }
+        // console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId].getBoundingClientRect());
       } else return 0
 
     },
     xTag(){
       if (this.$refs['cardAnno' + this.itemId]){
-        console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId]);
-        return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().x
+        if (this.hideTree){
+          return this.$refs['osdDiv'].getBoundingClientRect().x
+        } else {
+          return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().x
+        }
+        // console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId]);
       } else return 0
 
     },
     itemId(){
-      let res = "test"
-      if (this.item.iconographyID){
-        res = "iconography" + this.item.iconographyID.toString()
-        console.log("IcoID", res);
-      } else if (this.item.depictionID){
-        res = "depiction" + this.item.depictionID.toString()
-        console.log("depictionID", res);
-      }
-      return res
+      return this.uniqueID
     },
 
   },
   methods: {
+    getMainHeight(){
+      if (this.$refs.tabs){
+        return this.height - this.$refs.tabs.$el.clientHeight
+      } else {
+        return this.height
+      }
+    },
+    getAccessLevel(item){
+      if (item){
+        if (item.accessLevel){
+          return item.accessLevel
+        } else {
+          return 0
+        }
+      } else {
+        return 0
+      }
+    },
+    getAnnoTitle(item){
+      return this.getAccessLevel(item) === 1 ?  "Access to the picture is restricted due to copyright reasons." : "Picture is not avilable."
+    },
     changeSize(){
       if (this.annoArrow){
         this.colsAnnoImg = 8
@@ -260,35 +320,11 @@ export default {
       this.viewerAnnos.setMouseNavEnabled(!this.viewerAnnos.isMouseNavEnabled())
     },
     mouseOverNode(item){
-      var foundAnnos = this.getAnnoByIcoID(item)
-      this.choosPicForAnno(item)
-      for (var anno of foundAnnos){
-        var dummy = this.w3cAnnos.find(element => element.id === anno.annotoriousID)
-        if (!Array.isArray(dummy)){
-          this.addAnnotation(dummy)
-        } else {
-          for (var w3c of dummy){
-            this.addAnnotation(w3c)
-          }
-        }
-      }
-    },
-    mouseLeaveNode(item){
-      this.updateSelectedAnnos()
-    },
-    updateSelectedAnnos(){
-      console.log("UpdateSelectedAnnos triggered");
-      // this.annotoriousplugin.setAnnotations([])
-      for (let anno of this.w3cAnnos){
-        this.annotoriousplugin.hideAnnotation(anno.id)
-      }
-      console.log("annoSelected", this.annoSelected);
-      for (var icoAnno of this.annoSelected) {
-        console.log("found Annotated Iconography: ", icoAnno);
-        for (var anno of this.getAnnoByIcoID(icoAnno)) {
-          console.log("Found related Anno:", anno);
+      if (this.getAccessLevel(this.annoImage) > 1){
+        var foundAnnos = this.getAnnoByIcoID(item)
+        this.choosPicForAnno(item)
+        for (var anno of foundAnnos){
           var dummy = this.w3cAnnos.find(element => element.id === anno.annotoriousID)
-          console.log("found relatred w3cAnno:", dummy);
           if (!Array.isArray(dummy)){
             this.addAnnotation(dummy)
           } else {
@@ -298,10 +334,38 @@ export default {
           }
         }
       }
-      console.log("hoveredAnno:", this.hoveredAnno);
-      if (this.hoveredAnno !== null && this.checkAnnoPermitted(this.annoImage)){
-        console.log("found hovered Anno", this.hoveredAnno);
-        this.addAnnotation(this.hoveredAnno)
+    },
+    mouseLeaveNode(item){
+      this.updateSelectedAnnos()
+    },
+    updateSelectedAnnos(){
+      if (this.getAccessLevel(this.annoImage) > 1){
+        // console.log("UpdateSelectedAnnos triggered");
+        // this.annotoriousplugin.setAnnotations([])
+        for (let anno of this.w3cAnnos){
+          this.annotoriousplugin.hideAnnotation(anno.id)
+        }
+        // console.log("annoSelected", this.annoSelected);
+        for (var icoAnno of this.annoSelected) {
+          // console.log("found Annotated Iconography: ", icoAnno);
+          for (var anno of this.getAnnoByIcoID(icoAnno)) {
+            // console.log("Found related Anno:", anno);
+            var dummy = this.w3cAnnos.find(element => element.id === anno.annotoriousID)
+            // console.log("found relatred w3cAnno:", dummy);
+            if (!Array.isArray(dummy)){
+              this.addAnnotation(dummy)
+            } else {
+              for (var w3c of dummy){
+                this.addAnnotation(w3c)
+              }
+            }
+          }
+        }
+        // console.log("hoveredAnno:", this.hoveredAnno);
+        if (this.hoveredAnno !== null && this.getAccessLevel(this.annoImage) === 2){
+          // console.log("found hovered Anno", this.hoveredAnno);
+          this.addAnnotation(this.hoveredAnno)
+        }
       }
     },
     filter () {
@@ -310,7 +374,7 @@ export default {
       }
     },
     hoveredTags(hoveredAnno){
-      console.log("hoveredTags", hoveredAnno);
+      // console.log("hoveredTags", hoveredAnno);
       let tags = ""
       if (hoveredAnno){
         if (hoveredAnno.body){
@@ -327,9 +391,6 @@ export default {
     },
     getThumbnail(image){
       return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
-    },
-    checkAnnoPermitted(item){
-      return checkAnnoPermitted(item)
     },
     initOSDanno(){
       let tilesAnnos = []
@@ -375,7 +436,7 @@ export default {
                 let res = _self.getIco(ico, anno.id)
                 if (res !== null){
                   annos.push(res)
-                  console.log("adding annos:", res);
+                  // console.log("adding annos:", res);
                   break
                 }
               }
@@ -399,21 +460,21 @@ export default {
           _self.updateSelectedAnnos()
         });
         this.annotoriousplugin.on('cancelSelected', function(annotation, evt) {
-          console.log("deselection", evt);
+          // console.log("deselection", evt);
         });
         this.annotoriousplugin.on('selectAnnotation', function(annotation, evt) {
-          console.log("selection", evt);
+          // console.log("selection", evt);
           let found = false
           for (let anno of annotation.body){
             const selectedIco = _self.annoSelected.find(el => el.iconographyID === anno.id)
-            console.log("selectedIco", selectedIco);
+            // console.log("selectedIco", selectedIco);
             if (selectedIco !== undefined){
               found = true
               const index = _self.annoSelected.indexOf(selectedIco);
               if (index > -1) {
                 _self.annoSelected.splice(index, 1);
               }
-              console.log("_self.annoSelected", _self.annoSelected);
+              // console.log("_self.annoSelected", _self.annoSelected);
             }
           }
           if (found){
@@ -442,11 +503,11 @@ export default {
               }
             }
             _self.updateSelectedAnnos()
-            console.log("annotation selected: ", _self.annoSelected)
+            // console.log("annotation selected: ", _self.annoSelected)
           }
         });
         this.viewerAnnos.addHandler("full-page", function (data) {
-          console.log("fullscreen trigggered");
+          // console.log("fullscreen trigggered");
         });
         document.getElementById('openseadragonAnno' + this.itemId).addEventListener('fullscreenchange', (event) => {
           if (document.fullscreenElement) {
@@ -458,7 +519,7 @@ export default {
         });
         this.viewerAnnos.addHandler("pre-full-page", function (data) {
           data.preventDefaultAction = true;
-          console.log("fullscreen trigggered");
+          // console.log("fullscreen trigggered");
           // _self.isFullScreen = !_self.isFullScreen
           if (data.eventSource.element.requestFullscreen) {
             data.eventSource.element.requestFullscreen();
@@ -488,79 +549,47 @@ export default {
       }
     },
     getAnnoByIcoID(item){
-      console.log("getAnnoByIco for: ", item);
       var annosFound = [];
       for ( var anno of this.relatedAnnotations){
         for ( var ie of anno.tags){
-          console.log("compare", item.iconographyID, "with", ie.iconographyID);
           if (ie.iconographyID === item.iconographyID){
             annosFound.push(anno)
           }
         }
       }
-      if (item.children.length > 0){
-        for (var child of item.children){
-          var result = []
-          result = this.getAnnoByIcoID(child)
-          if (result.length > 0){
-            annosFound = annosFound.concat(result)
+      if (item.children){
+        if (item.children.length > 0){
+          for (var child of item.children){
+            var result = []
+            result = this.getAnnoByIcoID(child)
+            if (result.length > 0){
+              annosFound = annosFound.concat(result)
+            }
           }
         }
       }
       return annosFound
     },
     addAnnotation(w3cAnno){
-      console.log("addAnnotation:", w3cAnno);
+      // console.log("addAnnotation:", w3cAnno);
       if (w3cAnno.target){
         if (w3cAnno.target.id === this.annoImage.filename){
-          console.log("started add annotation");
+          // console.log("started add annotation");
           // this.annotoriousplugin.addAnnotation(w3cAnno)
           this.annotoriousplugin.highlightAnnotation(w3cAnno.id)
         }
       }
     },
-    searchTree(element, ids){
-      var newChildren = []
-      if (element.children !== null){
-        for (var child of element.children) {
-          var hasChildren = this.searchTree(child, ids);
-          if (hasChildren !== null){
-            newChildren.push(hasChildren)
-          }
-        }
-      }
-      let copy = Object.assign({}, element)
-      copy.children = newChildren;
-      if ((ids.includes(copy.iconographyID)) || (copy.children.length > 0)){
-        copy.id = copy.iconographyID
-        return copy
-      } else {
-        return null
-      }
-    },
-    getIconographyByAnnos(ids){
-      console.log("ids:", ids);
-      var returnElement = []
-      for (var rootElement of this.$store.state.dic.iconography){
-        var dummy = Object.assign({}, rootElement)
-        var result = this.searchTree(dummy, ids)
-        if (result !== null){
-          returnElement.push(result)
-        }
-      }
-      console.log("returnElement", returnElement );
-      return returnElement
-    },
     setOSDannos(image){
-      this.annoImage = image
-      this.viewerAnnos.open(getOSDURL(image))
-      if (image.filename === "accessNotPermitted.png"){
+      if (this.getAccessLevel(this.annoImage) < 2){
         this.disableTree();
-        console.log("tree disabled:", this.icoAnnos);
+        // console.log("tree disabled:", this.icoAnnos);
       } else {
         this.enableTree();
+        this.annoImage = image
+        this.viewerAnnos.open(getOSDURL(image))
+        this.updateSelectedAnnos()
       }
-      this.updateSelectedAnnos()
     },
     getIco(element, id){
       // console.log("elementId:", element.iconographyID, "searchID:", id);
@@ -581,9 +610,9 @@ export default {
       }
     },
     initNewAnnotatedImage(){
-      console.log("started AnnotatedImage");
-      console.log("Annotations: ", this.relatedAnnotations);
-      console.log("Images:", this.relatedImages);
+      console.log("started AnnotatedImage for item: " + this.itemId);
+      // console.log("Annotations: ", this.relatedAnnotations);
+      // console.log("Images:", this.relatedImages);
       OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
       OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
       OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
@@ -598,20 +627,18 @@ export default {
       OpenSeadragon.setString('Tool.reset', 'Reset');
       OpenSeadragon.setString('Tool.rotate', 'Rotate');
       OpenSeadragon.setString('Tool.close', 'Close');
-      console.log("Images", this.images);
-      console.log('Annos', this.relatedAnnotations);
+      // console.log("Images", this.images);
+      // console.log('Annos', this.annos);
       if (!this.viewerAnnos){
         this.initOSDanno()
       }
       var allAnnotationEntries = []
       this.w3cAnnos = []
       var geoGenerator = d3.geoPath()
-      console.log("relatedAnnotations", this.relatedAnnotations);
+      // console.log("relatedAnnotations", this.relatedAnnotations);
       for (var ae of this.relatedAnnotations) {
-        console.log("hier: ae", ae);
         var bodies = []
         for (var ie of ae.tags) {
-          console.log("hier: ie", ie);
           if (!allAnnotationEntries.includes(ie)) {
             allAnnotationEntries.push(ie.iconographyID);
             var body = {};
@@ -623,7 +650,7 @@ export default {
             }
             body["id"] = ie.iconographyID;
             body["image"] = ae.image;
-            console.log("Body:", body, " for: ", ie);
+            // console.log("Body:", body, " for: ", ie);
             bodies.push(body);
           }
         }
@@ -641,10 +668,9 @@ export default {
         target["selector"] = selector;
         target["id"] = ae.image
         anno["target"] = target;
-        console.log("w3cAnno", anno);
+        // console.log("w3cAnno", anno);
         this.w3cAnnos.push(anno);
       }
-      console.log("w3cAnnos:", this.w3cAnnos);
       if (Object.keys(this.annotoriousplugin).length > 0){
         for (let anno of this.w3cAnnos){
           this.annotoriousplugin.addAnnotation(anno)
@@ -654,10 +680,12 @@ export default {
         }
 
       }
-      console.log("allAnnotationEntries", allAnnotationEntries);
-      this.icoAnnos = this.getIconographyByAnnos(allAnnotationEntries)
-      console.log("icoAnnos:", this.icoAnnos);
-      if (this.annos.length > 0){
+      // console.log("allAnnotationEntries", allAnnotationEntries);
+      this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+      // console.log("icoAnnos:", this.icoAnnos);
+      // console.log("preselected", this.preSelected);
+      this.annoSelected = this.preSelected
+      if (this.getAccessLevel(this.annoImage) > -1){
         this.setOSDannos(this.annos[0])
       }
     },
@@ -680,6 +708,7 @@ export default {
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
+      // console.log("annoSelected Changed");
       if (this.annos.length > 1){
         let difference = newVal
           .filter(x => !oldVal.includes(x))
@@ -688,15 +717,24 @@ export default {
           this.choosPicForAnno(icoAnno)
         }
       }
+      this.updateSelectedAnnos()
     },
     'annoActivated': function(newVal, oldVal) {
-      console.log("annoAvtivated changed:", newVal);
+      // console.log("annoAvtivated changed:", newVal);
+      this.updateSelectedAnnos()
+    },
+    'annos': function(newVal, oldVal) {
+      // console.log("annos changed:", newVal);
+      this.initNewAnnotatedImage()
     },
 
   },
   mounted:function () {
-    console.log("initNewAnnotatedImage");
+    console.log("initNewAnnotatedImage", this.item, this.height);
     this.initNewAnnotatedImage()
+    if (this.treeShowOption){
+      this.hideTree = true
+    }
   },
   beforeUpdate:function () {
   },
