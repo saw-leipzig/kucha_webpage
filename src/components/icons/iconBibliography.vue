@@ -5,7 +5,7 @@
    xml:space="preserve"
    :width="width"
    :height="height"
-   viewBox="0 0 75 75"
+   viewBox="1 1 72 72"
    sodipodi:docname="annotated biblography-button.ai"
    inkscape:version="1.1 (ce6663b3b7, 2021-05-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -311,12 +311,8 @@
            id="g102"
            transform="translate(15.0635,27.3481)"><path
              d="M 0,0 C 1.083,0.827 2.695,1.225 3.671,0.97 2.354,0.346 1.103,-0.061 0,0"
-             style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
-             id="path104" /></g><g
-           id="g106"
-           transform="translate(14.5791,28.7334)"><path
-             d="M 0,0 C 1.039,0.831 2.938,1.615 3.81,0.9 2.276,0.463 1.652,0.678 0,0"
-             style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+             s   viewBox="0 0 73.014931 74.802803"
+tyle="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
              id="path108" /></g><g
            id="g110"
            transform="translate(14.4351,31.4063)"><path

@@ -5,7 +5,7 @@
    xml:space="preserve"
    :width="width"
    :height="height"
-   viewBox="1 0 54 53"
+   viewBox="0.5 0.5 54 54"
    sodipodi:docname="annotated biblography-button.ai"
    inkscape:version="1.1 (ce6663b3b7, 2021-05-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"

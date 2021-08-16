@@ -5,7 +5,7 @@
    xml:space="preserve"
    :width="width"
    :height="height"
-   viewBox="0 0 73.014931 73.253197"
+   viewBox="1 1 72 72"
    sodipodi:docname="cave_active.ai.svg"
    inkscape:version="1.1 (ce6663b3b7, 2021-05-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"

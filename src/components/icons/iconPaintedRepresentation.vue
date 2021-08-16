@@ -5,7 +5,7 @@
    xml:space="preserve"
    :width="width"
    :height="height"
-   viewBox="0 0 73.014931 74.802803"
+   viewBox="1 1 72 72"
    sodipodi:docname="painted representation_button.ai.svg"
    inkscape:version="1.1 (ce6663b3b7, 2021-05-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
