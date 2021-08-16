@@ -69,7 +69,7 @@ export default {
         }
         if (masterImage !== null){
           if (masterImage.filename !== "accessNotPermitted.png"){
-            return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + masterImage.filename + "/full/!50,50/0/default.jpg"
+            return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + masterImage.filename + "/full/!150,150/0/default.jpg"
           } else {
             return null
           }
