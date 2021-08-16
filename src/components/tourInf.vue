@@ -11,6 +11,7 @@
       Buddhist Murals of Kucha - Virtual Tour
     </v-card-title>
     <v-carousel
+    ref="itcarousel"
       :continuous="false"
       :show-arrows="true"
       light
@@ -19,6 +20,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;"
+      @change="changed(currentIndexIdealTypical)"
+      @onload="changed(0)"
     >
       <v-carousel-item
         v-for="(idealTypical, i) in idealTypicals"
@@ -39,7 +42,7 @@
         <v-card-subtitle class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-subtitle>
          <v-row style="flex:1" no-gutters >
           <v-col no-gutters style="flex:1;display: flex;flex-direction: column;">
-            <annotatedImage style="flex:1" treeShowOption v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+            <annotatedImage ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" treeShowOption v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
           </v-col>
           <v-col v-if="hasRelatedDepictions(idealTypical.iconographyID)" style="display: flex!important;flex-direction: column;">
             <v-carousel
@@ -62,7 +65,7 @@
             <v-card style="display: flex;
               flex-direction: column;">
               <v-card-title ref="depictionTitle" style="display: block; word-break: break-words;" v-html="getExampleLabel(depiction)"></v-card-title>
-              <annotatedImage style="flex:1 1 100%" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
+              <annotatedImage style="flex:1 1 100%" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
             </v-card>
               </v-carousel-item>
             </v-carousel>
@@ -98,6 +101,10 @@ export default {
   computed:{
   },
   methods: {
+    changed(item){
+      console.log("changed", this.$refs.idealTypicalImage);
+      this.$refs.idealTypicalImage[item].goHome()
+    },
     getContentHeight(){
       let h = 600
       if (this.$refs.card){
@@ -185,15 +192,22 @@ export default {
                 let found = false
                 for (let tag of anno.tags){
                   if (tag.iconographyID === idealTypical.iconographyID){
-                    found = true
+                    const img = entry._source.relatedImages.find(element => element.filename === anno.image)
+                    if (img) {
+                      if (img.accessLevel === 2){
+                        found = true
+                      }
+                    }
                   }
                 }
                 if (found) {
                   newAnnos.push(anno)
                 }
               }
-              entry._source.relatedAnnotationList = newAnnos
-              newDepictions.push(entry._source)
+              if (newAnnos.length > 0){
+                entry._source.relatedAnnotationList = newAnnos
+                newDepictions.push(entry._source)
+              }
             }
           }
           let dummy = Object.assign({}, this.relatedDepictions)
@@ -237,6 +251,8 @@ export default {
       this.setRelatedDepictions(idealTypical)
     }
   },
+  updated:function () {
+  }
 }
 
 </script>
