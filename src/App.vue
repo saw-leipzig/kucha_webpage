@@ -206,6 +206,11 @@ export default {
   white-space: break-spaces;
 
 }
+.v-navigation-drawer__content {
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
 .v-treeview-node__root {
   height: auto; min-height: 10px;
 }
