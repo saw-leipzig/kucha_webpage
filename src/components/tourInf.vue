@@ -142,7 +142,7 @@ export default {
       return false
     },
     getDeptictionURL(depiction){
-      return "/depiction/" + depiction.depictionID
+      return "/pr/" + depiction.depictionID
     },
     getRelatedDepictions(icoID){
       let depictions = []

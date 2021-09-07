@@ -19,13 +19,13 @@ const router =  new Router({
       component: () => import('@/views/login'),
     },
     {
-      path: '/depiction/:id',
+      path: '/pr/:id',
       name: 'depiction',
       component: () => import('@/views/depiction'),
       props: true
     },
     {
-      path: '/depiction/',
+      path: '/pr/',
       name: 'depictionFilter',
       component: () => import('@/views/depictionFilter'),
       props: true

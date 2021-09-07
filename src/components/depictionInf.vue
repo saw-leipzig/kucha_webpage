@@ -296,7 +296,7 @@ export default {
       }
     },
     getDeptictionURL(){
-      return "/depiction/" + this.depiction.depictionID
+      return "/pr/" + this.depiction.depictionID
     },
 
     getDepictionLabel(){

@@ -291,7 +291,7 @@ export default {
     getItemURL(item){
       var res = ""
       if (item._source.depictionID){
-        res = "/depiction/" + item._source.depictionID
+        res = "/pr/" + item._source.depictionID
       } else if (item._source.caveID){
         res = "/cave/" + item._source.caveID
       } else if (item._source.annotatedBibliographyID){
