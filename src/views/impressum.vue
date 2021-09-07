@@ -1,50 +1,60 @@
 <template>
-  <v-card>
-    <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Impressum</v-card-title>
-    <v-card-text></v-card-text>
-    <v-card-title class="text-h5">Anbieter</v-card-title>
-    <v-card-text>
-      Anbieterkennzeichnung gemäß §5 Telemediengesetz
-    </v-card-text>
-    <v-card-title class="text-h5">Anschrift</v-card-title>
-    <v-card-text v-html="address">
-    </v-card-text>
-    <v-card-title class="text-h5">Rechtsform</v-card-title>
-    <v-card-text>
-      Die Sächsische Akademie der Wissenschaften ist eine Körperschaft des Öffentlichen Rechts. Sie wird durch ihren Präsidenten gesetzlich vertreten.
-    </v-card-text>
-    <v-card-title class="text-h5">Rechtsaufsicht</v-card-title>
-    <v-card-text>
-      Sächsisches Staatsministerium für Wissenschaft, Kultur und Tourismus, Wigardstraße 17, 01097 Dresden
-    </v-card-text>
-    <v-card-title class="text-h4">Urheber</v-card-title>
-    <v-card-title class="text-h5">Für den Inhalt</v-card-title>
-    <v-card-text>
-      Die Inhalte des Portals werden im Rahmen des Akademieprojekts "Wissenschaftliche Bearbeitung der buddhistischen Höhlenmalereien in der Kuča-Region der nördlichen Seidenstraße" erstellt von Monika Zin, Ines Konczak-Nagel, Luca De Fabritiis, Fang Wang, Astrid Klein, Ulf Jäger und Ji Ho Yi.
-    </v-card-text>
-    <v-card-title class="text-h5">Für die Website</v-card-title>
-    <v-card-text v-html="website">
-    </v-card-text>
-    <v-card-title class="text-h4">Rechtliche Hinweise</v-card-title>
-    <v-card-title class="text-h5">Texte</v-card-title>
-    <v-card-text>
-      Die Texte dieses Portals stehen unter der Creative Commons Lizenz CC BY-NC-ND. Erlaubt sind Download und Weiterverteilung der Texte unter Nennung des Namens, jedoch keinerlei Bearbeitung oder kommerzielle Nutzung.
-    </v-card-text>
-    <v-card-title class="text-h5">Abbildungen</v-card-title>
-    <v-card-text v-html="images">
-    </v-card-text>
-    <v-card-title class="text-h5">Weiteres</v-card-title>
-    <v-card-text v-html="further">
-    </v-card-text>
-    <v-card-title class="text-h5">Datenschutz</v-card-title>
-    <v-card-text v-html="privacy">
-    </v-card-text>
-    <v-card-title class="text-h5">Cookies</v-card-title>
-    <v-card-text v-html="cookies">
-    </v-card-text>
-    <v-card-title class="text-h9">Links</v-card-title>
-    <v-card-text v-html="links">
-    </v-card-text>
+  <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
+    <v-card>
+      <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Impressum</v-card-title>
+      <v-card-text></v-card-text>
+      <v-card-title class="text-h5">Anbieter</v-card-title>
+      <v-card-text>
+        Anbieterkennzeichnung gemäß §5 Telemediengesetz
+      </v-card-text>
+      <v-card-title class="text-h5">Anschrift</v-card-title>
+      <v-card-text v-html="address">
+      </v-card-text>
+      <v-card-title class="text-h5">Rechtsform</v-card-title>
+      <v-card-text>
+        Die Sächsische Akademie der Wissenschaften ist eine Körperschaft des Öffentlichen Rechts. Sie wird durch ihren Präsidenten gesetzlich vertreten.
+      </v-card-text>
+      <v-card-title class="text-h5">Rechtsaufsicht</v-card-title>
+      <v-card-text>
+        Sächsisches Staatsministerium für Wissenschaft, Kultur und Tourismus, Wigardstraße 17, 01097 Dresden
+      </v-card-text>
+      <v-card-title class="text-h4">Urheber</v-card-title>
+      <v-card-title class="text-h5">Für den Inhalt</v-card-title>
+      <v-card-text>
+        Die Inhalte des Portals werden im Rahmen des Akademieprojekts "Wissenschaftliche Bearbeitung der buddhistischen Höhlenmalereien in der Kuča-Region der nördlichen Seidenstraße" erstellt von Monika Zin, Ines Konczak-Nagel, Luca De Fabritiis, Fang Wang, Astrid Klein, Ulf Jäger und Ji Ho Yi.
+      </v-card-text>
+      <v-card-title class="text-h5">Für die Website</v-card-title>
+      <v-card-text v-html="website">
+      </v-card-text>
+      <v-card-title class="text-h4">Rechtliche Hinweise</v-card-title>
+      <v-card-title class="text-h5">Texte</v-card-title>
+      <v-card-text>
+        <v-img class="mx-15" max-width="150px" src="/static/cc.png" ></v-img>
+        Die Texte dieses Portals stehen unter der Creative Commons Lizenz CC BY-NC-ND. Erlaubt sind Download und Weiterverteilung der Texte unter Nennung des Namens, jedoch keinerlei Bearbeitung oder kommerzielle Nutzung.
+      </v-card-text>
+      <v-card-title class="text-h5">Abbildungen</v-card-title>
+      <v-card-text v-html="images">
+      </v-card-text>
+      <v-card-title class="text-h5">Weiteres</v-card-title>
+      <v-card-text v-html="further">
+      </v-card-text>
+      <v-card-title class="text-h5">Datenschutz</v-card-title>
+      <v-card-text v-html="privacy">
+      </v-card-text>
+      <v-card-title class="text-h5">Cookies</v-card-title>
+      <v-card-text v-html="cookies">
+      </v-card-text>
+      <v-card-title class="text-h9">Links</v-card-title>
+      <v-card-text v-html="links">
+      </v-card-text>
+      <v-card-text >
+This research project is part of the Academies' Programme, a research funding programme co-financed by the German federal government and individual federal states. Coordinated by the Union of the German Academies of Sciences and Humanities, the Programme intends to retrieve and explore our cultural heritage, to make it accessible and highlight its relevance to the present, as well as to preserve it for the future. This research project is co-financed by the Saxon State government out of the State budget approved by the Saxon State Parliament.
+      </v-card-text>
+      <v-row>
+
+        <v-col><v-img class="mx-15" max-width="300px" src="/static/union_smwk.jpeg" ></v-img></v-col>
+      </v-row>
+    </v-card>
   </v-card>
 </template>
 
