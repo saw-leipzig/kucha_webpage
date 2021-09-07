@@ -18,7 +18,7 @@
         </v-btn>
       </v-card-actions>
       <v-expand-transition v-if="depiction.relatedAnnotationList.length>0">
-        <annotatedImage style="min-height:500px" v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="depiction"  :annos="annos" :relatedAnnotations="depiction.relatedAnnotationList"/>
+        <annotatedImage style="min-height: 60vh;" treeShowOption v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="depiction"  :annos="annos" :relatedAnnotations="depiction.relatedAnnotationList"/>
       </v-expand-transition>
 
       <v-card-actions v-if="Object.keys(depictionInfo).length>0" >
@@ -104,7 +104,7 @@
       <v-expand-transition v-if="depiction.cave && presentCave">
         <div v-show="showCave">
           <v-divider></v-divider>
-              <caveInf class="mx-10" v-if=depiction.cave :cave="depiction.cave"></caveInf>
+              <caveInf class="mx-10" :setWidth="false" :showRelatedDepictions="false" v-if=depiction.cave :cave="depiction.cave"></caveInf>
         </div>
       </v-expand-transition>
 
@@ -327,6 +327,7 @@ export default {
           srcDown: '/static/info_pressed.png',
           onClick: this.setOSDImgOverlayImg
         })
+        this.setOSDImgOverlayImg()
         this.viewerImg.addControl(infoButtonImg.element, { anchor: OpenSeadragon.ControlAnchor.TOP_LEFT });
       }
     },
@@ -353,7 +354,6 @@ export default {
         console.log("Images:", this.images);
         if (this.images.length > 0){
           this.image = this.images[0]
-          console.log("first image", this.image);
           if (!this.viewerImg){
             this.initOSDimg()
           }
@@ -384,6 +384,7 @@ export default {
       this.image = image
       console.log("change to ", getOSDURL(image));
       this.viewerImg.open(getOSDURL(image))
+      this.setOSDImgOverlayImg()
     },
     fillPicsContainer(){
       this.annos = []
@@ -391,10 +392,12 @@ export default {
       for (var img of this.depiction.relatedImages){
         if (this.depiction.relatedAnnotationList.find(element => element.image === img.filename)) {
           this.annos.push(img)
+          this.images.push(img)
         } else {
           this.images.push(img)
         }
       }
+      this.annos.sort(function(a, b){return b.accessLevel - a.accessLevel})
     },
   },
   watch: {
