@@ -39,7 +39,7 @@
       </v-card>
     </v-card>
 
-    <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+    <hideRelatedItems v-if="(relatedDepictions.length>0 && showRelatedDepictions)" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     <hideRelatedItems v-if="(cave.relatedBibliographyList && cave.relatedBibliographyList.length>0)" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
 
 </v-card>
@@ -54,7 +54,12 @@ export default {
 
   name: 'caveInf',
   props: {
-    cave: {}
+    cave: {},
+    showRelatedDepictions: {
+      type: Boolean,
+      default: true
+    },
+    setWidth: true
   },
   components: {
   },
