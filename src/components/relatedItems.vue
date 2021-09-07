@@ -11,7 +11,7 @@
               <div  v-html="getTitle(item)"></div>
             </v-col>
             <v-col v-if="item.depictionID" cols=2>
-              <v-img height="50px" style="opacity:1" :src="getThumbNail(item)" @click.stop="navigation = !navigation" position="left" contain></v-img>
+              <v-img height="50px!important" style="opacity:1" :src="getThumbNail(item)" @click.stop="navigation = !navigation" position="left" contain></v-img>
             </v-col>
           </v-row>
         </v-expansion-panel-header>

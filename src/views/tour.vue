@@ -26,15 +26,18 @@ export default {
     let idealTypicals = this.$store.state.dic.ornaments.filter(el => el.accessLevel === 2)
     let idealTypicalsFreePics = []
     for (let idealTypical of idealTypicals){
+      // console.log("ideal Typical:", idealTypical.ie.root);
       let free = true
       for (let img of idealTypical.images){
         if (img.accessLevel < 2){
           free = false
         }
       }
+      if (idealTypical.ie.root === 3 ){
+        free = false
+      }
       if (free){
         idealTypicalsFreePics.push(idealTypical)
-
       }
     }
     this.idealTypicals = idealTypicalsFreePics

@@ -186,7 +186,7 @@ export function getItemById(params) {
   })
 }
 export function getDepictionByAnnotation(params) {
-  console.log("params", params);
+  // console.log("params", params);
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
     method: 'post',
