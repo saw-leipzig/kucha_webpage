@@ -3,7 +3,10 @@ import store from '../store'
 import OpenSeadragon from 'openseadragon'
 
 function getName(author) {
-  return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
+  console.log(author);
+  if (author){
+    return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
+  } else return ""
 }
 function getAuthors(bibliography) {
   var result = "";
@@ -355,11 +358,14 @@ export function getBibTitle(bibliography){
       if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
         tail = tail + ", " + bibliography.quotedPages;
       }
-      tail = tail + ". ";
+      if (tail !== ". "){
+        tail = tail + ". ";
+      }
+      console.log("bibtail is:\"" + bibliography.parentTitleTR + "\"");
       if (bibliography.hesHan){
-        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+        return bib + "<i>" + translit + "</i><b>" + bold + "</b>" + translat + tail
       } else {
-        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+        return bib + "<i>" + translit + "<b>" + bold + "</b></i>" + translat + tail
       }
     } else if (bibliography.publicationType.publicationTypeID === 8) {
       bib = bib + getAuthors(bibliography);
