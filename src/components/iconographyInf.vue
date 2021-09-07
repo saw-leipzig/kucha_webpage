@@ -33,7 +33,7 @@
         </v-btn>
       </v-card-actions>
       <v-expand-transition v-if="idealTypical.annos.length>0">
-        <annotatedImage v-show="showAnno" v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+        <annotatedImage style="min-height: 60vh;" v-show="showAnno" v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
       </v-expand-transition>
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
@@ -229,9 +229,9 @@ export default {
       let basicInf = {}
       let desc = {}
       console.log("iconography Entry", this.iconography);
-      if (this.iconography.search !== "" && this.iconography.search !== this.iconography.text){
-        basicInf["Alternative Terms"] = this.iconography.search
-      }
+      // if (this.iconography.search !== "" && this.iconography.search !== this.iconography.text){
+      //   basicInf["Alternative Terms"] = this.iconography.search
+      // }
       console.log(this.$store.state.dic.ornaments);
       let idealTypical = this.$store.state.dic.ornaments.find(el => el.iconographyID === this.iconography.iconographyID)
       icoInf.annos = []
