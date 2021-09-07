@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
-import store from '../store'
+// import store from '../store'
 
 Vue.use(Router)
 
@@ -76,20 +76,27 @@ const router =  new Router({
       component: () => import('@/views/tour'),
       props: true
     },
+    {
+      path: '/about/',
+      name: 'About the project',
+      component: () => import('@/views/about'),
+      props: true
+    },
   ]
 })
 router.beforeEach((to, from, next) => {
-  console.log(store.getters.getAuthenticated);
-  if (store.getters.getAuthenticated){
-    next()
-  } else {
-    if (to.name !== 'login') {
-      next({
-        name: "login"
-      })
-    } else {
-      next()
-    }
-  }
+  // console.log(store.getters.getAuthenticated);
+  // if (store.getters.getAuthenticated){
+  //   next()
+  // } else {
+  //   if (to.name !== 'login') {
+  //     next({
+  //       name: "login"
+  //     })
+  //   } else {
+  //     next()
+  //   }
+  // }
+  next()
 })
 export default router

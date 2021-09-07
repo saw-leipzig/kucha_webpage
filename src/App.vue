@@ -83,7 +83,7 @@
 
             <v-list-item style="padding:0 0px!important" :ripple="false"
               class="px-2"
-              href="https://www.saw-leipzig.de/de/projekte/wissenschaftliche-bearbeitung-der-buddhistischen-hoehlenmalereien-in-der-kucha-region-der-noerdlichen-seidenstrasse/intro"
+              to="/about"
             >
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>

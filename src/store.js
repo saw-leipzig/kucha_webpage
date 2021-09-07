@@ -99,10 +99,21 @@ export default new Vuex.Store({
     getDics: (context) => {
       getDic()
         .then( res => {
+          function setChecked(item) {
+            item['checked'] = false
+            for (let child of item.children){
+              setChecked(child)
+            }
+          }
           console.log("recieved dic result.", res)
           let dic = res.data.hits.hits[0]._source
+          for (let root of dic.iconography){
+            setChecked(root)
+          }
+          console.log("dic.iconohraphy:", dic.iconography);
           context.commit('setDics', dic);
           console.log(dic)
+
         }).catch(function (error) {
           console.log(error)
           return null
