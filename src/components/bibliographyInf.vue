@@ -1,7 +1,7 @@
 <template>
     <v-card raised width="98%" style="margin: auto;">
       <v-card-title ><a :href="getBibURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Annotated Bibliography Entry {{bibliography.annotatedBibliographyID}}</a> </v-card-title>
-      <v-card-subtitle v-html="getBibTitle(bibliography)"> </v-card-subtitle>
+      <v-card-text  v-html="getBibTitle(bibliography)"> </v-card-text>
 
       <v-card-actions v-if="Object.keys(bibInfo).length>0">
         <v-btn
@@ -32,7 +32,6 @@
                 </v-card-title>
                 <v-tabs
                 v-model="tab"
-
                 >
                   <v-tab
                     v-for="(item_value, item_name, item_key) in bibInfo"
@@ -80,7 +79,7 @@
           <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-      <v-expand-transition>
+      <v-expand-transition v-if="bibliography.annotation">
         <div v-show="showAnno">
           <v-divider></v-divider>
 
@@ -165,7 +164,7 @@ export default {
           content["Notes"] = this.bibliography.notes
         }
         if (Object.keys(basciInf).length > 0){
-          bibInfo["Basic Inforamtion"] = basciInf
+          bibInfo["Basic Information"] = basciInf
         }
         if (Object.keys(content).length > 0){
           bibInfo["Content"] = content
@@ -207,7 +206,7 @@ export default {
       this.showAnno = !this.showAnno
     },
     getBibTitle(bib){
-      console.log("bibentry: ", bib);
+      console.log("bibentry: ", bib, getBibTitle(bib));
       return getBibTitle(bib)
     }
   },
