@@ -12,6 +12,8 @@
     </v-card-title>
     <v-carousel
     ref="itcarousel"
+    progress
+    hide-delimiters
       :continuous="false"
       :show-arrows="true"
       light
@@ -34,14 +36,15 @@
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;"
-        v-if="idealTypical">
-         <v-card-title ref="IdealTypicalTitle" v-if="idealTypical" >
-            {{getIconographyByID(idealTypical).name}}
+        v-if="idealTypical"
+        >
+         <v-card-title >
+            <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getIconographyByID(idealTypical).name}}</a>
          </v-card-title>
-        <v-card-subtitle class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-subtitle>
+        <v-card-subtitle  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-subtitle>
          <v-row style="flex:1" no-gutters >
-          <v-col no-gutters style="flex:1;display: flex;flex-direction: column;">
-            <annotatedImage ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" treeShowOption v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+          <v-col :cols="$vuetify.breakpoint.smAndDown ? 12 : 6" no-gutters style="flex:1;display: flex;flex-direction: column;">
+            <annotatedImage isZoom ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" treeShowOption v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
           </v-col>
           <v-col v-if="hasRelatedDepictions(idealTypical.iconographyID)" style="display: flex!important;flex-direction: column;">
             <v-carousel
@@ -50,20 +53,22 @@
               :hide-delimiters= "false"
               light
               cycle
-              interval = 6000
+              interval = 9000
               hide-delimiter-background
               v-model="currentIndexDepiction"
               style="display:flex!important;flex:1"
+              @change="changedDepiction()"
             >
               <v-carousel-item
+                :href="getDeptictionURL(depiction)"
                 v-for="(depiction, x) in getRelatedDepictions(idealTypicals[currentIndexIdealTypical].iconographyID)"
                 :key="x"
                 style="flex: 1;"
               >
             <v-card style="display: flex;
-              flex-direction: column;">
-              <v-card-title ref="depictionTitle" style="display: block; word-break: break-words;" v-html="getExampleLabel(depiction)"></v-card-title>
-              <annotatedImage style="flex:1 1 100%" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
+              flex-direction: column;width:100%">
+              <v-card-title ref="depictionTitle" style="word-break: break-word;display: block; word-break: break-words;" v-html="getExampleLabel(depiction)"></v-card-title>
+              <annotatedImage isZoom style="flex:1 1 100%" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
             </v-card>
               </v-carousel-item>
             </v-carousel>
@@ -99,9 +104,17 @@ export default {
   computed:{
   },
   methods: {
+    changedDepiction(){
+      // console.log("changedDepiction", this.$refs.depictionCarousel);
+      for (const depiction of this.$refs.depictionCarousel){
+        depiction.hideTag()
+      }
+    },
     changed(item){
       console.log("changed", this.$refs.idealTypicalImage);
-      this.$refs.idealTypicalImage[item].goHome()
+      if (this.$refs.idealTypicalImage[item]){
+        this.$refs.idealTypicalImage[item].goHome()
+      }
     },
     getContentHeight(){
       let h = 600
@@ -159,6 +172,9 @@ export default {
       const icos = getIconographyByAnnos(icoIDs)
       return icos
     },
+    getIcoURL(ico){
+      return "/iconography/" + ico.iconographyID
+    },
     getPreselectedDepiction(icoID){
       let icoIDs = [icoID]
       const icos = getIconographyByAnnos(icoIDs)
@@ -179,7 +195,7 @@ export default {
       var params = {}
       this.relatedDepictions = null
       params.iconographyID = [idealTypical.iconographyID]
-      console.log("params of getDepictions", params);
+      // console.log("params of getDepictions", params);
       getDepictionByAnnotation(params)
         .then( res => {
           var newDepictions = []
@@ -236,14 +252,14 @@ export default {
       // this.changedIdealTypical(newVal)
     },
     'currentIndexDepiction': function(newVal, oldVal) {
-      console.log("currentIndexDepiction:", this.$refs.depictionCarousel[this.currentIndexDepiction]);
-      console.log("currentIndexDepiction:", this.currentIndexDepiction);
+      // console.log("currentIndexDepiction:", this.$refs.depictionCarousel[this.currentIndexDepiction]);
+      // console.log("currentIndexDepiction:", this.currentIndexDepiction);
       // this.$refs.depictionCarousel[this.currentIndexDepiction].initNewAnnotatedImage()
     },
   },
   mounted:function () {
-    console.log("content", this.$refs.card);
-    console.log("tourInf idealTypicals", this.idealTypicals);
+    // console.log("content", this.$refs.card);
+    // console.log("tourInf idealTypicals", this.idealTypicals);
     // this.changedIdealTypical(0)
     for (const idealTypical of this.idealTypicals){
       this.setRelatedDepictions(idealTypical)
