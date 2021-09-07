@@ -58,7 +58,7 @@
                       Open Annotations
                     </v-btn>
                   </v-col>
-                  <v-col>
+                  <v-col v-if="showControls">
                     <v-btn
                       color="orange"
                       dark
@@ -193,11 +193,19 @@ export default {
   components: {
   },
   props: {
+    showControls: {
+      type: Boolean,
+      default: true
+    },
     item: {},
     annos: {
       type: Array
     },
     left: {
+      type: Boolean,
+      default: false
+    },
+    isZoom: {
       type: Boolean,
       default: false
     },
@@ -485,11 +493,14 @@ export default {
             _self.annoActivated.push(anno)
           }
           _self.hoveredAnno = annotation
+          _self.showTag = true
           _self.updateSelectedAnnos()
+          _self.goHome()
         });
 
         this.annotoriousplugin.on('mouseLeaveAnnotation', function(annotation, evt) {
           _self.annoActivated = []
+          _self.showTag = false
           _self.hoveredAnno = null
           _self.updateSelectedAnnos()
         });
@@ -540,8 +551,14 @@ export default {
             // console.log("annotation selected: ", _self.annoSelected)
           }
         });
-        this.viewerAnnos.addHandler("full-page", function (data) {
-          // console.log("fullscreen trigggered");
+        _self = this
+        this.viewerAnnos.addHandler("open", function (data) {
+          if (_self.$refs.osdDiv !== undefined){
+            if (_self.$refs.osdDiv.clientHeight > 0){
+              // console.log("osdDiv", _self.$refs.osdDiv);
+              _self.goHome()
+            }
+          }
         });
         document.getElementById('openseadragonAnno' + this.itemId).addEventListener('fullscreenchange', (event) => {
           if (document.fullscreenElement) {
@@ -570,6 +587,17 @@ export default {
             el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
           }
         });
+      }
+    },
+    getItemID(){
+      if (this.item.ornamentID){
+        return "ornament_" + this.item.ornamentID
+      }
+      if (this.item.depictionID){
+        return "depiction" + this.item.depictionID
+      }
+      if (this.item.iconographyID){
+        return "iconography" + this.item.iconographyID
       }
     },
     disableTree() {
@@ -620,10 +648,11 @@ export default {
         // console.log("tree disabled:", this.icoAnnos);
       } else {
         this.enableTree();
-        this.annoImage = image
-        this.viewerAnnos.open(getOSDURL(image))
-        this.updateSelectedAnnos()
       }
+      this.annoImage = image
+      this.viewerAnnos.open(getOSDURL(image))
+      this.updateSelectedAnnos()
+      this.goHome()
     },
     getIco(element, id){
       // console.log("elementId:", element.iconographyID, "searchID:", id);
