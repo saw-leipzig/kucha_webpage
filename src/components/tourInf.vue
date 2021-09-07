@@ -26,7 +26,6 @@
       <v-carousel-item
         v-for="(idealTypical, i) in idealTypicals"
         :key="i"
-        eager
         style="flex:1 !important;padding-bottom: 20px;;"
       >
        <v-card ref="IdealTypicalCard" raised width="98%" height="99%"
@@ -59,7 +58,6 @@
               <v-carousel-item
                 v-for="(depiction, x) in getRelatedDepictions(idealTypicals[currentIndexIdealTypical].iconographyID)"
                 :key="x"
-                eager
                 style="flex: 1;"
               >
             <v-card style="display: flex;
