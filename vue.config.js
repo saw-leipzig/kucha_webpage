@@ -1,5 +1,7 @@
 module.exports = {
-
+  configureWebpack: {
+    devtool: 'source-map'
+  },
   //lintOnSave: false,
   chainWebpack: config => {
     //config.module.rules.delete('eslint');
