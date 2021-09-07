@@ -79,9 +79,10 @@ export default {
     filter () {
       return  (item, search, textKey) => {
         if (item.search) {
-          return (item["search"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1 || item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1)
+          // .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          return (item["search"].toLowerCase().indexOf(search) > -1 || item["name"].toLowerCase().indexOf(search) > -1)
         } else {
-          return (item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1)
+          return (item["name"].toLowerCase().indexOf(search) > -1)
         }
       }
     },
@@ -89,7 +90,14 @@ export default {
   methods: {
     setCheckedInChildren(item, checked){
       item.checked = checked
-      this.selected.push(item)
+      if (checked){
+        this.selected.push(item)
+      } else {
+        const index = this.selected.indexOf(item);
+        if (index > -1) {
+          this.selected.splice(index, 1);
+        }
+      }
       for (let child of item.children){
         this.setCheckedInChildren(child, checked)
       }
@@ -112,13 +120,16 @@ export default {
       if (item.count){
         return item.count.length
       } else {
-        return -1
+        return 0
       }
     },
     clear(){
       this.update = false;
       this.search = "";
       this.iconographySelected = [];
+      for (let root of this.iconography){
+        this.setCheckedInChildren(root, false)
+      }
     },
     getPreSelectedByName(){
       let selected = []
