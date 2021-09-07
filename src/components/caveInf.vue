@@ -1,5 +1,5 @@
 <template>
-  <v-card raised width="98%" style="margin: auto;button:20px;">
+  <v-card raised :width="setWidth ? '98%': 'unset'" style="margin: auto;button:20px;">
     <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for cave {{getCaveLabel(cave)}} </a> </v-card-title>
     <v-card class="mx-10">
       <v-tabs
@@ -207,10 +207,10 @@ export default {
     getRelatedDepictions(){
       var params = {}
       params['type'] = "cave.caveID"
-      if (this.$route.params.id){
-        params['id'] = this.$route.params.id
-      } else {
+      if (this.cave.caveID){
         params['id'] = this.cave.caveID
+      } else {
+        params['id'] = this.$route.params.id
       }
       getItemById(params)
         .then( res => {
