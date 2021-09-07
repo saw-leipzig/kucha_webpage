@@ -1,7 +1,6 @@
 <template>
     <v-app >
-      <div class="bg" style="height:100%">
-      <template v-if="!$route.path.includes('login')">
+      <div class="bg" style="height:100%;display:flex;flex-direction:column">
         <v-app-bar
           app
           color="green darken-4"
@@ -9,14 +8,15 @@
           clipped-left
           height="5px"
         >
-          <v-spacer></v-spacer>
         </v-app-bar>
+        <div style="flex:1">
+      <template style="display:flex;flex-direction:column;flex:1">
         <v-navigation-drawer
           v-model="navigation"
           :mini-variant="mini"
           app
           permanent
-          :ripple="false"
+          :ripple="false" class="mb-10"
           :width="mini ? '56': '100'"
           :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important'"
         >
@@ -56,7 +56,7 @@
                 append-icon=null
                 :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'"
               >
-                <v-list-item-icon slot="prependIcon" :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'" :ripple="false">
+                <v-list-item-icon slot="prependIcon" :style="mini ? 'margin:0!important;padding: 0px!important;min-width: 56px;': 'margin:0!important;padding: 0px!important;min-width: 100px;'" :ripple="false">
                   <iconFilter :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconFilter>
                 </v-list-item-icon>
             <v-list-item to="/cave" style="padding:0 0px" :ripple="false">
@@ -64,7 +64,7 @@
                   <iconCave :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconCave>
                 </v-list-item-icon>
               </v-list-item>
-            <v-list-item to="/depiction" style="padding:0 0px" :ripple="false">
+            <v-list-item to="/pr" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconPaintedRepresentation :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconPaintedRepresentation>
                 </v-list-item-icon>
@@ -100,13 +100,14 @@
           <v-divider></v-divider>
         </v-navigation-drawer>
       </template>
-    <v-main>
-      <v-row justify="center" >
+    <v-main style="flex-direction: column;flex:1">
+      <v-row justify="center" style="flex:1" >
         <v-col no-gutters>
           <router-view></router-view>
         </v-col>
       </v-row>
     </v-main>
+    </div>
     <v-footer
       class="flex-column-reverse flex-sm-row flex-lg-row"
       :app="$vuetify.breakpoint.mdAndUp"
@@ -114,8 +115,8 @@
       height="80px"
       style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box;"
     >
-                <div content style="color:white;position: absolute;right: 20px;">2021, version 0.0.1</div>
-                <div class="logo" v-html="logo" style="color:white;position: absolute;left: 20px;"></div>
+      <div content style="color:white;position: absolute;right: 20px; text-align: right;" v-html="getFooter"> </div>
+      <div class="logo" v-html="logo" style="color:white;position: absolute;left: 20px;"></div>
     </v-footer>
     </div>
   </v-app>
@@ -160,26 +161,35 @@ export default {
     iconFilter,
     iconTour
   },
+  computed:{
+    getFooter(){
+      return !this.$vuetify.breakpoint.smAndDown ? "2021, version 0.0.1 <br>Note: This site is still under construction. Please report any problems to <a href='mailto:kuchaadmin@saw-leipzig.de'> admin </a>" : "2021,<br> version 0.0.1"
+    }
+  },
   methods: {
+    setChecked(item){
+      item['checked'] = false
+      for (let child of item.children){
+        this.setChecked(child)
+      }
+    }
   },
   beforeMount:function () {
     console.log("Initialize Dictionaries");
     this.$store.dispatch('getMapping')
-    this.$store.dispatch('getDics')
-    console.log("Iconography:", this.$store.state.dic.iconography);
+    this.$store.dispatch('getDics').then(() => {
+      console.log("Iconography:", this.$store.state.dic.iconography);
+    })
   }
 }
 </script>
 
 <style lang="css">
 .v-list-item__icon {
-  margin: 4px 0;
+  margin: 1px 0!important;
 }
 .v-list-item {
   padding: 0px!important;
-}
-.v-navigation-drawer__content {
-  scrollbar-width: none;
 }
 .v-list-item {
   padding: 0 0px;
@@ -198,6 +208,10 @@ export default {
 .v-main {
   height: 100%;
 }
+.v-list-group__header__prepend-icon{
+  margin-top: 0;
+  margin-bottom: 0;
+}
 .v-treeview-node__content, .v-treeview-node__label {
   flex-shrink: 1;
   word-break: break-word;
@@ -207,15 +221,34 @@ export default {
 
 }
 .v-navigation-drawer__content {
-    height: 100%;
-    overflow-y: hidden;
-    overflow-x: hidden;
+  height: 100%;
+  scrollbar-width: thin;
+  overflow-x: hidden!important;
+  overflow-y: auto!important;
 }
-.v-treeview-node__root {
+::-webkit-scrollbar {
+    width: 2px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background: rgb(173, 173, 173);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}.v-treeview-node__root {
   height: auto; min-height: 10px;
 }
 .v-treeview-node {
   min-height: 10px;
+}
+.v-card__title{
+      word-break: break-word!important;
 }
 .v-treeview--dense .v-treeview-node__root
 {
@@ -237,5 +270,6 @@ export default {
   }
 .v-main__wrap {
     display: flex;
+    flex-direction: column;
 }
 </style>
