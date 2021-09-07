@@ -436,6 +436,30 @@ export function setOSDImgOverlayImg(image, viewer){
   elm.appendChild(title)
   elm.appendChild(copyrightHd)
   elm.appendChild(copyright)
+  if (image.location){
+    var locationHd = document.createElement("dt");
+    locationHd.innerHTML = "Location:"
+    var location = document.createElement("dd");
+    location.innerHTML = image.location.county + ', ' + image.location.town + '<br>' + image.location.name
+    elm.appendChild(locationHd)
+    elm.appendChild(location)
+  }
+  if (image.inventoryNumber){
+    var inventoryNumberHd = document.createElement("dt");
+    inventoryNumberHd.innerHTML = "Inventory Number:"
+    var inventoryNumber = document.createElement("dd");
+    inventoryNumber.innerHTML = image.inventoryNumber
+    elm.appendChild(inventoryNumberHd)
+    elm.appendChild(inventoryNumber)
+  }
+  if (image.comment){
+    var commentHd = document.createElement("dt");
+    commentHd.innerHTML = "Comment:"
+    var comment = document.createElement("dd");
+    comment.innerHTML = image.comment
+    elm.appendChild(commentHd)
+    elm.appendChild(comment)
+  }
   if (viewer.getOverlayById("html-overlay") === null) {
     viewer.viewport.fitBounds(new OpenSeadragon.Rect(0, 0, 1.2, 1), true);
     var textPoint = new OpenSeadragon.Point(1.01, 0);
