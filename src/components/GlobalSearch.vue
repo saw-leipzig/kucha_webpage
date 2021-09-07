@@ -1,5 +1,5 @@
 <template>
-  <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" style="width:50%;margin: 0 auto;">
+  <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" :style="getStyle">
     <v-text-field
       :disabled="searchDisabled"
       id="global-search-input-field"
@@ -26,10 +26,9 @@
       :hide-details="hint === ''"
       :loading="loading"
       class="search-input"
-      :style="$vuetify.breakpoint.smAndUp ? 'min-width: 300px;' : ''"
+      :style="$vuetify.breakpoint.smAndUp ? 'background-color: rgba(255, 255, 255, 0.9) !important;min-width: 80%;' : 'background-color: rgba(255, 255, 255, 0.9) !important;'"
       autocomplete="off"
       accesskey="f"
-      style="background-color: rgba(255, 255, 255, 0.9) !important;"
     >
     </v-text-field>
     <v-btn
@@ -46,7 +45,7 @@
       <span v-if="$vuetify.breakpoint.smAndUp">Search</span>
       <v-icon v-else>mdi-magnify</v-icon>
     </v-btn>
-    <v-menu ref="menu" attach activator="form.va-search" light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
+    <v-menu bottom offset-y wi ref="menu" attach="form.va-search" activator="form.va-search" light v-model="showResults" class="resultMenu" :close-on-content-click="true" :close-on-click="false">
       <v-list :dense="$vuetify.breakpoint.smAndDown">
         <v-subheader style="padding: 0px;" class="search-results-header">
           <v-list-item-action class="ml-n2">
@@ -59,11 +58,6 @@
             <v-list-item-subtitle>{{ 'Results for' + ': ' + searchtext}}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <va-legend :legendItems="legendItems" :buttonProps="legendButtonProps" @dialog_closed="focusOnInput">
-              <v-btn icon><v-icon>mdi-help</v-icon></v-btn>
-            </va-legend>
-          </v-list-item-action>
-          <v-list-item-action>
               <v-btn icon v-on:click="loadNext" :disabled="searchPack+results.length===totalres">
                 <v-icon>mdi-arrow-right</v-icon>
               </v-btn>
@@ -71,9 +65,9 @@
         </v-subheader>
         <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
           <v-list-item-content>
-            <v-row>
-              <v-col>
-                <v-list-item-title v-html="getTitle(item)"></v-list-item-title>
+            <v-row style="width=100%">
+              <v-col :cols="hasThumb(item) ? 10 : 12">
+                <v-list-item-title style="white-space: break-spaces;" v-html="getTitle(item)"></v-list-item-title>
                 <v-list-item-subtitle v-html="getSubTitle(item)"></v-list-item-subtitle>
               </v-col>
               <v-col cols=2 v-if="hasThumb(item)">
@@ -160,6 +154,21 @@ export default {
     }
   },
   computed: {
+    getStyle(){
+      if (this.$vuetify.breakpoint.xs){
+        return "width:80%;margin: 0 auto;"
+      } else if (this.$vuetify.breakpoint.sm){
+        return "width:80%;margin: 0 auto;"
+      } else if (this.$vuetify.breakpoint.md){
+        return "width:80%;margin: 0 auto;"
+      } else if (this.$vuetify.breakpoint.lg){
+        return "width:80%;margin: 0 auto;"
+      } else if (this.$vuetify.breakpoint.xl){
+        return "width:80%;margin: 0 auto;"
+      } else {
+        return "width:80%;margin: 0 auto;"
+      }
+    },
     searchDisabled(){
       return this.$store.state.searchDisabled
     },
@@ -423,11 +432,10 @@ export default {
   },
 
   mounted() {
-
     window.addEventListener("keydown", this.keyHandler );
     if (this.searchtext){
       if (this.searchtext.length > 2){
-        this.formSubmit(0)
+        this.formSubmit(this.searchPack)
       }
     }
     console.log("refs:", this.$refs.menu.calcTop);
@@ -443,15 +451,18 @@ export default {
 
 
 <style lang="css" scoped>
-
+.search-results-header{
+  position: sticky;
+  top:0px;
+  background-color: white !important;
+  z-index: 10;
+}
 .v-menu__content {
-  top: 56px !important;
   max-width: 100%;
 }
 
 .va-search.dense .v-menu__content {
-  top: 44px !important;
-  max-width: 200px;
+  max-width: 300px;
   max-height: 600px;
 }
 
@@ -495,5 +506,4 @@ export default {
 .reducedPaddingTop .va-key-symbol {
   padding-top: 2px !important;
 }
-
 </style>
