@@ -7,11 +7,10 @@
           flex-direction: column;
           flex-wrap: wrap;
           align-content: stretch;">
-    <v-card-title ref="cardTitle" class="h1 justify-center">
+    <v-card-title ref="cardTitle" :class="$vuetify.breakpoint.smAndDown ? 'h4 justify-center' : 'h1 justify-center'">
       Buddhist Murals of Kucha - Virtual Tour
     </v-card-title>
     <v-carousel
-    ref="itcarousel"
     progress
     hide-delimiters
       :continuous="false"
@@ -38,15 +37,25 @@
         justify-content: space-evenly;"
         v-if="idealTypical"
         >
-         <v-card-title >
+         <v-card-title v-if="!$vuetify.breakpoint.smAndDown">
             <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getIconographyByID(idealTypical).name}}</a>
          </v-card-title>
-        <v-card-subtitle  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-subtitle>
+        <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-text>
+        <v-expansion-panels flat v-if="$vuetify.breakpoint.smAndDown">
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              <v-card-title>{{getIconographyByID(idealTypical).name}}</v-card-title>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.description}}</a>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
          <v-row style="flex:1" no-gutters >
-          <v-col :cols="$vuetify.breakpoint.smAndDown ? 12 : 6" no-gutters style="flex:1;display: flex;flex-direction: column;">
-            <annotatedImage isZoom ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" treeShowOption v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+          <v-col no-gutters :style="checkLandscape ? 'min-height: 70vh;flex:1;display: flex;flex-direction: column;':'min-height: 50%;flex:1;display: flex;flex-direction: column;'">
+            <annotatedImage relativeHeight isZoom ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" :treeShowOption="$vuetify.breakpoint.smAndDown ? false : true" v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
           </v-col>
-          <v-col v-if="hasRelatedDepictions(idealTypical.iconographyID)" style="display: flex!important;flex-direction: column;">
+          <v-col :cols="!checkLandscape ? 12 : 6" v-if="hasRelatedDepictions(idealTypical.iconographyID)" style="display: flex!important;flex-direction: column;">
             <v-carousel
               :continuous="true"
               :show-arrows="false"
@@ -67,8 +76,8 @@
               >
             <v-card style="display: flex;
               flex-direction: column;width:100%">
-              <v-card-title ref="depictionTitle" style="word-break: break-word;display: block; word-break: break-words;" v-html="getExampleLabel(depiction)"></v-card-title>
-              <annotatedImage isZoom style="flex:1 1 100%" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
+              <v-card-text class="font-weight-bold"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'word-break: break-word;display: block; word-break: break-words;'" v-html="getExampleLabel(depiction)"></v-card-text>
+              <annotatedImage isZoom :style="checkLandscape? 'min-height:50%;flex:1 1 100%':'min-height:100%;flex:1 1 100%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
             </v-card>
               </v-carousel-item>
             </v-carousel>
@@ -82,7 +91,7 @@
 
 <script>
 // import Vue from 'vue'
-import {getIconographyByID, getCaveLabel, getIconographyByAnnos, getWallLabels} from '@/utils/helpers'
+import {getIconographyByID, getCaveLabel, getCaveShortLabel, getIconographyByAnnos, getWallLabels} from '@/utils/helpers'
 import annotatedImage from '@/components/annotatedImage'
 import { getDepictionByAnnotation } from '@/services/repository'
 export default {
@@ -102,6 +111,10 @@ export default {
     }
   },
   computed:{
+    checkLandscape(){
+      console.log("is Landscape:", this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height);
+      return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
+    },
   },
   methods: {
     changedDepiction(){
@@ -111,10 +124,6 @@ export default {
       }
     },
     changed(item){
-      console.log("changed", this.$refs.idealTypicalImage);
-      if (this.$refs.idealTypicalImage[item]){
-        this.$refs.idealTypicalImage[item].goHome()
-      }
     },
     getContentHeight(){
       let h = 600
@@ -126,7 +135,12 @@ export default {
     },
     getExampleLabel(depiction){
       if (depiction){
-        return "Example from " + this.getCaveLabel(depiction.cave) +  " " + this.getWallLabel(depiction) + "<a :href=" + this.getDeptictionURL(depiction) + " style=\"flex-wrap: wrap; font-size: 1.25rem; font-weight: 500; letter-spacing: .0125em;  line-height: 2rem; color: rgba(0, 0, 0, 0.87);display: inline; word-break: break-words; \" > (Painted Representation " + depiction.depictionID + ")</a>"
+        if (!this.$vuetify.breakpoint.smAndDown){
+          return "Example from " + this.getCaveLabel(depiction.cave) +  " " + this.getWallLabel(depiction) + " (Painted Representation " + depiction.depictionID + ")</a>"
+
+        } else {
+          return getCaveShortLabel(depiction.cave) +  ", " + this.getWallLabel(depiction)
+        }
       } else {
         return null
       }
@@ -264,6 +278,10 @@ export default {
     for (const idealTypical of this.idealTypicals){
       this.setRelatedDepictions(idealTypical)
     }
+    setTimeout(() => {
+      console.log("this.$refs.carousel.$children[0].$el", this.$refs.IdealTypicalCard);
+      this.$refs.IdealTypicalCard[0].$el.scrollIntoView(true)
+    }, 1000);
   },
   updated:function () {
   }
@@ -287,6 +305,9 @@ export default {
   }
   .v-responsive {
     height: 100%!important;
+  }
+  .v-card__title {
+    padding-bottom: 5px !important;
   }
   .v-carousel .v-window-item {
     flex: 1!important;

@@ -11,23 +11,46 @@
         </v-app-bar>
         <div style="flex:1">
       <template style="display:flex;flex-direction:column;flex:1">
+        <v-btn
+        v-if="$vuetify.breakpoint.smAndDown && !navigation"
+          class="mx-2 mb-5"
+          fab
+          dark
+          right
+          top
+          fixed
+          color="primary"
+          @click.stop="navigation = !navigation"
+        >
+          <v-icon dark>
+            mdi-menu
+          </v-icon>
+        </v-btn>
         <v-navigation-drawer
           v-model="navigation"
           :mini-variant="mini"
           app
-          permanent
+          :permanent="$vuetify.breakpoint.smAndDown?false:true"
           :ripple="false" class="mb-10"
           :width="mini ? '56': '100'"
           :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important'"
         >
           <v-list>
             <v-subheader>
-              <v-btn
+              <v-btn v-if="!$vuetify.breakpoint.smAndDown"
                 icon
+                absolute
                 @click.stop="mini = !mini"
               >
                 <v-icon v-if="mini">mdi-chevron-right</v-icon>
                 <v-icon v-else>mdi-chevron-left</v-icon>
+              </v-btn>
+              <v-btn v-if="$vuetify.breakpoint.smAndDown"
+                icon
+                absolute
+                @click.stop="navigation = !navigation"
+              >
+                <v-icon >mdi-chevron-left</v-icon>
               </v-btn>
             </v-subheader>
             <v-list-item
@@ -100,7 +123,7 @@
           <v-divider></v-divider>
         </v-navigation-drawer>
       </template>
-    <v-main style="flex-direction: column;flex:1">
+    <v-main :style="navigation?'padding: 5px 0px 80px 56px;flex-direction: column;flex:1':'padding: 5px 0px 80px 0px;flex-direction: column;flex:1'">
       <v-row justify="center" style="flex:1" >
         <v-col no-gutters>
           <router-view></router-view>
@@ -162,6 +185,10 @@ export default {
     iconTour
   },
   computed:{
+    checkLandscape(){
+      console.log("is Landscape:", this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height);
+      return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
+    },
     getFooter(){
       return !this.$vuetify.breakpoint.smAndDown ? "2021, version 0.0.1 <br>Note: This site is still under construction. Please report any problems to <a href='mailto:kuchaadmin@saw-leipzig.de'> admin </a>" : "2021,<br> version 0.0.1"
     }
@@ -180,6 +207,15 @@ export default {
     this.$store.dispatch('getDics').then(() => {
       console.log("Iconography:", this.$store.state.dic.iconography);
     })
+  },
+  mounted:function(){
+    if (this.$vuetify.breakpoint.smAndDown){
+      this.navigation = false
+      this.mini = false
+    } else {
+      this.mini = true
+      this.navigation = true
+    }
   }
 }
 </script>
@@ -207,6 +243,7 @@ export default {
 }
 .v-main {
   height: 100%;
+
 }
 .v-list-group__header__prepend-icon{
   margin-top: 0;

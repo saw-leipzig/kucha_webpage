@@ -60,7 +60,7 @@
               </v-tabs>
 
                 <v-card flat>
-                  <v-tabs-items v-model="tab">
+                  <v-tabs-items class="mx-5" v-model="tab">
                     <v-tab-item
                       v-for="(item_value, item_name, item_key) in depictionInfo"
                       :key="item_key"

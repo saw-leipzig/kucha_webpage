@@ -3,14 +3,14 @@
 
 <v-card class="justify-center"  style="top: 30vh;" color="white" >
     <v-row class="mx-3">
-      <v-col v-if="!$vuetify.breakpoint.smAndDown" cols="3" style="opacity:1" >
+      <v-col v-if="!$vuetify.breakpoint.smAndDown" cols="3" style="opacity:1;padding-bottom: 0px !important;" >
         <v-img style="opacity:1" src="../static/kucha-logo 02.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
       </v-col>
       <v-col :cols="!$vuetify.breakpoint.smAndDown ? 9 : 12">
         <v-row class="py-5 justify-center" align="center" style="height:50%;">
           <v-card-title v-if="!$vuetify.breakpoint.smAndDown" :class="getHeading" style="color:#80581D">Buddhist Murals of Kucha <br> on the Northern Silk Road</v-card-title>
-          <v-flex v-if="$vuetify.breakpoint.smAndDown" align-self-center>
-          <v-img class="mx-1"  style="height: 80%;width:60%;opacity:1" src="../static/kucha-logo 02.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
+          <v-flex v-if="$vuetify.breakpoint.smAndDown" align-self-center shrink >
+          <v-img class="mx-1"  style="opacity:1" src="../static/kucha-logo 02.png" @click.stop="navigation = !navigation" height="100%" position="left" contain></v-img>
           </v-flex>
         </v-row>
         <v-row class="justify-center" align="center" >
@@ -119,7 +119,9 @@ export default {
 .v-card__title{
   word-break: break-word;
 }
-
+.flex{
+  height:100%
+}
 
 
 /*.mobileExtraSmall  .statistic-card {

@@ -24,13 +24,13 @@
     </v-tabs>
     <v-checkbox v-if="treeShowOption" dense class="mx-5 py-0 my-0" hide-details label="Hide tree."  v-model="dontShowTree"></v-checkbox>
     <v-row justify="center" class="mx-5" :style="'flex:1;'">
-      <v-col order="2"  :cols="dontShowTree ? 12 : colsAnnoImg"  :style="'flex:1;'">
+      <v-col order="2"  :cols="getCols('AnnoImg')"  :style="setHeight">
         <v-tooltip v-if="showTag" :position-y="yTag" :position-x="xTag" right v-model="showTag" >
           <span >{{hoveredTags(hoveredAnno)}}</span>
         </v-tooltip>
-        <v-card height="100%" :style="getAccessLevel(annoImage) === 2 ? 'flex-direction: column;background-color: rgba(255, 255, 255, 1) !important;display:flex' : 'display: none;background-color: rgba(255, 255, 255, 1) !important;'">
+        <v-card height="100%" width="100%" :style="getAccessLevel(annoImage) === 2 ? 'flex-direction: column;background-color: rgba(255, 255, 255, 1) !important;display:flex' : 'display: none;background-color: rgba(255, 255, 255, 1) !important;'">
           <div class="mt-5" ref="osdDiv"  :id="'openseadragonAnno' + itemId"  style='margin:0;padding:0;height:100%;'>
-          <v-row height="100%" class="mt-0" :attach="'#openseadragonAnno' + itemId" style='position: relative;z-index: 4'>
+          <v-row height="100%" class="mt-0 mx-0" :attach="'#openseadragonAnno' + itemId" style='position: relative;z-index: 4'>
             <v-bottom-sheet
               v-model="sheet"
               inset
@@ -42,14 +42,12 @@
                   allign="start"
                 >
                   <v-col
-                    outlined
-                  >
-                  </v-col>
-                  <v-col
+                  style="text-align: center;"
                   v-if="isFullScreen"
-                    outlined
+                  cols="6"
                   >
                     <v-btn
+                    class="text-xs-center"
                     :attach="'#openseadragonAnno' + itemId"
                       color="orange"
                       dark
@@ -58,18 +56,13 @@
                       Open Annotations
                     </v-btn>
                   </v-col>
-                  <v-col v-if="showControls">
+                  <v-col v-if="showControls" :cols="isFullScreen? '6' : '12'" style="text-align: center;">
                     <v-btn
                       color="orange"
-                      dark
                       v-on:click="switchAnnoImageControl()"
                     >
                       {{actControl}}
                     </v-btn>
-                  </v-col>
-                  <v-col
-                    outlined
-                  >
                   </v-col>
                   </v-row>
               </template>
@@ -114,7 +107,7 @@
           </v-row>
           </div>
         </v-card>
-        <v-card :style=" getAccessLevel(annoImage) < 2 ? 'overflow-y: scroll;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
+        <v-card height="100%" :style=" getAccessLevel(annoImage) < 2 ? 'overflow-y: scroll;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
           <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
             {{getAnnoTitle(annoImage)}}
           </v-card-title>
@@ -131,10 +124,9 @@
         </v-card>
 
       </v-col>
-      <v-col style="display: flex;
-              flex-direction: column;"
+      <v-col :style="setHeight"
               v-if="!dontShowTree"
-              :order="left ? 1 : 3" :cols=colsAnnoTree  :ref="'cardAnno' + itemId">
+              :order="left ? 1 : 3" :cols="getCols('AnnoTree')"  :ref="'cardAnno' + itemId">
         <v-card
           style='overflow-y: scroll;
             overflow-x: hidden;
@@ -225,10 +217,10 @@ export default {
         return false
       }
     },
-    height: {
-      type: String,
+    relativeHeight: {
+      type: Boolean,
       default: function () {
-        return "550"
+        return false
       }
     },
     relatedAnnotations: null,
@@ -258,6 +250,13 @@ export default {
     }
   },
   computed: {
+    setHeight(){
+      if (this.relativeHeight){
+        return this.$vuetify.breakpoint.smAndDown ? 'height:100%;display: flex;' : 'height:100&;flex:1;display: flex;'
+      } else {
+        return this.$vuetify.breakpoint.smAndDown ? 'height:70vh;display: flex;' : 'height:70vh;flex:1;display: flex;'
+      }
+    },
     yTag(){
       if (this.dontShowTree){
         // console.log("hoveredAnno triggered", this.$refs['osdDiv'].getBoundingClientRect());
@@ -293,6 +292,20 @@ export default {
 
   },
   methods: {
+    getCols(col){
+      console.log("Breakpoints", this.$vuetify.breakpoint);
+      if (this.$vuetify.breakpoint.mdAndDown){
+        return "12"
+      } else if (this.dontShowTree) {
+        return "12"
+      } else {
+        if (col === "AnnoImg"){
+          return this.colsAnnoImg
+        } else {
+          return this.colsAnnoTree
+        }
+      }
+    },
     getMainHeight(){
       if (this.$refs.tabs){
         return this.height - this.$refs.tabs.$el.clientHeight
@@ -335,7 +348,7 @@ export default {
       this.viewerAnnos.setMouseNavEnabled(!this.viewerAnnos.isMouseNavEnabled())
     },
     mouseOverNode(item){
-      if (this.getAccessLevel(this.annoImage) > 1){
+      if (!item.locked){
         var foundAnnos = this.getAnnoByIcoID(item)
         this.choosPicForAnno(item)
         for (var anno of foundAnnos){
@@ -355,8 +368,6 @@ export default {
     },
     updateSelectedAnnos(){
       if (this.getAccessLevel(this.annoImage) > 1){
-        // console.log("UpdateSelectedAnnos triggered");
-        // this.annotoriousplugin.setAnnotations([])
         for (let anno of this.w3cAnnos){
           if (!this.dontShowTree){
             this.annotoriousplugin.hideAnnotation(anno.id)
@@ -368,13 +379,9 @@ export default {
             }
           }
         }
-        // console.log("annoSelected", this.annoSelected);
         for (var icoAnno of this.annoSelected) {
-          // console.log("found Annotated Iconography: ", icoAnno);
           for (var anno of this.getAnnoByIcoID(icoAnno)) {
-            // console.log("Found related Anno:", anno);
             var dummy = this.w3cAnnos.find(element => element.id === anno.annotoriousID)
-            // console.log("found relatred w3cAnno:", dummy);
             if (!Array.isArray(dummy)){
               this.addAnnotation(dummy)
             } else {
@@ -384,9 +391,7 @@ export default {
             }
           }
         }
-        // console.log("hoveredAnno:", this.hoveredAnno);
         if (this.hoveredAnno !== null && this.getAccessLevel(this.annoImage) === 2){
-          // console.log("found hovered Anno", this.hoveredAnno);
           this.addAnnotation(this.hoveredAnno)
         }
       }
@@ -605,6 +610,34 @@ export default {
         rootItem.locked = true
       }
     },
+    disableUnavailableInTree() {
+      for (let rootItem of this.icoAnnos){
+        this.disableUnavailable(rootItem)
+      }
+    },
+    disableUnavailable(element){
+      let locked = true
+      for (let child of element.children){
+        let res = this.disableUnavailable(child)
+        if (!res){
+          locked = res
+        }
+      }
+      let foundPic = false
+      for (let w3c of element.w3cAnno){
+        for (let pic of this.annos){
+          if (pic.filename === w3c.target.id){
+            foundPic = true
+          }
+        }
+      }
+      if (!foundPic && locked){
+        element.locked = true
+      } else {
+        element.locked = false
+      }
+      return element.locked
+    },
     enableTree() {
       for (let rootItem of this.icoAnnos){
         rootItem.locked = false
@@ -644,7 +677,7 @@ export default {
     },
     setOSDannos(image){
       if (this.getAccessLevel(this.annoImage) < 2){
-        this.disableTree();
+        this.disableUnavailableInTree();
         // console.log("tree disabled:", this.icoAnnos);
       } else {
         this.enableTree();
@@ -672,7 +705,67 @@ export default {
         return null
       }
     },
+    putW3cInAnnos(anno){
+      for (let rootItem of this.icoAnnos){
+        this.findInTree(rootItem, anno)
+      }
+    },
+    findInTree(element, w3cAnno){
+      for (let body  of w3cAnno.body){
+        if (body.id === element.iconographyID){
+          element.w3cAnno.push(w3cAnno)
+        }
+      }
+      for (let child of element.children){
+        this.findInTree(child, w3cAnno)
+      }
+    },
     initNewAnnotatedImage(){
+      var allAnnotationEntries = []
+      this.w3cAnnos = []
+      var geoGenerator = d3.geoPath()
+      // console.log("relatedAnnotations", this.relatedAnnotations);
+      for (var ae of this.relatedAnnotations) {
+        var bodies = []
+        for (var ie of ae.tags) {
+          if (!allAnnotationEntries.includes(ie)) {
+            allAnnotationEntries.push(ie.iconographyID);
+            var body = {};
+            body["type"] = "TextualBody";
+            if (ie.name){
+              body["value"] = ie.name;
+            } else {
+              body["value"] = ie.text;
+            }
+            body["id"] = ie.iconographyID;
+            body["image"] = ae.image;
+            // console.log("Body:", body, " for: ", ie);
+            bodies.push(body);
+          }
+        }
+        var anno = {};
+        anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
+        anno["id"] = ae.annotoriousID;
+        anno["type"] = "Annotation";
+        anno["body"] = bodies;
+        var target = {};
+        var selector = {};
+        selector["type"] = "SvgSelector";
+        selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
+        var root = JSON.parse(ae.polygon);
+        selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
+        target["selector"] = selector;
+        target["id"] = ae.image
+        anno["target"] = target;
+        this.w3cAnnos.push(anno);
+      }
+      // console.log("allAnnotationEntries", allAnnotationEntries);
+      this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+      for (let w3cAnno of this.w3cAnnos){
+        this.putW3cInAnnos(w3cAnno)
+      }
+      this.disableUnavailableInTree()
+      // console.log("preselected", this.preSelected);
       if (this.annos.length > 0){
         // console.log("started AnnotatedImage for item: " + this.itemId);
         // console.log("Annotations: ", this.relatedAnnotations);
@@ -697,43 +790,9 @@ export default {
           this.initOSDanno()
           // console.log("viewerAnnos is", this.viewerAnnos);
         }
-        var allAnnotationEntries = []
-        this.w3cAnnos = []
-        var geoGenerator = d3.geoPath()
-        // console.log("relatedAnnotations", this.relatedAnnotations);
-        for (var ae of this.relatedAnnotations) {
-          var bodies = []
-          for (var ie of ae.tags) {
-            if (!allAnnotationEntries.includes(ie)) {
-              allAnnotationEntries.push(ie.iconographyID);
-              var body = {};
-              body["type"] = "TextualBody";
-              if (ie.name){
-                body["value"] = ie.name;
-              } else {
-                body["value"] = ie.text;
-              }
-              body["id"] = ie.iconographyID;
-              body["image"] = ae.image;
-              // console.log("Body:", body, " for: ", ie);
-              bodies.push(body);
-            }
-          }
-          var anno = {};
-          anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
-          anno["id"] = ae.annotoriousID;
-          anno["type"] = "Annotation";
-          anno["body"] = bodies;
-          var target = {};
-          var selector = {};
-          selector["type"] = "SvgSelector";
-          selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
-          var root = JSON.parse(ae.polygon);
-          selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
-          target["selector"] = selector;
-          target["id"] = ae.image
-          anno["target"] = target;
-          this.w3cAnnos.push(anno);
+        this.annoSelected = this.preSelected
+        if (this.getAccessLevel(this.annoImage) > -1){
+          this.setOSDannos(this.annos[0])
         }
         if (Object.keys(this.annotoriousplugin).length > 0){
           for (let anno of this.w3cAnnos){
@@ -749,14 +808,7 @@ export default {
           }
           // console.log("all Annotations:", this.annotoriousplugin.getAnnotations());
         }
-        // console.log("allAnnotationEntries", allAnnotationEntries);
-        this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
-        // console.log("icoAnnos:", this.icoAnnos);
-        // console.log("preselected", this.preSelected);
-        this.annoSelected = this.preSelected
-        if (this.getAccessLevel(this.annoImage) > -1){
-          this.setOSDannos(this.annos[0])
-        }
+
       }
     },
     hideTag(){
@@ -876,7 +928,7 @@ export default {
       this.updateSelectedAnnos()
     },
     'dontShowTree': function(newVal, oldVal) {
-      if (this.annotoriousplugin){
+      if (Object.keys(this.annotoriousplugin).length > 0){
         let _self = this
         setTimeout(function(){ _self.viewerAnnos.viewport.goHome() }, 50);
       }
