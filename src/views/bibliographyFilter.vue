@@ -41,6 +41,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
+        <radioGroupSort @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -53,23 +54,25 @@
 <script>
 import { postQuery } from '@/services/repository'
 import {TextSearchBibliography} from '@/utils/constants.js'
-
+import radioGroupSort from '@/components/radioGroupSort.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
 import bibKeywordSearch from '@/components/bibKeywordSearch.vue'
 import checkBoxFilter from '@/components/checkBoxFilter.vue'
-import {getBuckets, buildAgg} from  "@/utils/helpers"
+import {getBuckets, buildAgg, getAuthorOrEditor} from  "@/utils/helpers"
 
 export default {
   name: 'bibliographyFilter',
   components: {
     freeTextSearch,
     bibKeywordSearch,
-    checkBoxFilter
-
+    checkBoxFilter,
+    radioGroupSort
   },
   data () {
     return {
       panel: 0,
+      sort: "year",
+      direction:"asc",
       aggregations:{},
       visible:[0],
       relatedBibliography:[],
@@ -84,6 +87,22 @@ export default {
   computed: {
     getTextSearchParams(){
       return TextSearchBibliography
+    },
+    getRadioGroupData(){
+      let radioGroupData = {}
+      radioGroupData["Year"] = {
+        "label": "Year",
+        "value": "year"
+      }
+      radioGroupData["Author"] = {
+        "label": "Author",
+        "value": "author"
+      }
+      radioGroupData["Title"] = {
+        "label": "Title",
+        "value": "title"
+      }
+      return radioGroupData
     },
     getBibCheckBoxData(){
       let bibCheckBoxData = {}
@@ -155,6 +174,12 @@ export default {
 
       this.initiateFacets()
     },
+    changedSort(value){
+      console.log("new changed sort Value:", value);
+      this.sort = value[0]
+      this.direction = value[1]
+      this.sortBib()
+    },
     textFacets(){
       let aggregations = []
       if (this.aggregations){
@@ -163,7 +188,85 @@ export default {
       console.log("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
+    sortBib(){
+      if (this.relatedBibliography.length > 0){
+        if (this.sort === "year"){
+          if (this.direction === "asc"){
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = a["yearORG"].trim().toUpperCase();
+              var nameB = b["yearORG"].trim().toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = a["yearORG"].trim().toUpperCase();
+              var nameB = b["yearORG"].trim().toUpperCase();
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+        } else if (this.sort === "author"){
+          if (this.direction === "asc"){
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = getAuthorOrEditor(a).trim().toUpperCase();
+              var nameB = getAuthorOrEditor(b).trim().toUpperCase();
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = getAuthorOrEditor(a).trim().toUpperCase();
+              var nameB = getAuthorOrEditor(b).trim().toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
 
+          }
+        } else if (this.sort === "title"){
+          if (this.direction === "asc"){
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = a["titleORG"].trim().toUpperCase();
+              var nameB = b["titleORG"].trim().toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedBibliography.sort(function(a, b){
+              var nameA = a["titleORG"].trim().toUpperCase();
+              var nameB = b["titleORG"].trim().toUpperCase();
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+
+        }
+      }
+    },
 
 
     buildAgg(aggInfo, reference){
@@ -290,6 +393,8 @@ export default {
           }
           this.loading = false
           this.relatedBibliography = newDepictions
+          this.sortBib()
+          console.log("relatedBibliography", this.relatedBibliography);
         })
         .catch((error) => {
           console.log(error)

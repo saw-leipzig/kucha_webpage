@@ -3,10 +3,22 @@ import store from '../store'
 import OpenSeadragon from 'openseadragon'
 
 function getName(author) {
-  console.log(author);
+  let authorString = ""
   if (author){
-    return author.institutionEnabled ? author.institution : author.lastname + (author.firstname !== null && !author.firstname === "" ? ", " + author.firstname : "") + (author.alias  !==  null && !author.alias === "" ? " " + author.alias + "" : "");
-  } else return ""
+    if (author.institutionEnabled){
+      authorString = author.institution
+    } else {
+      if (author.firstname !== null && !author.firstname) {
+        authorString = author.lastname
+      } else {
+        authorString = author.lastname + ", " + author.firstname
+      }
+    }
+    if (author.alias  !==  null && author.alias !== undefined){
+      authorString += " " + author.alias
+    }
+  }
+  return authorString
 }
 function getAuthors(bibliography) {
   var result = "";
@@ -61,6 +73,7 @@ function searchTree(element, ids){
   }
   let copy = Object.assign({}, element)
   copy.children = newChildren;
+  copy['w3cAnno'] = []
   if ((ids.includes(copy.iconographyID)) || (copy.children.length > 0)){
     copy.id = copy.iconographyID
     return copy
@@ -251,6 +264,15 @@ export function getWallTreeLabels(wallTree, label){
   }
   return results
 }
+export function getAuthorOrEditor(bibliography){
+  if (getAuthors(bibliography) !== ""){
+    return getAuthors(bibliography)
+  } else if (getEditors(bibliography) !== ""){
+    return getEditors(bibliography)
+  } else {
+    return getTitleORGFull(bibliography)
+  }
+}
 export function getBibTitle(bibliography){
   if (bibliography.publicationType){
     var bib = "";
@@ -361,7 +383,6 @@ export function getBibTitle(bibliography){
       if (tail !== ". "){
         tail = tail + ". ";
       }
-      console.log("bibtail is:\"" + bibliography.parentTitleTR + "\"");
       if (bibliography.hesHan){
         return bib + "<i>" + translit + "</i><b>" + bold + "</b>" + translat + tail
       } else {
@@ -406,6 +427,114 @@ export function getBibTitle(bibliography){
       } else {
         return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
       }
+    } else if (bibliography.publicationType.publicationTypeID === 5) {
+      if (bibliography.parentTitleTR || bibliography.parentTitleEN || bibliography.parentTitleORG){
+        bib = bib + getAuthors(bibliography);
+        if (bibliography.yearORG !== "") {
+          bib = bib + ", " + bibliography.yearORG + ",";
+        }
+        if (getTitleTRFull(bibliography) !== "") {
+          translit = " " + getTitleTRFull(bibliography);
+        }
+        if (getTitleORGFull(bibliography) !== "") {
+          if (bibliography.parentTitleORG){
+            bold += "<i>"
+          }
+          bold += " " + getTitleORGFull(bibliography);
+          if (bibliography.parentTitleORG){
+            bold += "</i>"
+          }
+        }
+        if (getTitleENFull(bibliography) !== "") {
+          translat += " " + getTitleENFull(bibliography);
+        }
+        if (bibliography.editorType !== undefined){
+          translat += " In: "
+        }
+        const editors = getEditors(bibliography)
+        if (editors !== ""){
+          translat += editors
+        }
+        if (bibliography.editorType !== undefined){
+          translat += " " + bibliography.editorType + " "
+        }
+        if (bibliography.parentTitleTR){
+          translat += "<i>" + bibliography.parentTitleTR + "</i>. "
+        }
+        if (bibliography.parentTitleORG){
+          translat += "<i>" + bibliography.parentTitleORG + "</i>. "
+        }
+        if (bibliography.parentTitleEN){
+          translat += "<i>" + bibliography.parentTitleEN + "</i>. "
+        }
+      } else {
+        if (getAuthors(bibliography) === "") {
+          if (getEditors(bibliography) !== "") {
+            bib = bib + getEditors(bibliography) + " (ed.)";
+          }
+        } else {
+          bib = bib + getAuthors(bibliography);
+        }
+        if (bibliography.yearORG !== "") {
+          bib = bib + ", " + bibliography.yearORG + ",";
+        }
+        if (getTitleTRFull(bibliography) !== "") {
+          translit = " " + getTitleTRFull(bibliography);
+        }
+        if (getTitleORGFull(bibliography) !== "") {
+          bold = " " + getTitleORGFull(bibliography);
+        }
+        if (getTitleENFull(bibliography) !== "") {
+          translat = " " + getTitleENFull(bibliography);
+        }
+
+      }
+      if (bibliography.thesisType !== "") {
+        if (bibliography.publisher === "") {
+          tail = tail + bibliography.thesisType + " thesis";
+        } else {
+          tail = tail + ", " + bibliography.thesisType;
+        }
+      }
+      if (bibliography.volumeORG !== "") {
+        tail = tail + ", Vol." + bibliography.volumeORG;
+      }
+      if (bibliography.editionORG !== "") {
+        tail = tail + ", Edition: " + bibliography.editionORG;
+      }
+      if (bibliography.numberORG !== "") {
+        tail = tail + ", No: " + bibliography.numberORG;
+      }
+      if (bibliography.publisher !== "") {
+        if (tail === ""){
+          tail = bibliography.publisher;
+        } else {
+          tail = tail + ". " + bibliography.publisher;
+        }
+      }
+      if (bibliography.seriesORG !== "") {
+        tail = tail + ", Series: " + bibliography.seriesORG;
+      }
+      if (bibliography.volumeORG !== "") {
+        tail = tail + " Vol. " + bibliography.volumeORG;
+      }
+      if (bibliography.issueORG !== "") {
+        tail = tail + " / " + bibliography.issueORG;
+      }
+      if (bibliography.pagesORG !== "") {
+        tail = tail + ". " + bibliography.pagesORG;
+      }
+
+      if (bibliography.quotedPages !== "" && bibliography.quotedPages !== undefined) {
+        tail = tail + ", " + bibliography.quotedPages;
+      }
+      tail = tail + ". ";
+      if (bibliography.hesHan){
+        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+      } else {
+        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+      }
+
     } else {
       return ("undefined")
     }
