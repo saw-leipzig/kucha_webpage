@@ -8,7 +8,7 @@
       <v-expansion-panel-content>
         <v-row align="start" dense style="flex-wrap: wrap;">
           <v-col  style="min-width: 265px;">
-            <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" :aggregations="textFacets"></free-text-search>
+            <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" @update="updateTextSearchInput" :aggregations="textFacets"></free-text-search>
           </v-col>
         </v-row>
         <v-row align="start" dense style="flex-wrap: wrap;">
@@ -28,6 +28,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
+        <radioGroupSort startValue="shortName" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -41,14 +42,17 @@
 import {postQuery} from '@/services/repository'
 import caveSearch from '@/components/caveSearch.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
-import {getBuckets, buildAgg} from  "@/utils/helpers"
+import {getBuckets, buildAgg, getCaveLabel} from  "@/utils/helpers"
 import {TextSearchCave} from '@/utils/constants.js'
+import radioGroupSort from '@/components/radioGroupSort.vue'
 
 export default {
   name: 'caveFilter',
   components: {
     freeTextSearch,
-    caveSearch
+    caveSearch,
+    radioGroupSort
+
   },
   data () {
     return {
@@ -61,9 +65,35 @@ export default {
       aggsObject:{},
       resAmount:0,
       loading:false,
+      sort: "shortName",
+      direction:"asc",
     }
   },
   computed: {
+    getRadioGroupData(){
+      let radioGroupData = []
+      radioGroupData.push({
+        "label": "Short Name",
+        "value": "shortName"
+      })
+      radioGroupData.push({
+        "label": "Cave Types",
+        "value": "caveTypes"
+      })
+      radioGroupData.push({
+        "label": "Site",
+        "value": "site"
+      })
+      radioGroupData.push({
+        "label": "District",
+        "value": "district"
+      })
+      radioGroupData.push({
+        "label": "Region",
+        "value": "region"
+      })
+      return radioGroupData
+    },
     getTextSearchParams(){
       return TextSearchCave
     },
@@ -131,6 +161,175 @@ export default {
     }
   },
   methods: {
+    changedSort(value){
+      console.log("new changed sort Value:", value);
+      this.sort = value[0]
+      this.direction = value[1]
+      this.sortCave()
+    },
+    sortCave(){
+      if (this.relatedCaves.length > 0){
+        if (this.sort === "shortName"){
+          if (this.direction === "asc"){
+            this.relatedCaves.sort(function(a, b){
+              var nameA = getCaveLabel(a).trim().toUpperCase();
+              var nameB = getCaveLabel(b).trim().toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedCaves.sort(function(a, b){
+              var nameA = getCaveLabel(a).trim().toUpperCase();
+              var nameB = getCaveLabel(b).trim().toUpperCase();
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+        } else if (this.sort === "caveTypes"){
+          if (this.direction === "asc"){
+            this.relatedCaves.sort(function(a, b){
+              if (!a.caveType){
+                return -1
+              }
+              if (!b.caveType){
+                return 1
+              }
+              var nameA = a.caveType.nameEN;
+              var nameB = b.caveType.nameEN;
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedCaves.sort(function(a, b){
+              if (!a.caveType){
+                return 1
+              }
+              if (!b.caveType){
+                return -1
+              }
+              var nameA = a.caveType.nameEN;
+              var nameB = b.caveType.nameEN;
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+
+          }
+        } else if (this.sort === "site"){
+          if (this.direction === "asc"){
+            this.relatedCaves.sort(function(a, b){
+              var nameA = a.site.name;
+              var nameB = b.site.name;
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedCaves.sort(function(a, b){
+              var nameA = a.site.name;
+              var nameB = b.site.name;
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+
+        } else if (this.sort === "district"){
+          if (this.direction === "asc"){
+            this.relatedCaves.sort(function(a, b){
+              if (!a.district){
+                return 1
+              }
+              if (!b.district){
+                return -1
+              }
+              var nameA = a.district.name;
+              var nameB = b.district.name;
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedCaves.sort(function(a, b){
+              if (!a.district){
+                return -1
+              }
+              if (!b.district){
+                return 1
+              }
+              var nameA = a.district.name;
+              var nameB = b.district.name;
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+        } else if (this.sort === "region"){
+          if (this.direction === "asc"){
+            this.relatedCaves.sort(function(a, b){
+              if (!a.region){
+                return -1
+              }
+              if (!b.region){
+                return 1
+              }
+              var nameA = a.region.name;
+              var nameB = b.region.name;
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedCaves.sort(function(a, b){
+              if (!a.region){
+                return 1
+              }
+              if (!b.region){
+                return -1
+              }
+              var nameA = a.region.name;
+              var nameB = b.region.name;
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+        }
+      }
+    },
     clear(){
       this.$refs.caveSearch.clear();
       this.$refs.textSearch.clear();
@@ -140,8 +339,10 @@ export default {
     },
     onTextSearchInput(value) {
       this.textSearch = value.search
-      // this.buildTextAggs(value.aggs)
       this.initiateFacets()
+    },
+    updateTextSearchInput(value) {
+      this.textSearch = value.search
     },
 
     changedCaveInput(value){
@@ -244,6 +445,7 @@ export default {
       return queries
     },
     initiateSearch(amount){
+      this.$refs.textSearch.update()
       let searchObject = {}
       this.relatedCaves = []
       searchObject["size"] = amount
@@ -283,6 +485,7 @@ export default {
           }
           this.loading = false
           this.relatedCaves = newCaves
+          this.sortBib()
         })
         .catch((error) => {
           console.log(error)

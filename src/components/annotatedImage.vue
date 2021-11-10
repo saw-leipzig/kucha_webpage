@@ -720,49 +720,52 @@ export default {
         this.findInTree(child, w3cAnno)
       }
     },
-    initNewAnnotatedImage(){
-      var allAnnotationEntries = []
-      this.w3cAnnos = []
-      var geoGenerator = d3.geoPath()
+    initNewAnnotatedImage(doW3c){
       // console.log("relatedAnnotations", this.relatedAnnotations);
-      for (var ae of this.relatedAnnotations) {
-        var bodies = []
-        for (var ie of ae.tags) {
-          if (!allAnnotationEntries.includes(ie)) {
-            allAnnotationEntries.push(ie.iconographyID);
-            var body = {};
-            body["type"] = "TextualBody";
-            if (ie.name){
-              body["value"] = ie.name;
-            } else {
-              body["value"] = ie.text;
+      if (doW3c){
+        var allAnnotationEntries = []
+        this.w3cAnnos = []
+        var geoGenerator = d3.geoPath()
+        for (var ae of this.relatedAnnotations) {
+          var bodies = []
+          for (var ie of ae.tags) {
+            if (!allAnnotationEntries.includes(ie)) {
+              allAnnotationEntries.push(ie.iconographyID);
+              var body = {};
+              body["type"] = "TextualBody";
+              if (ie.name){
+                body["value"] = ie.name;
+              } else {
+                body["value"] = ie.text;
+              }
+              body["id"] = ie.iconographyID;
+              body["image"] = ae.image;
+              // console.log("Body:", body, " for: ", ie);
+              bodies.push(body);
             }
-            body["id"] = ie.iconographyID;
-            body["image"] = ae.image;
-            // console.log("Body:", body, " for: ", ie);
-            bodies.push(body);
           }
+          var anno = {};
+          anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
+          anno["id"] = ae.annotoriousID;
+          anno["type"] = "Annotation";
+          anno["body"] = bodies;
+          var target = {};
+          var selector = {};
+          selector["type"] = "SvgSelector";
+          selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
+          var root = JSON.parse(ae.polygon);
+          selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
+          target["selector"] = selector;
+          target["id"] = ae.image
+          anno["target"] = target;
+          this.w3cAnnos.push(anno);
         }
-        var anno = {};
-        anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
-        anno["id"] = ae.annotoriousID;
-        anno["type"] = "Annotation";
-        anno["body"] = bodies;
-        var target = {};
-        var selector = {};
-        selector["type"] = "SvgSelector";
-        selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
-        var root = JSON.parse(ae.polygon);
-        selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
-        target["selector"] = selector;
-        target["id"] = ae.image
-        anno["target"] = target;
-        this.w3cAnnos.push(anno);
-      }
-      // console.log("allAnnotationEntries", allAnnotationEntries);
-      this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
-      for (let w3cAnno of this.w3cAnnos){
-        this.putW3cInAnnos(w3cAnno)
+        // console.log("allAnnotationEntries", allAnnotationEntries);
+        this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+        for (let w3cAnno of this.w3cAnnos){
+          this.putW3cInAnnos(w3cAnno)
+        }
+
       }
       this.disableUnavailableInTree()
       // console.log("preselected", this.preSelected);
@@ -818,48 +821,9 @@ export default {
       if (this.isZoom){
         const _self = this
         let annos = []
-        // let xMax = 0
-        // let xMin = 0
-        // let yMax = 0
-        // let yMin = 0
         for (const anno of _self.annotoriousplugin.getAnnotations()){
-          // console.log("comparying for ", this.getItemID(), " anno: ", anno.target.id, this.annoImage.filename);
           if (this.annoImage.filename === anno.target.id) {
             annos.push(anno)
-            // console.log("anno for Fokus in item: ", this.getItemID(), anno.target.id);
-            // var commands = anno.target.selector.value.slice(14, anno.target.selector.value.length - 15).split(/(?=[LMCZ])/);
-            // var pointArrays = commands.map(function(d){
-            //   var pointsArray = d.slice(1, d.length).split(',');
-            //   var pairsArray = [];
-            //   for (var i = 0; i < pointsArray.length; i += 2){
-            //     pairsArray.push([+pointsArray[i], +pointsArray[i + 1]]);
-            //   }
-            //   if (xMax === 0){
-            //     xMax = pairsArray[0][0]
-            //   } else if (xMax < pairsArray[0][0]){
-            //     xMax = pairsArray[0][0]
-            //   }
-            //   if (xMin === 0){
-            //     xMin = pairsArray[0][0]
-            //   } else if (xMin > pairsArray[0][0]){
-            //     xMin = pairsArray[0][0]
-            //   }
-            //   if (yMax === 0){
-            //     yMax = pairsArray[0][1]
-            //   } else if (yMax < pairsArray[0][1]){
-            //     yMax = pairsArray[0][1]
-            //   }
-            //   if (yMin === 0){
-            //     yMin = pairsArray[0][1]
-            //   } else if (yMin > pairsArray[0][1]){
-            //     yMin = pairsArray[0][1]
-            //   }
-            //   return pairsArray;
-            // });
-            // const rect = this.viewerAnnos.viewport.imageToViewportRectangle(xMin, yMin, xMax - xMin, yMax - yMin);
-            // this.viewerAnnos.viewport.fitBounds(rect, false);
-            // console.log("annos for Fokus are:", pointArrays);
-            // console.log("annos for Window is for Fokus are:", rect, xMin, xMin, yMax, yMin);
           }
         }
         if (annos.length > 0){
@@ -910,7 +874,7 @@ export default {
       if (Object.keys(this.annotoriousplugin).length > 0){
         this.annotoriousplugin.clearAnnotations();
       }
-      this.initNewAnnotatedImage()
+      this.initNewAnnotatedImage(true)
     },
     'hideTree':function (newVal, oldVal) {
       if (newVal){
@@ -935,7 +899,7 @@ export default {
     },
     'annos': function(newVal, oldVal) {
       // console.log("annos changed:", newVal);
-      this.initNewAnnotatedImage()
+      this.initNewAnnotatedImage(false)
     },
 
   },
@@ -943,7 +907,7 @@ export default {
     if (this.item.depictionID){
       // console.log("initNewAnnotatedImage", this.item.depictionID, this.relatedAnnotations);
     }
-    this.initNewAnnotatedImage()
+    this.initNewAnnotatedImage(true)
     if (this.treeShowOption){
       this.dontShowTree = true
     }

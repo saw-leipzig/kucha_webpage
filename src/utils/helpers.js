@@ -1,6 +1,7 @@
 import 'leaflet'
 import store from '../store'
 import OpenSeadragon from 'openseadragon'
+import {getDepictionByAnnotation} from '../services/repository'
 
 function getName(author) {
   let authorString = ""
@@ -59,6 +60,38 @@ function getTitleORGFull(bibliography) {
 function getTitleTRFull(bibliography) {
   var result = bibliography.subtitleTR === "" ? bibliography.titleTR : bibliography.titleTR + ": " + bibliography.subtitleTR;
   return result;
+}
+export function getIcosWithChildren(iconography){
+  let returnElement = []
+  for (var rootElement of store.state.dic.iconography){
+    var dummy =  Object.assign({}, rootElement)
+    var result = searchTreeForÍco(dummy, iconography)
+    if (result != null){
+      returnElement.push(result)
+    }
+  }
+  return returnElement
+}
+export function searchTreeForÍco(element, ids){
+  let copy = Object.assign({}, element)
+  if (ids.iconographyID === element.iconographyID){
+    element["isHeading"] = true
+    return element
+  } else {
+    if (element.children != null) {
+      let newChildren = []
+      for (var child of element.children) {
+        var hasChildren = searchTreeForÍco(child, ids);
+        if (hasChildren != null){
+          newChildren.push(hasChildren)
+          copy.children = newChildren;
+          copy["isHeading"] = false
+          return copy
+        }
+      }
+    }
+  }
+  return null
 }
 
 function searchTree(element, ids){
@@ -221,10 +254,10 @@ export function getWallTreeByIDs(wallIDs, wallLocation){
   }
   return walls
 }
-export function getWallLabels(wallLocation, depiction, label){
+export function getWallLabels(depiction, label){
   var results = ""
   if (depiction){
-    var wallTrees = getWallTreeByIDs(depiction.wallIDs, wallLocation)
+    var wallTrees = getWallTreeByIDs(depiction.wallIDs, store.state.dic.wallLocation)
     for (var wallTree of wallTrees){
       var result = getWallTreeLabels(wallTree, label)
       if (results === ""){
@@ -324,11 +357,16 @@ export function getBibTitle(bibliography){
         tail = tail + ", " + bibliography.quotedPages;
       }
       tail = tail + ". ";
+      console.log("bib '" + bib);
+      console.log("translit '" + translit);
+      console.log("bold '" + bold);
+      console.log("translat '" + translat);
+      console.log("tail '" + tail);
       if (bibliography.hesHan){
-        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+        return bib + "<i>" + translit + "</i>" + bold + "" + translat + tail
 
       } else {
-        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+        return bib + "<i>" + translit + "" + bold + "</i>" + translat + tail
       }
     } else if ((bibliography.publicationType.publicationTypeID === 4) || (bibliography.publicationType.publicationTypeID === 7)) {
       bib = bib + getAuthors(bibliography);
@@ -384,9 +422,9 @@ export function getBibTitle(bibliography){
         tail = tail + ". ";
       }
       if (bibliography.hesHan){
-        return bib + "<i>" + translit + "</i><b>" + bold + "</b>" + translat + tail
+        return bib + "<i>" + translit + "</i>" + bold + "" + translat + tail
       } else {
-        return bib + "<i>" + translit + "<b>" + bold + "</b></i>" + translat + tail
+        return bib + "<i>" + translit + "" + bold + "</i>" + translat + tail
       }
     } else if (bibliography.publicationType.publicationTypeID === 8) {
       bib = bib + getAuthors(bibliography);
@@ -394,16 +432,16 @@ export function getBibTitle(bibliography){
         bib = bib + ", " + bibliography.yearORG + ",";
       }
       if (getTitleTRFull(bibliography) !== "") {
-        translit = " " + getTitleTRFull(bibliography);
+        bib = bib + " " + getTitleTRFull(bibliography);
       }
       if (getTitleORGFull(bibliography) !== "") {
-        bold = " " + getTitleORGFull(bibliography);
+        bib = bib + " " + getTitleORGFull(bibliography);
       }
       if (getTitleENFull(bibliography) !== "") {
-        translat = " " + getTitleENFull(bibliography);
+        bib = bib + " " + getTitleENFull(bibliography);
       }
       if (bibliography.parentTitleORG !== "") {
-        tail = tail + ", " + bibliography.parentTitleORG;
+        bold = bold + ", " + bibliography.parentTitleORG;
       }
       if (bibliography.volumeORG !== "") {
         tail = tail + " " + bibliography.volumeORG;
@@ -423,9 +461,9 @@ export function getBibTitle(bibliography){
       }
       tail = tail + ". ";
       if (bibliography.hesHan){
-        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+        return bib + "<i>" + translit + "</i>" + bold + "" + translat + tail
       } else {
-        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+        return bib + "<i>" + translit + "" + bold + "</i>" + translat + tail
       }
     } else if (bibliography.publicationType.publicationTypeID === 5) {
       if (bibliography.parentTitleTR || bibliography.parentTitleEN || bibliography.parentTitleORG){
@@ -530,9 +568,9 @@ export function getBibTitle(bibliography){
       }
       tail = tail + ". ";
       if (bibliography.hesHan){
-        return bib + "<i>" + translit + "</i><b>" + bold + "</b> " + translat + tail
+        return bib + "<i>" + translit + "</i>" + bold + "" + translat + tail
       } else {
-        return bib + "<i>" + translit + "<b>" + bold + "</b></i> " + translat + tail
+        return bib + "<i>" + translit + "" + bold + "</i>" + translat + tail
       }
 
     } else {
@@ -656,7 +694,39 @@ export function buildAgg(aggInfo, reference, aggsObject){
     aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
   }
 }
+export function getRelatedDepictions(iconographyWithChildren){
+  var params = {}
+  console.log("iconographyWithChildren", iconographyWithChildren);
+  var allIds = getIdsOfChildren(iconographyWithChildren)
+  params.iconographyID = allIds
+  console.log("getRelatedDepictions", allIds);
+  var newDepictions = []
+  getDepictionByAnnotation(params)
+    .then( res => {
 
+      for ( var entry of res.data.hits.hits){
+        newDepictions.push(entry._source)
+      }
+    }).catch(function (error) {
+      console.log(error)
+    })
+  return newDepictions
+}
+function getIdsOfChildren(ico, ids){
+  var result = []
+  if (ico.iconographyID){
+    if (ico.children){
+      if (ico.children.length > 0){
+        for (var child of ico.children){
+          result = result.concat(getIdsOfChildren(child, []))
+        }
+      }
+    }
+    result.push(ico.iconographyID)
+
+  }
+  return result
+}
 export function getBuckets(element){
   for (let prop in element){
     if (prop === "buckets"){
@@ -671,13 +741,13 @@ export function getBuckets(element){
   return null
 }
 
-export function getDepictionLabel(depiction, wallLocation){
+export function getDepictionLabel(depiction){
   let depictionLabel =  "Information for Painted Representation ID " + depiction.depictionID
   if (depiction.shortName){
     depictionLabel += " (" + depiction.shortName + ")"
   }
   if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
-  depictionLabel += ", " + getWallLabels(wallLocation, depiction, "")
+  depictionLabel += ", " + getWallLabels(depiction, "")
   return depictionLabel
 }
 export function getCaveLabel(item){

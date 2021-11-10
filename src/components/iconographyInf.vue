@@ -140,8 +140,7 @@
 </template>
 
 <script>
-import { getDepictionByAnnotation } from '@/services/repository'
-import {fillPicsContainer} from '@/utils/helpers'
+import {fillPicsContainer, getRelatedDepictions} from '@/utils/helpers'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
 
@@ -259,7 +258,6 @@ export default {
       if (Object.keys(desc).length > 0){
         data['Description'] = desc
       }
-      this.getRelatedDepictions()
       icoInf['data'] = data
       console.log("idealtypical.relatedAnnotationList", icoInf.relatedAnnotationList);
       return icoInf
@@ -285,32 +283,16 @@ export default {
       }
       return result
     },
-    getRelatedDepictions(){
-      var params = {}
-      var allIds = this.getIdsOfChildren(this.iconographyWithChildren)
-      params.iconographyID = allIds
-      console.log("params of getDepictions", params);
-      getDepictionByAnnotation(params)
-        .then( res => {
-          var newDepictions = []
-          for ( var entry of res.data.hits.hits){
-            newDepictions.push(entry._source)
-          }
-          this.relatedDepictions = newDepictions
-          console.log("new Depictions:", newDepictions);
-        }).catch(function (error) {
-          console.log(error)
-        })
-    },
     getOSDURL(image){
       let tiles = []
       tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
       return tiles
     },
     initNewIconography(){
+      this.getRelatedDepictions()
       if (this.idealTypical.images){
         if (this.idealTypical.images.length > 0){
-          OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
+          OpenSeadragon.setString('TogetRelatedDepictionsoltips.SelectionToggle', 'Selection Demo');
           OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
           OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
           OpenSeadragon.setString('Tool.brightness', 'Brightness');
@@ -329,6 +311,10 @@ export default {
           }
         }
       }
+    },
+    getRelatedDepictions(){
+      this.relatedDepictions = getRelatedDepictions(this.iconographyWithChildren)
+      console.log("this.relatedDepictions", this.relatedDepictions);
     },
     initOSDimg(){
       let tilesImg = []

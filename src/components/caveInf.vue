@@ -80,8 +80,8 @@ export default {
       if (this.cave.officialNumber){
         basciInf["Official Number"] = this.cave.officialNumber
       }
-      if (this.cave.historicalName){
-        basciInf["Historical Name"] = this.cave.historicalName
+      if (this.cave.historicName){
+        basciInf["Historical Name"] = this.cave.historicName
       }
       if (this.cave.optionalHistoricName){
         basciInf["Optional Historical Name"] = this.cave.optionalHistoricName
@@ -256,7 +256,9 @@ export default {
   },
   mounted:function () {
     this.getCaveRes()
-    this.getRelatedDepictions()
+    if (this.showRelatedDepictions){
+      this.getRelatedDepictions()
+    }
 
   }
 

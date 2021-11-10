@@ -84,7 +84,7 @@ export default {
     getTitle(item){
       // console.log(item);
       if (item.depictionID) {
-        return getDepictionLabel(item, this.$store.state.dic.wallLocation)
+        return getDepictionLabel(item)
       } else if (item.caveID) {
         return "cave " + getCaveLabel(item)
       } else if (item.iconographyID) {

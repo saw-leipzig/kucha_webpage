@@ -8,7 +8,7 @@
       <v-expansion-panel-content>
         <v-row align="start" dense style="flex-wrap: wrap;">
           <v-col  style="min-width: 265px;">
-            <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" :aggregations="textFacets"></free-text-search>
+            <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" @update="updateTextSearchInput" :aggregations="textFacets"></free-text-search>
           </v-col>
         </v-row>
         <v-row>
@@ -41,7 +41,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
-        <radioGroupSort @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
+        <radioGroupSort startValue="year" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -89,19 +89,19 @@ export default {
       return TextSearchBibliography
     },
     getRadioGroupData(){
-      let radioGroupData = {}
-      radioGroupData["Year"] = {
+      let radioGroupData = []
+      radioGroupData.push({
         "label": "Year",
         "value": "year"
-      }
-      radioGroupData["Author"] = {
+      })
+      radioGroupData.push({
         "label": "Author",
         "value": "author"
-      }
-      radioGroupData["Title"] = {
+      })
+      radioGroupData.push({
         "label": "Title",
         "value": "title"
-      }
+      })
       return radioGroupData
     },
     getBibCheckBoxData(){
@@ -160,6 +160,9 @@ export default {
       this.textSearch = value.search
       // this.buildTextAggs(value.aggs)
       this.initiateFacets()
+    },
+    updateTextSearchInput(value) {
+      this.textSearch = value.search
     },
     changedBibKeywordInput(value){
       console.log("new changed keyword Value:", value);
@@ -355,6 +358,7 @@ export default {
       return queries
     },
     initiateSearch(amount){
+      this.$refs.textSearch.update()
       let searchObject = {}
       this.relatedBibliography = []
       searchObject["size"] = amount

@@ -20,7 +20,7 @@
             @mousedown.prevent
             return-object
             @click:clear.prevent="checkClear(n)"
-            v-on:keyup.enter="startSearch"
+            v-on:keyup.enter="startSearch(false)"
             v-on:keyup.escape="checkClear(n)"
             autocomplete="off"
             accesskey="f"
@@ -214,7 +214,10 @@ export default {
       console.log("searchObject of location", result);
       return result
     },
-    startSearch(){
+    update(){
+      this.startSearch(true)
+    },
+    startSearch(update){
       let foundNoTextChip = false
       if (this.advancedSearch){
         for (let text in this.textSearch){
@@ -227,7 +230,11 @@ export default {
       }
       if (!foundNoTextChip){
         let result = this.prepSearch()
-        this.$emit('clicked', result)
+        if (update){
+          this.$emit('update', result)
+        } else {
+          this.$emit('clicked', result)
+        }
       }
     },
     checkClear(n) {

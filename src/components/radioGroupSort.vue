@@ -3,20 +3,15 @@
     <v-row>
       <v-col>
         <v-list-item-subtitle>{{label}}</v-list-item-subtitle>
-        <v-radio-group class="my-0  justify-center" style="display: flex;flex-direction: column;align-items: center;"
+        <v-select class="my-0  justify-center" style="display: flex;flex-direction: column;align-items: center;"
           row
           v-model="model"
+          :items="radioGroupData"
+          item-text="label"
+          item-value="value"
           dense
         >
-          <v-radio
-          class="mb-0"
-            v-for="(item, index) in radioGroupData"
-            :key="index"
-            :label="item.label"
-            :value="item.value"
-          >
-          </v-radio>
-        </v-radio-group>
+        </v-select>
       </v-col>
       <v-col>
         <v-list-item-subtitle>Direction</v-list-item-subtitle>
@@ -52,13 +47,16 @@ export default {
   props: {
     label: "",
     radioGroupData: {
-      type: Object
+      type: Array
+    },
+    startValue: {
+      type: String
     },
   },
   data () {
     return {
 
-      model:"year",
+      model:"",
       direction:"asc"
     }
   },
@@ -79,6 +77,7 @@ export default {
     },
   },
   mounted:function () {
+    this.model = this.startValue
     console.log("radioGroupData:", this.radioGroupData);
     this.$emit('clicked', [this.model, this.direction])
 

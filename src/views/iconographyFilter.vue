@@ -15,6 +15,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
+      <radioGroupSort startValue="shortName" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -28,11 +29,14 @@
 import {postQuery} from '@/services/repository'
 import iconographySearch from '@/components/iconographySearch.vue'
 import {TextSearchDepiction} from '@/utils/constants.js'
+import radioGroupSort from '@/components/radioGroupSort.vue'
+import {getRelatedDepictions, getIconographyByID}  from  "@/utils/helpers"
 
 export default {
   name: 'iconographyFilter',
   components: {
     iconographySearch,
+    radioGroupSort
   },
   data () {
     return {
@@ -48,9 +52,27 @@ export default {
       wallSearchObjects:null,
       resAmount:0,
       loading:false,
+      sort: "title",
+      direction:"asc"
     }
   },
   computed: {
+    getRadioGroupData(){
+      let radioGroupData = []
+      radioGroupData.push({
+        "label": "Title",
+        "value": "title"
+      })
+      radioGroupData.push({
+        "label": "ID",
+        "value": "id"
+      })
+      radioGroupData.push({
+        "label": "Related Depictions",
+        "value": "relatedDepictions"
+      })
+      return radioGroupData
+    },
     getTextSearchParams(){
       return TextSearchDepiction
     },
@@ -68,6 +90,72 @@ export default {
     }
   },
   methods: {
+    changedSort(value){
+      console.log("new changed sort Value:", value);
+      this.sort = value[0]
+      this.direction = value[1]
+      this.sortIco()
+    },
+    sortIco(){
+      if (this.relatedIconography.length > 0){
+        if (this.sort === "title"){
+          if (this.direction === "asc"){
+            this.relatedIconography.sort(function(a, b){
+              var nameA = a.text.trim().toUpperCase();
+              var nameB = b.text.trim().toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            })
+          } else {
+            this.relatedIconography.sort(function(a, b){
+              var nameA = a.text.trim().toUpperCase();
+              var nameB = b.text.trim().toUpperCase();
+              if (nameA > nameB) {
+                return -1;
+              }
+              if (nameA < nameB) {
+                return 1;
+              }
+            })
+          }
+        } else if (this.sort === "id"){
+          if (this.direction === "asc"){
+            this.relatedIconography.sort(function(a, b){
+              return a.iconographyID - b.iconographyID
+            })
+          } else {
+            this.relatedIconography.sort(function(a, b){
+              return b.iconographyID - a.iconographyID
+            })
+          }
+        } else if (this.sort === "relatedDepictions"){
+          if (this.direction === "asc"){
+            this.relatedIconography.sort(function(a, b){
+              var aNum = 0
+              var bNum = 0
+              let relPRa = getIconographyByID(a.iconographyID)
+              let relPRb = getIconographyByID(b.iconographyID)
+              console.log(relPRa, relPRb);
+              aNum = getRelatedDepictions(relPRa).length
+              bNum = getRelatedDepictions(relPRb).length
+              return bNum - aNum
+            })
+          } else {
+            this.relatedIconography.sort(function(a, b){
+              var aNum = 0
+              var bNum = 0
+              aNum = getRelatedDepictions(a).length
+              bNum = getRelatedDepictions(b).length
+              return aNum - bNum
+            })
+          }
+        }
+      }
+    },
     clear(){
       this.$refs.iconographySearch.clear();
       this.textSearch = "";

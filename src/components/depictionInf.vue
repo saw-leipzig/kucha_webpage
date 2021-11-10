@@ -300,7 +300,7 @@ export default {
     },
 
     getDepictionLabel(){
-      return getDepictionLabel(this.depiction, this.$store.state.dic.wallLocation);
+      return getDepictionLabel(this.depiction);
     },
     initOSDimg(){
       let tilesImg = []
