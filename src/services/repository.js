@@ -145,24 +145,25 @@ export function searchRoot(params, source) {
         "should" : [
           {
             "query_string": {
-              "query" : params.searchtext
+              "query" : params.searchtext.trim()
             }
           }
         ]
       }
-    }
+    },
   }
   for (var nestedQuery of nestedQueries){
     searchQuery.query.bool.should.push(nestedQuery)
   }
   searchQuery["sort"] = [
+    {"iconographyID" : "asc"},
     {"shortName.keyword" : "asc"},
     {"caveID" : "asc"},
-    {"iconographyID" : "asc"},
     {"annotatedBibliographyID" : "asc"},
     "_score"
   ]
   console.log("searchQuery", searchQuery);
+  console.log("searchQuery params", params);
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
     method: 'post',

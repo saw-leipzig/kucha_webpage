@@ -278,7 +278,7 @@ export default {
     },
     getSubTitle(item){
       if (item._source.depictionID){
-        return getWallLabels(this.$store.state.dic.wallLocation, item._source, "")
+        return getWallLabels(item._source, "")
       } else if (item._source.caveID){
         return null
       } else if (item._source.annotatedBibliographyID){

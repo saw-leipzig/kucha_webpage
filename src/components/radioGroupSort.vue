@@ -3,13 +3,14 @@
     <v-row>
       <v-col>
         <v-list-item-subtitle>{{label}}</v-list-item-subtitle>
-        <v-select class="my-0  justify-center" style="display: flex;flex-direction: column;align-items: center;"
+        <v-select multiple class="my-0  justify-center" style="display: flex;flex-direction: column;align-items: center;"
           row
           v-model="model"
           :items="radioGroupData"
           item-text="label"
           item-value="value"
           dense
+          chips
         >
         </v-select>
       </v-col>
@@ -50,13 +51,13 @@ export default {
       type: Array
     },
     startValue: {
-      type: String
+      type: Array
     },
   },
   data () {
     return {
 
-      model:"",
+      model: null,
       direction:"asc"
     }
   },

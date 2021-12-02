@@ -178,6 +178,7 @@ import {getOSDURL, getIconographyByAnnos, setOSDImgOverlayImg} from  "@/utils/he
 import * as d3 from "d3";
 import OpenSeadragon from 'openseadragon'
 import Annotorious from '../../static/openseadragon-annotorious.min.js'
+import SelectorPack from '../../static/annotorious-selector-pack.min.js'
 import { v4 as uuidv4 } from 'uuid';
 
 export default {
@@ -293,7 +294,6 @@ export default {
   },
   methods: {
     getCols(col){
-      console.log("Breakpoints", this.$vuetify.breakpoint);
       if (this.$vuetify.breakpoint.mdAndDown){
         return "12"
       } else if (this.dontShowTree) {
@@ -370,11 +370,11 @@ export default {
       if (this.getAccessLevel(this.annoImage) > 1){
         for (let anno of this.w3cAnnos){
           if (!this.dontShowTree){
-            this.annotoriousplugin.hideAnnotation(anno.id)
+            this.hideAnnotation(anno.id)
           } else {
             if (anno) {
               if (this.annoImage.filename !== anno.body.image){
-                this.annotoriousplugin.hideAnnotation(anno.id)
+                this.hideAnnotation(anno.id)
               }
             }
           }
@@ -461,6 +461,7 @@ export default {
         config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
         config["image"] = this.viewerAnnos;
         this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
+        SelectorPack(this.annotoriousplugin);
         this.viewerAnnos.setControlsEnabled(false);
         this.viewerAnnos.setMouseNavEnabled(false);
         var _self = this;
@@ -575,8 +576,6 @@ export default {
         });
         this.viewerAnnos.addHandler("pre-full-page", function (data) {
           data.preventDefaultAction = true;
-          // console.log("fullscreen trigggered");
-          // _self.isFullScreen = !_self.isFullScreen
           if (data.eventSource.element.requestFullscreen) {
             data.eventSource.element.requestFullscreen();
           } else if (data.eventSource.element.mozRequestFullScreen) {
@@ -665,20 +664,50 @@ export default {
       }
       return annosFound
     },
+    hideAnnotation(w3cAnnoID){
+      const style = {
+        style:{
+          outer: {
+            "fill": "rgba(0, 128, 0,0)",
+            "stroke-width":"0px",
+            "transition": "fill 1s,stroke-width 0.7s"
+          },
+          inner: {
+            "stroke-width": "0px",
+            "transition": "stroke-width 0.7s"
+          }
+        }
+      }
+      this.annotoriousplugin.setAnnotationStyle(w3cAnnoID, style)
+    },
     addAnnotation(w3cAnno){
-      // console.log("addAnnotation:", w3cAnno);
+      console.log("addannotation started");
       if (w3cAnno.target){
         if (w3cAnno.target.id === this.annoImage.filename){
-          // console.log("started add annotation");
-          // this.annotoriousplugin.addAnnotation(w3cAnno)
-          this.annotoriousplugin.highlightAnnotation(w3cAnno.id)
+          const style = {
+            style:{
+              outer: {
+                "vector-effect": "none",
+                "stroke": "#fff",
+                "fill": "rgba(0, 128, 0,0.55)",
+                "stroke-width":"1px",
+                "transition": "fill 1s, stroke-width 0.7s"
+              },
+              inner: {
+                "vector-effect": "none",
+                "stroke": "#fff",
+                "stroke-width": "1px",
+                "transition": "stroke-width 0.7s"
+              }
+            }
+          }
+          this.annotoriousplugin.setAnnotationStyle(w3cAnno.id, style)
         }
       }
     },
     setOSDannos(image){
       if (this.getAccessLevel(this.annoImage) < 2){
         this.disableUnavailableInTree();
-        // console.log("tree disabled:", this.icoAnnos);
       } else {
         this.enableTree();
       }
@@ -688,9 +717,7 @@ export default {
       this.goHome()
     },
     getIco(element, id){
-      // console.log("elementId:", element.iconographyID, "searchID:", id);
       if (element.iconographyID === id){
-        // console.log(" found! elementId:", element.iconographyID, "searchID:", id);
         let ico = JSON.parse(JSON.stringify(element))
         ico.children = []
         return ico
@@ -721,7 +748,6 @@ export default {
       }
     },
     initNewAnnotatedImage(doW3c){
-      // console.log("relatedAnnotations", this.relatedAnnotations);
       if (doW3c){
         var allAnnotationEntries = []
         this.w3cAnnos = []
@@ -740,7 +766,6 @@ export default {
               }
               body["id"] = ie.iconographyID;
               body["image"] = ae.image;
-              // console.log("Body:", body, " for: ", ie);
               bodies.push(body);
             }
           }
@@ -760,7 +785,6 @@ export default {
           anno["target"] = target;
           this.w3cAnnos.push(anno);
         }
-        // console.log("allAnnotationEntries", allAnnotationEntries);
         this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
         for (let w3cAnno of this.w3cAnnos){
           this.putW3cInAnnos(w3cAnno)
@@ -768,11 +792,7 @@ export default {
 
       }
       this.disableUnavailableInTree()
-      // console.log("preselected", this.preSelected);
       if (this.annos.length > 0){
-        // console.log("started AnnotatedImage for item: " + this.itemId);
-        // console.log("Annotations: ", this.relatedAnnotations);
-        // console.log("Images:", this.relatedImages);
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
         OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
         OpenSeadragon.setString('Tooltips.HorizontalGuide', 'Add Horizontal Guide');
@@ -787,31 +807,30 @@ export default {
         OpenSeadragon.setString('Tool.reset', 'Reset');
         OpenSeadragon.setString('Tool.rotate', 'Rotate');
         OpenSeadragon.setString('Tool.close', 'Close');
-        // console.log("Images", this.images);
-        // console.log('Annos', this.annos);
         if (this.viewerAnnos === null){
           this.initOSDanno()
-          // console.log("viewerAnnos is", this.viewerAnnos);
         }
         this.annoSelected = this.preSelected
         if (this.getAccessLevel(this.annoImage) > -1){
           this.setOSDannos(this.annos[0])
         }
         if (Object.keys(this.annotoriousplugin).length > 0){
+          let shownAnnos = []
           for (let anno of this.w3cAnnos){
-            // console.log(anno);
-            if (this.annoImage.filename !== anno.body.image){
-              this.annotoriousplugin.addAnnotation(anno)
+            console.log("annotation:", this.annoImage.filename);
+            console.log("annoImage is:", anno.target.id);
+            if (this.annoImage.filename === anno.target.id){
+              shownAnnos.push(anno)
             }
           }
+          console.log("added Annotations:", shownAnnos);
+          this.annotoriousplugin.setAnnotations(shownAnnos)
           if (!this.dontShowTree){
             for (let anno of this.w3cAnnos){
-              this.annotoriousplugin.hideAnnotation(anno.id)
+              this.hideAnnotation(anno.id)
             }
           }
-          // console.log("all Annotations:", this.annotoriousplugin.getAnnotations());
         }
-
       }
     },
     hideTag(){
@@ -854,7 +873,6 @@ export default {
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
-      // console.log("annoSelected Changed");
       if (this.annos.length > 1){
         let difference = newVal
           .filter(x => !oldVal.includes(x))
@@ -870,7 +888,6 @@ export default {
       setTimeout(function(){ _self.viewerAnnos.viewport.goHome() }, 50);
     },
     'relatedAnnotations':function (newVal, oldVal) {
-      // console.log("related Annotations changed for:", this.item.depictionID, newVal, this.annotoriousplugin);
       if (Object.keys(this.annotoriousplugin).length > 0){
         this.annotoriousplugin.clearAnnotations();
       }
@@ -882,13 +899,10 @@ export default {
       } else {
         this.dontShowTree = false
       }
-
     },
     'item': function (newVal, oldVal) {
-      // console.log("changed item:", this.item, this.annos, this.ann);
     },
     'annoActivated': function(newVal, oldVal) {
-      // console.log("annoAvtivated changed:", newVal);
       this.updateSelectedAnnos()
     },
     'dontShowTree': function(newVal, oldVal) {
@@ -898,14 +912,11 @@ export default {
       }
     },
     'annos': function(newVal, oldVal) {
-      // console.log("annos changed:", newVal);
       this.initNewAnnotatedImage(false)
     },
-
   },
   mounted:function () {
     if (this.item.depictionID){
-      // console.log("initNewAnnotatedImage", this.item.depictionID, this.relatedAnnotations);
     }
     this.initNewAnnotatedImage(true)
     if (this.treeShowOption){
@@ -921,7 +932,6 @@ export default {
   },
   created:function(){
   }
-
 }
 </script>
 

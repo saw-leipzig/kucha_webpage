@@ -39,7 +39,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
-      <radioGroupSort startValue="shortName" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
+      <radioGroupSort :startValue="['shortName.keyword']" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -56,7 +56,7 @@ import locationSearch from '@/components/locationSearch.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
 import iconographySearch from '@/components/iconographySearch.vue'
 import wallSearch from '@/components/wallSearch.vue'
-import {getBuckets, buildAgg, getDepictionLabel, getCaveLabel, getWallLabels} from  "@/utils/helpers"
+import {getBuckets, buildAgg, prepareSortItem} from  "@/utils/helpers"
 import {TextSearchDepiction} from '@/utils/constants.js'
 import radioGroupSort from '@/components/radioGroupSort.vue'
 
@@ -84,7 +84,7 @@ export default {
       wallSearchObjects:null,
       resAmount:0,
       loading:false,
-      sort: "year",
+      sort: [],
       direction:"asc"
     }
   },
@@ -93,39 +93,45 @@ export default {
       let radioGroupData = []
       radioGroupData.push({
         "label": "Title",
-        "value": "title"
+        "value": "title.keyword"
       })
       radioGroupData.push({
         "label": "Short Name",
-        "value": "shortName"
+        "value": "shortName.keyword"
       })
       radioGroupData.push({
         "label": "Cave",
-        "value": "cave"
+        "value": ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       })
       radioGroupData.push({
         "label": "Cave Types",
-        "value": "caveTypes"
+        "value": "caveTypeID"
       })
       radioGroupData.push({
         "label": "Site",
-        "value": "site"
+        "value": "siteID"
       })
       radioGroupData.push({
         "label": "District",
-        "value": "district"
+        "value": "districtID"
       })
       radioGroupData.push({
         "label": "Region",
-        "value": "region"
+        "value": "regionID"
       })
       radioGroupData.push({
         "label": "Location at wall",
-        "value": "wallLocation"
+        "value": "wallList.wallLocationID"
       })
       radioGroupData.push({
         "label": "Amount of Annotations",
-        "value": "annotationAmount"
+        "value": {
+          "_script": {
+            "type": "number",
+            "script": "params._source?.relatedAnnotationList?.length ?: 0",
+            "order": "desc"
+          }
+        }
       })
       return radioGroupData
     },
@@ -208,358 +214,7 @@ export default {
       console.log("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
-      this.sortDepiction()
-    },
-    sortDepiction(){
-      if (this.relatedDepictions.length > 0){
-        if (this.sort === "title"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              var nameA = getDepictionLabel(a).trim().toUpperCase();
-              var nameB = getDepictionLabel(b).trim().toUpperCase();
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              var nameA = getDepictionLabel(a).trim().toUpperCase();
-              var nameB = getDepictionLabel(b).trim().toUpperCase();
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "shortName"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.shortName){
-                return 1
-              }
-              if (!b.shortName){
-                return -1
-              }
-              var nameA = a.shortName.trim().toUpperCase();
-              var nameB = b.shortName.trim().toUpperCase();
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.shortName){
-                return -1
-              }
-              if (!b.shortName){
-                return 1
-              }
-              var nameA = a.shortName.trim().toUpperCase();
-              var nameB = b.shortName.trim().toUpperCase();
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "cave"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              var nameA = a.cave ? getCaveLabel(a.cave).trim().toUpperCase() + getWallLabels(a, "") : getWallLabels(a, "");
-              var nameB = b.cave ? getCaveLabel(b.cave).trim().toUpperCase() + getWallLabels(b, "") : getWallLabels(b, "");
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              var nameA = a.cave ? getCaveLabel(a.cave).trim().toUpperCase() + getWallLabels(a, "") : getWallLabels(a, "");
-              var nameB = b.cave ? getCaveLabel(b.cave).trim().toUpperCase() + getWallLabels(b, "") : getWallLabels(b, "");
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "caveTypes"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return 1
-              }
-              if (!b.cave){
-                return -1
-              }
-              if (!a.cave.caveType){
-                return -1
-              }
-              if (!b.cave.caveType){
-                return 1
-              }
-              var nameA = a.cave.caveType.nameEN;
-              var nameB = b.cave.caveType.nameEN;
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              if (!a.cave.caveType){
-                return 1
-              }
-              if (!b.cave.caveType){
-                return -1
-              }
-              var nameA = a.cave.caveType.nameEN;
-              var nameB = b.cave.caveType.nameEN;
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-
-          }
-        } else if (this.sort === "site"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return 1
-              }
-              if (!b.cave){
-                return -1
-              }
-              var nameA = a.cave.site.name;
-              var nameB = b.cave.site.name;
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              var nameA = a.cave.site.name;
-              var nameB = b.cave.site.name;
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-
-        } else if (this.sort === "district"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return 1
-              }
-              if (!b.cave){
-                return -1
-              }
-              if (!a.cave.district){
-                return 1
-              }
-              if (!b.cave.district){
-                return -1
-              }
-              var nameA = a.cave.district.name;
-              var nameB = b.cave.district.name;
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              if (!a.cave.district){
-                return -1
-              }
-              if (!b.cave.district){
-                return 1
-              }
-              var nameA = a.cave.district.name;
-              var nameB = b.cave.district.name;
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "region"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return 1
-              }
-              if (!b.cave){
-                return -1
-              }
-              if (!a.cave.region){
-                return 1
-              }
-              if (!b.cave.region){
-                return -1
-              }
-              var nameA = a.cave.region.name;
-              var nameB = b.cave.region.name;
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              if (!a.cave.region){
-                return -1
-              }
-              if (!b.cave.region){
-                return 1
-              }
-              var nameA = a.cave.region.name;
-              var nameB = b.cave.region.name;
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "wallLocation"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return 1
-              }
-              if (!b.cave){
-                return -1
-              }
-              if (!a.cave.region){
-                return 1
-              }
-              if (!b.cave.region){
-                return -1
-              }
-              var nameA = getWallLabels(a, "");
-              var nameB = getWallLabels(b, "");
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              if (!a.cave){
-                return -1
-              }
-              if (!b.cave){
-                return 1
-              }
-              if (!a.cave.region){
-                return -1
-              }
-              if (!b.cave.region){
-                return 1
-              }
-              var nameA = getWallLabels(a, "");
-              var nameB = getWallLabels(b, "");
-              if (nameA > nameB) {
-                return -1;
-              }
-              if (nameA < nameB) {
-                return 1;
-              }
-            })
-          }
-        } else if (this.sort === "annotationAmount"){
-          if (this.direction === "asc"){
-            this.relatedDepictions.sort(function(a, b){
-              var aNum = 0
-              var bNum = 0
-              if (a.relatedAnnotationList){
-                aNum = a.relatedAnnotationList.length
-              }
-              if (b.relatedAnnotationList){
-                bNum = b.relatedAnnotationList.length
-              }
-              return bNum - aNum
-            })
-          } else {
-            this.relatedDepictions.sort(function(a, b){
-              var aNum = 0
-              var bNum = 0
-              if (a.relatedAnnotationList){
-                aNum = a.relatedAnnotationList.length
-              }
-              if (b.relatedAnnotationList){
-                bNum = b.relatedAnnotationList.length
-              }
-              return aNum - bNum
-            })
-          }
-        }
-      }
+      this.relatedDepictions = []
     },
     prepAggs(){
       console.log("prepAggs started");
@@ -704,7 +359,7 @@ export default {
       let searchObject = {}
       this.relatedDepictions = []
       searchObject["size"] = amount
-      searchObject["sort"] = ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
+      searchObject["sort"] = prepareSortItem(this.sort, this.direction)
       searchObject["query"] = {}
       searchObject.query["bool"] = {}
       searchObject.query.bool["must"] = {}

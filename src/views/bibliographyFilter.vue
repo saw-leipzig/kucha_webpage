@@ -41,7 +41,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
-        <radioGroupSort startValue="year" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
+        <radioGroupSort :startValue="['yearORG.keyword']" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -58,7 +58,7 @@ import radioGroupSort from '@/components/radioGroupSort.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
 import bibKeywordSearch from '@/components/bibKeywordSearch.vue'
 import checkBoxFilter from '@/components/checkBoxFilter.vue'
-import {getBuckets, buildAgg, getAuthorOrEditor} from  "@/utils/helpers"
+import {getBuckets, buildAgg, getAuthorOrEditor, prepareSortItem} from  "@/utils/helpers"
 
 export default {
   name: 'bibliographyFilter',
@@ -71,7 +71,7 @@ export default {
   data () {
     return {
       panel: 0,
-      sort: "year",
+      sort: ["yearORG.keyword"],
       direction:"asc",
       aggregations:{},
       visible:[0],
@@ -92,15 +92,23 @@ export default {
       let radioGroupData = []
       radioGroupData.push({
         "label": "Year",
-        "value": "year"
+        "value": "yearORG.keyword"
       })
       radioGroupData.push({
         "label": "Author",
-        "value": "author"
+        "value": "authorString.keyword"
       })
       radioGroupData.push({
-        "label": "Title",
-        "value": "title"
+        "label": "Title (Original)",
+        "value": "titleORG.keyword"
+      })
+      radioGroupData.push({
+        "label": "Title (English Translation)",
+        "value": "titleEN.keyword"
+      })
+      radioGroupData.push({
+        "label": "Title (Transcription)",
+        "value": "titleTR.keyword"
       })
       return radioGroupData
     },
@@ -181,7 +189,7 @@ export default {
       console.log("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
-      this.sortBib()
+      this.relatedBibliography = []
     },
     textFacets(){
       let aggregations = []
@@ -297,6 +305,7 @@ export default {
         this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
       }
     },
+
     buildCaveAggs(aggInfo){
       delete this.aggsObject.caveType
       delete this.aggsObject.site
@@ -362,6 +371,8 @@ export default {
       let searchObject = {}
       this.relatedBibliography = []
       searchObject["size"] = amount
+
+      searchObject["sort"] = prepareSortItem(this.sort, this.direction)
       searchObject["query"] = {}
       searchObject.query["bool"] = {}
       searchObject.query.bool["must"] = {}

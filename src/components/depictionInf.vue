@@ -258,7 +258,7 @@ export default {
         depictionDes["Style"] = this.depiction.style.styleName
       }
       if (this.depiction.modeOfRepresentation){
-        depictionDes["Mode of Preservation"] = this.depiction.modeOfRepresentation.name
+        depictionDes["Mode of Representation"] = this.depiction.modeOfRepresentation.name
       }
       if (this.depiction.backgroundColour){
         depictionDes["Background Colour"] = this.depiction.backgroundColour

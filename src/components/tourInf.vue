@@ -150,7 +150,7 @@ export default {
     },
     getWallLabel(depiction){
       if (depiction){
-        return getWallLabels(this.$store.state.dic.wallLocation, depiction, '');
+        return getWallLabels(depiction, '');
       } else {
         return null
       }

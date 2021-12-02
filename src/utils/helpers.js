@@ -223,9 +223,37 @@ export function getIconographyByID(id){
   }
   return returnElement
 }
-
+function addDirection(sortItem, direction){
+  console.log("getting ", sortItem);
+  if (typeof sortItem === 'object'){
+    for (const key in sortItem) {
+      sortItem[key]['order'] = direction
+    }
+    return sortItem
+  } else {
+    let newSort = {}
+    newSort[sortItem] = direction
+    console.log("returning", newSort);
+    return newSort
+  }
+}
+export function prepareSortItem(sort, direction){
+  console.log("sort is", sort);
+  let sortInfo = []
+  for (const sortItem of sort){
+    console.log("processing", sortItem);
+    if (Array.isArray(sortItem)){
+      for (let item of sortItem){
+        sortInfo.push(addDirection(item, direction))
+      }
+    } else {
+      sortInfo.push(addDirection(sortItem, direction))
+    }
+  }
+  console.log("returning", sortInfo);
+  return sortInfo
+}
 export function checkImgPermitted(item){
-  console.log("checkImgPermitted input", item);
   let isPermit = false
   if (item){
     if (item.filename){
@@ -298,10 +326,10 @@ export function getWallTreeLabels(wallTree, label){
   return results
 }
 export function getAuthorOrEditor(bibliography){
-  if (getAuthors(bibliography) !== ""){
-    return getAuthors(bibliography)
-  } else if (getEditors(bibliography) !== ""){
+  if (getEditors(bibliography) !== ""){
     return getEditors(bibliography)
+  } else if (getAuthors(bibliography) !== ""){
+    return getAuthors(bibliography)
   } else {
     return getTitleORGFull(bibliography)
   }
@@ -357,11 +385,6 @@ export function getBibTitle(bibliography){
         tail = tail + ", " + bibliography.quotedPages;
       }
       tail = tail + ". ";
-      console.log("bib '" + bib);
-      console.log("translit '" + translit);
-      console.log("bold '" + bold);
-      console.log("translat '" + translat);
-      console.log("tail '" + tail);
       if (bibliography.hesHan){
         return bib + "<i>" + translit + "</i>" + bold + "" + translat + tail
 
@@ -696,10 +719,8 @@ export function buildAgg(aggInfo, reference, aggsObject){
 }
 export function getRelatedDepictions(iconographyWithChildren){
   var params = {}
-  console.log("iconographyWithChildren", iconographyWithChildren);
   var allIds = getIdsOfChildren(iconographyWithChildren)
   params.iconographyID = allIds
-  console.log("getRelatedDepictions", allIds);
   var newDepictions = []
   getDepictionByAnnotation(params)
     .then( res => {

@@ -28,7 +28,7 @@
             <v-btn icon @click="clear()" dense block color="success"><v-icon>mdi-restart</v-icon></v-btn>
           </v-col>
         </v-row>
-        <radioGroupSort startValue="shortName" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
+        <radioGroupSort :startValue="['officialNumber.keyword']" @clicked="changedSort" class="mt-5" label="Sort" :radioGroupData="getRadioGroupData"></radioGroupSort>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -42,7 +42,7 @@
 import {postQuery} from '@/services/repository'
 import caveSearch from '@/components/caveSearch.vue'
 import freeTextSearch from '@/components/freeTextSearch.vue'
-import {getBuckets, buildAgg, getCaveLabel} from  "@/utils/helpers"
+import {getBuckets, buildAgg, getCaveLabel, prepareSortItem} from  "@/utils/helpers"
 import {TextSearchCave} from '@/utils/constants.js'
 import radioGroupSort from '@/components/radioGroupSort.vue'
 
@@ -65,7 +65,7 @@ export default {
       aggsObject:{},
       resAmount:0,
       loading:false,
-      sort: "shortName",
+      sort: ["officialNumber.keyword"],
       direction:"asc",
     }
   },
@@ -73,24 +73,24 @@ export default {
     getRadioGroupData(){
       let radioGroupData = []
       radioGroupData.push({
-        "label": "Short Name",
-        "value": "shortName"
+        "label": "Official Number",
+        "value": "officialNumber.keyword"
       })
       radioGroupData.push({
         "label": "Cave Types",
-        "value": "caveTypes"
+        "value": "caveTypeID"
       })
       radioGroupData.push({
         "label": "Site",
-        "value": "site"
+        "value": "siteID"
       })
       radioGroupData.push({
         "label": "District",
-        "value": "district"
+        "value": "districtID"
       })
       radioGroupData.push({
         "label": "Region",
-        "value": "region"
+        "value": "regionID"
       })
       return radioGroupData
     },
@@ -165,7 +165,7 @@ export default {
       console.log("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
-      this.sortCave()
+      this.relatedCaves = []
     },
     sortCave(){
       if (this.relatedCaves.length > 0){
@@ -448,8 +448,8 @@ export default {
       this.$refs.textSearch.update()
       let searchObject = {}
       this.relatedCaves = []
+      searchObject["sort"] = prepareSortItem(this.sort, this.direction)
       searchObject["size"] = amount
-      searchObject["sort"] = ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       searchObject["query"] = {}
       searchObject.query["bool"] = {}
       searchObject.query.bool["must"] = {}
