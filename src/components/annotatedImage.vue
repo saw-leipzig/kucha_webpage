@@ -148,6 +148,20 @@
           </v-bottom-sheet>
           </v-row>
           </div>
+
+        <v-alert
+            class="mx-5"
+            :value="isDrawing"
+            color="grey"
+            dense
+            border="top"
+            icon="mdi-alert"
+            transition="scale-transition"
+            dismissible
+          >
+            Drawing not to scale; the proportions of the original may not be reproduced accurately.
+        </v-alert>
+
         </v-card>
         <v-card height="100%" :style=" getAccessLevel(annoImage) < 2 ? 'overflow-y: scroll;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'">
           <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
