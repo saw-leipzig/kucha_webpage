@@ -16,6 +16,7 @@
       :continuous="false"
       :show-arrows="true"
       light
+      :touchless="false"
       v-model="currentIndexIdealTypical"
       style="flex: 1 !important;
             display: flex;
@@ -24,6 +25,30 @@
       @change="changed(currentIndexIdealTypical)"
       @onload="changed(0)"
     >
+    <template v-slot:prev="{on, attrs }" style="left:-20px">
+      <v-btn
+        color="green darken-2"
+
+        v-bind="attrs"
+        icon
+        x-large
+        v-on="on"
+      >
+        <v-icon> mdi-chevron-left </v-icon>
+      </v-btn>
+    </template>
+    <template v-slot:next=" { on, attrs }" style="right:-20px">
+      <v-btn
+
+        color="green darken-2"
+        v-bind="attrs"
+        icon
+        x-large
+        v-on="on"
+      >
+        <v-icon> mdi-chevron-right </v-icon>
+      </v-btn>
+    </template>
       <v-carousel-item
         v-for="(idealTypical, i) in idealTypicals"
         :key="i"
@@ -35,52 +60,77 @@
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;"
-        v-if="idealTypical"
         >
          <v-card-title v-if="!$vuetify.breakpoint.smAndDown">
-            <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getIconographyByID(idealTypical).name}}</a>
+            <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.text}}</a>
          </v-card-title>
-        <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.description}} </v-card-text>
+        <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.oe.description}} </v-card-text>
         <v-expansion-panels flat v-if="$vuetify.breakpoint.smAndDown">
           <v-expansion-panel>
             <v-expansion-panel-header>
-              <v-card-title>{{getIconographyByID(idealTypical).name}}</v-card-title>
+              <v-card-title>{{idealTypical.text}}</v-card-title>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-              <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.description}}</a>
+              <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.oe.description}}</a>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
          <v-row style="flex:1" no-gutters >
-          <v-col no-gutters :style="checkLandscape ? 'min-height: 70vh;flex:1;display: flex;flex-direction: column;':'min-height: 50%;flex:1;display: flex;flex-direction: column;'">
-            <annotatedImage relativeHeight isZoom ref="idealTypicalImage" hideTree style="flex:1" :showControls = "false" :treeShowOption="$vuetify.breakpoint.smAndDown ? false : true" v-show="true" :item="idealTypical"  :annos="idealTypical.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+          <v-col :cols="(!checkLandscape || idealTypical.relatedDepictions.length===0) ? 12 : 6" no-gutters :style="checkLandscape ? 'min-height: 70vh;flex:1;display: flex;flex-direction: column;':'min-height: 50%;flex:1;display: flex;flex-direction: column;'">
+            <annotatedImage hideTree relativeHeight isZoom ref="idealTypicalImage" style="flex:1" :showControls = "false" :treeShowOption="$vuetify.breakpoint.smAndDown ? false : true" :item="idealTypical"  :annos="idealTypical.oe.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.oe.relatedAnnotationList"/>
           </v-col>
-          <v-col :cols="!checkLandscape ? 12 : 6" v-if="hasRelatedDepictions(idealTypical.iconographyID)" style="display: flex!important;flex-direction: column;">
-            <v-carousel
-              :continuous="true"
-              :show-arrows="false"
-              :hide-delimiters= "false"
+          <v-col :cols="!checkLandscape ? 12 : 6" v-if="idealTypical.relatedDepictions.length>0" style="display: flex!important;flex-direction: column;">              <v-slide-group
+              :show-arrows="true"
               light
-              cycle
-              interval = 9000
-              hide-delimiter-background
+              center-active
               v-model="currentIndexDepiction"
               style="display:flex!important;flex:1"
-              @change="changedDepiction()"
             >
-              <v-carousel-item
-                :href="getDeptictionURL(depiction)"
-                v-for="(depiction, x) in getRelatedDepictions(idealTypicals[currentIndexIdealTypical].iconographyID)"
-                :key="x"
-                style="flex: 1;"
-              >
-            <v-card style="display: flex;
-              flex-direction: column;width:100%">
-              <v-card-text class="font-weight-bold"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'word-break: break-word;display: block; word-break: break-words;'" v-html="getExampleLabel(depiction)"></v-card-text>
-              <annotatedImage isZoom :style="checkLandscape? 'min-height:50%;flex:1 1 100%':'min-height:100%;flex:1 1 100%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" hideTree v-show="true" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
-            </v-card>
-              </v-carousel-item>
-            </v-carousel>
+              <template v-slot:prev="{on, attrs }">
+                <v-btn
+                  color="green darken-2"
+                  style="left:20px;top:55px;"
+                  v-bind="attrs"
+                  icon
+                  v-on="on"
+                >
+                  <v-icon> mdi-chevron-left </v-icon>
+                </v-btn>
+              </template>
+              <template v-slot:next=" { on , attrs }" >
+                <v-btn
+                  v-bind="attrs"
+                  style="right:20px;top:55px;"
+                  color="green darken-2"
+                  icon
+                  v-on="on"
+                >
+                  <v-icon> mdi-chevron-right </v-icon>
+                </v-btn>
+              </template>
+
+                <v-slide-item
+                  v-for="(depiction, x) in idealTypicals[currentIndexIdealTypical].relatedDepictions"
+                  :key="x"
+                  style="flex: 1;"
+                >
+                <v-lazy
+                  v-model="isActive"
+                  :options="{
+                    threshold: .5
+                  }"
+                  min-height="200"
+                  transition="fade-transition"
+                >
+                  <v-card style="display: flex;
+                    flex-direction: column;width:100%">
+                    <a :href="getDeptictionURL(depiction)"> <v-card-text class="font-weight-bold"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'color:black;font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'color:black;word-break: break-word;display: block; word-break: break-words;'" v-html="getExampleLabel(depiction)"></v-card-text></a>
+                    <annotatedImage :treeShowOption="false" hideTree isZoom :style="checkLandscape? 'min-height:50%;flex:1 1 100%':'min-height:100%;flex:1 1 100%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
+                  </v-card>
+                  </v-lazy>
+                </v-slide-item>
+
+            </v-slide-group>
           </v-col>
          </v-row>
       </v-card>
@@ -93,7 +143,6 @@
 // import Vue from 'vue'
 import {getIconographyByID, getCaveLabel, getCaveShortLabel, getIconographyByAnnos, getWallLabels} from '@/utils/helpers'
 import annotatedImage from '@/components/annotatedImage'
-import { getDepictionByAnnotation } from '@/services/repository'
 export default {
   name: 'tourInf',
   components: {
@@ -104,39 +153,41 @@ export default {
   },
   data () {
     return {
-      relatedDepictions: {},
       currentIndexIdealTypical:0,
       currentIndexDepiction:0,
       showDepictions:true,
+      on:true,
+      isActive:false,
     }
   },
   computed:{
     checkLandscape(){
-      console.log("is Landscape:", this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height);
       return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
     },
   },
   methods: {
+    changed(){
+      this.currentIndexDepiction = 0
+    },
     changedDepiction(){
-      // console.log("changedDepiction", this.$refs.depictionCarousel);
       for (const depiction of this.$refs.depictionCarousel){
         depiction.hideTag()
       }
     },
-    changed(item){
+    nextDepiction(){
+
     },
     getContentHeight(){
       let h = 600
       if (this.$refs.card){
         h = (this.$refs.card.$el.clientHeight - this.$refs.cardTitle.clientHeight) / 100 * 99
       }
-      console.log("getContentHeight returning:", h);
       return h
     },
     getExampleLabel(depiction){
       if (depiction){
         if (!this.$vuetify.breakpoint.smAndDown){
-          return "Example from " + this.getCaveLabel(depiction.cave) +  " " + this.getWallLabel(depiction) + " (Painted Representation " + depiction.depictionID + ")</a>"
+          return "Example from " + this.getCaveLabel(depiction.cave) +  " <br> " + this.getWallLabel(depiction) + " (Painted Representation " + depiction.depictionID + ")</a>"
 
         } else {
           return getCaveShortLabel(depiction.cave) +  ", " + this.getWallLabel(depiction)
@@ -155,36 +206,34 @@ export default {
         return null
       }
     },
-    hasRelatedDepictions(idealTypical){
-      if (idealTypical){
-        let depictions = this.getRelatedDepictions(idealTypical)
-        if (depictions){
-          if (depictions.length > 0){
-            return true
-          }
-        }
-      }
-      return false
-    },
+
     getDeptictionURL(depiction){
       return "/pr/" + depiction.depictionID
     },
-    getRelatedDepictions(icoID){
-      let depictions = []
-      if (this.relatedDepictions){
-        depictions = this.relatedDepictions[icoID]
+
+    flatIconography(item){
+      let icos = []
+      for (var child of item.children){
+        icos = icos.concat(this.flatIconography(child))
       }
-      return depictions
+      let copy = Object.assign({}, item)
+      copy.children = []
+      icos.push(copy)
+      return icos
     },
     getPreselected(item){
       let icoIDs = []
-      for (const entry of item.relatedAnnotationList){
+      for (const entry of item.oe.relatedAnnotationList){
         for (const tag of entry.tags){
           icoIDs.push(tag.iconographyID)
         }
       }
       const icos = getIconographyByAnnos(icoIDs)
-      return icos
+      let icosFlat = []
+      for (let ico of icos){
+        icosFlat = icosFlat.concat(this.flatIconography(ico))
+      }
+      return icosFlat
     },
     getIcoURL(ico){
       return "/iconography/" + ico.iconographyID
@@ -192,7 +241,11 @@ export default {
     getPreselectedDepiction(icoID){
       let icoIDs = [icoID]
       const icos = getIconographyByAnnos(icoIDs)
-      return icos
+      let icosFlat = []
+      for (let ico of icos){
+        icosFlat = icosFlat.concat(this.flatIconography(ico))
+      }
+      return icosFlat
     },
     getAnnos(depiction){
       let annos = []
@@ -205,47 +258,7 @@ export default {
       }
       return annos
     },
-    setRelatedDepictions(idealTypical){
-      var params = {}
-      this.relatedDepictions = null
-      params.iconographyID = [idealTypical.iconographyID]
-      // console.log("params of getDepictions", params);
-      getDepictionByAnnotation(params)
-        .then( res => {
-          var newDepictions = []
-          for ( var entry of res.data.hits.hits){
-            if (this.getAnnos(entry._source).length > 0){
-              let newAnnos = []
-              for (let anno of entry._source.relatedAnnotationList){
-                let found = false
-                for (let tag of anno.tags){
-                  if (tag.iconographyID === idealTypical.iconographyID){
-                    const img = entry._source.relatedImages.find(element => element.filename === anno.image)
-                    if (img) {
-                      if (img.accessLevel === 2){
-                        found = true
-                      }
-                    }
-                  }
-                }
-                if (found) {
-                  newAnnos.push(anno)
-                }
-              }
-              if (newAnnos.length > 0){
-                entry._source.relatedAnnotationList = newAnnos
-                newDepictions.push(entry._source)
-              }
-            }
-          }
-          let dummy = Object.assign({}, this.relatedDepictions)
-          dummy[idealTypical.iconographyID] = newDepictions
-          this.relatedDepictions = dummy
-          // Vue.set(this.relatedDepictions, idealTypical.iconographyID, newDepictions)
-        }).catch(function (error) {
-          console.log(error)
-        })
-    },
+
     getIconographyByID(item){
       if (item){
         let ico = getIconographyByID(item.iconographyID)
@@ -258,30 +271,13 @@ export default {
   },
   watch: {
     'idealTypicals': function(newVal, oldVal) {
-      for (const idealTypical of this.idealTypicals){
-        this.setRelatedDepictions(idealTypical)
-      }
     },
     'currentIndexIdealTypical': function(newVal, oldVal) {
       // this.changedIdealTypical(newVal)
     },
-    'currentIndexDepiction': function(newVal, oldVal) {
-      // console.log("currentIndexDepiction:", this.$refs.depictionCarousel[this.currentIndexDepiction]);
-      // console.log("currentIndexDepiction:", this.currentIndexDepiction);
-      // this.$refs.depictionCarousel[this.currentIndexDepiction].initNewAnnotatedImage()
-    },
   },
   mounted:function () {
-    // console.log("content", this.$refs.card);
-    // console.log("tourInf idealTypicals", this.idealTypicals);
-    // this.changedIdealTypical(0)
-    for (const idealTypical of this.idealTypicals){
-      this.setRelatedDepictions(idealTypical)
-    }
-    setTimeout(() => {
-      console.log("this.$refs.carousel.$children[0].$el", this.$refs.IdealTypicalCard);
-      this.$refs.IdealTypicalCard[0].$el.scrollIntoView(true)
-    }, 1000);
+    // this.nextDepiction()
   },
   updated:function () {
   }

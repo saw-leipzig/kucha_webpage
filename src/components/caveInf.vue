@@ -41,20 +41,55 @@
 
     <hideRelatedItems v-if="(relatedDepictions.length>0 && showRelatedDepictions)" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
     <hideRelatedItems v-if="(cave.relatedBibliographyList && cave.relatedBibliographyList.length>0)" title="Related Annotated Bibliography" :items="cave.relatedBibliographyList"></hideRelatedItems>
+    <v-card-actions v-if="(versions.length>1 && showRelatedDepictions)">
+      <v-btn @click="showVersions = !showVersions"
+        color="orange lighten-2"
+        text
+      >
+        Versions
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        icon
+        @click="showVersions = !showVersions"
+      >
+        <v-icon>{{ showVersions ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+      </v-btn>
+      </v-card-actions>
+      <v-expand-transition v-if="versions.length>1">
+        <div v-show="showVersions">
+          <v-divider></v-divider>
+           <v-card class="d-flex pa-2 mx-10" style='background-color: rgba(255, 255, 255, 1) !important'>
+            <v-combobox
+            style="width:50%"
+              class="d-flex justify-center align-center "
+              v-model="version"
+              :items="versions"
+              label="Select Version"
+              outlined
+              dense
+              item-text = "date"
+              item-value="_id"
+            ></v-combobox>
+           </v-card>
+        </div>
+      </v-expand-transition>
 
 </v-card>
 
 </template>
 
 <script>
-import {getCaveLabel, getSiteLabel, getRegionLabel, getDistrictLabel} from  "@/utils/helpers"
-import { getItemById } from '@/services/repository'
+import {getCaveLabel} from  "@/utils/helpers"
+import {getItemById, getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
 
 export default {
 
   name: 'caveInf',
   props: {
-    cave: {},
+    caveDefault: {},
     showRelatedDepictions: {
       type: Boolean,
       default: true
@@ -62,6 +97,7 @@ export default {
     setWidth: true
   },
   components: {
+
   },
   data () {
     console.log("cave started.");
@@ -69,8 +105,12 @@ export default {
     return {
       show: false,
       tab:[],
+      cave:{},
       relatedDepictions:[],
-      caveScatches:[]
+      caveScatches:[],
+      version:null,
+      versions:['current'],
+      showVersions: false,
     }
   },
   computed: {
@@ -96,13 +136,13 @@ export default {
         basciInf["Cave Group"] = this.cave.caveGroupID
       }
       if (this.cave.siteID){
-        basciInf["Site"] = this.getSite(this.cave.siteID)
+        basciInf["Site"] = this.cave.site.name
       }
       if (this.cave.districtID){
-        basciInf["District"] = this.getDistrict(this.cave.districtID)
+        basciInf["District"] = this.cave.district.name
       }
       if (this.cave.regionID){
-        basciInf["Region"] = this.getRegion(this.cave.regionID)
+        basciInf["Region"] = this.cave.region.englishName
       }
       if (Object.keys(basciInf).length > 0){
         caveInfo['Basic Information'] = basciInf
@@ -237,18 +277,6 @@ export default {
         }
       }
     },
-    getCaveType(ID){
-      return this.$store.state.dic.caveType.find(ct => ct.caveTypeID === ID).nameEN
-    },
-    getSite(ID){
-      return getSiteLabel(ID)
-    },
-    getRegion(ID){
-      return getRegionLabel(ID)
-    },
-    getDistrict(ID){
-      return getDistrictLabel(ID)
-    },
     getCaveLabel(entry){
       console.log("cave:", entry);
       return getCaveLabel(entry)
@@ -260,7 +288,38 @@ export default {
       this.getRelatedDepictions()
     }
 
-  }
+  },
+  beforeMount:function () {
+    console.log("beforemount:", this.caveDefault);
+    this.cave = this.caveDefault
+    getVersionsOfEntry(this.caveDefault)
+      .then( res => {
+        console.log("recieved versions.", res.data.hits.hits)
+        this.versions = res.data.hits.hits
+        for (let v of this.versions){
+          v.date = new Date(v._source.timestamp)
+        }
+        this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
+        this.version = this.versions[this.versions.length - 1]
+        console.log("versions:", this.versions);
+      }).catch(function (error) {
+        console.log(error)
+        return null
+      })
+  },
+  watch: {
+    version(newVal, oldVal){
+      if (newVal != null){
+        getVersionOfEntry(newVal._id)
+          .then( res => {
+            this.cave = res.data._source.content
+          }).catch(function (error) {
+            console.log(error)
+            return null
+          })
+      }
+    }
+  },
 
 }
 </script>

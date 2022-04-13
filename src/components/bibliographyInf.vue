@@ -102,13 +102,48 @@
       <div v-if="relatedDepictions">
         <hideRelatedItems v-if="relatedDepictions.length>0" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
       </div>
+    <v-card-actions v-if="versions.length>1">
+      <v-btn @click="showVersions = !showVersions"
+        color="orange lighten-2"
+        text
+      >
+        Versions
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        icon
+        @click="showVersions = !showVersions"
+      >
+        <v-icon>{{ showVersions ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+      </v-btn>
+      </v-card-actions>
+      <v-expand-transition v-if="versions.length>1">
+        <div v-show="showVersions">
+          <v-divider></v-divider>
+           <v-card class="d-flex pa-2 mx-10" style='background-color: rgba(255, 255, 255, 1) !important'>
+            <v-combobox
+            style="width:50%"
+              class="d-flex justify-center align-center "
+              v-model="version"
+              :items="versions"
+              label="Select Version"
+              outlined
+              dense
+              item-text = "date"
+              item-value="_id"
+            ></v-combobox>
+           </v-card>
+        </div>
+      </v-expand-transition>
 
     </v-card>
 </template>
 
 <script>
 
-import {getDepictionByBibliography} from '@/services/repository'
+import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
@@ -116,7 +151,7 @@ import "vue-pdf-app/dist/icons/main.css";
 export default {
   name: 'bibliographyInf',
   props: {
-    bibliography: {},
+    bibliographyDefault: {},
   },
 
   components: {
@@ -129,9 +164,14 @@ export default {
       showAddInf: false,
       showAnno: true,
       tab:[],
+      bibliography:{},
       viewerImg:{},
       currentPage: 0,
-      pageCount: 0
+      pageCount: 0,
+      version:null,
+      versions:['current'],
+      showVersions: false,
+
     }
   },
   computed: {
@@ -211,7 +251,38 @@ export default {
   },
   mounted:function () {
     this.getRelatedDepictions()
-  }
+  },
+  beforeMount:function () {
+    console.log("beforemount:", this.bibliographyDefault);
+    this.bibliography = this.bibliographyDefault
+    getVersionsOfEntry(this.bibliographyDefault)
+      .then( res => {
+        console.log("recieved versions.", res.data.hits.hits)
+        this.versions = res.data.hits.hits
+        for (let v of this.versions){
+          v.date = new Date(v._source.timestamp)
+        }
+        this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
+        this.version = this.versions[this.versions.length - 1]
+        console.log("versions:", this.versions);
+      }).catch(function (error) {
+        console.log(error)
+        return null
+      })
+  },
+  watch: {
+    version(newVal, oldVal){
+      if (newVal != null){
+        getVersionOfEntry(newVal._id)
+          .then( res => {
+            this.bibliography = res.data._source.content
+          }).catch(function (error) {
+            console.log(error)
+            return null
+          })
+      }
+    }
+  },
 }
 </script>
 

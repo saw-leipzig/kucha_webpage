@@ -230,7 +230,8 @@
     </div>
 </template>
 <script>
-import {getOSDURL, getIconographyByAnnos, setOSDImgOverlayImg} from  "@/utils/helpers"
+import {getOSDURL, getIconographyByAnnos, setOSDImgOverlayImg, getIconographyByAnnosInGivenTree} from  "@/utils/helpers"
+import {getIconogrpaphyByTimestamp} from '@/services/repository'
 import * as d3 from "d3";
 import OpenSeadragon from 'openseadragon'
 import Annotorious from '../../static/openseadragon-annotorious.min.js'
@@ -242,6 +243,14 @@ export default {
   components: {
   },
   props: {
+    isVersion:{
+      type: Object,
+      default: function(){
+        return {
+          "date": "current"
+        }
+      }
+    },
     showControls: {
       type: Boolean,
       default: true
@@ -631,10 +640,6 @@ export default {
         config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
         config["image"] = this.viewerAnnos;
         config["formatter"] = [MyHighlightFormatter];
-        var config = {};
-        config["readOnly"] = true;
-        config["widgets"] = ['COMMENT', { widget: 'TAG', vocabulary: [], showDelete: false }]
-        config["image"] = this.viewerAnnos;
         this.annotoriousplugin = Annotorious(this.viewerAnnos, config)
         SelectorPack(this.annotoriousplugin);
         this.viewerAnnos.setControlsEnabled(false);
@@ -696,45 +701,6 @@ export default {
           console.log("blubb");
           _self.selectedAnnotation = annotation
           _self.selectOrCopyDialog = true
-            const selectedIco = _self.annoSelected.find(el => el.iconographyID === anno.id)
-            // console.log("selectedIco", selectedIco);
-            if (selectedIco !== undefined){
-              found = true
-              const index = _self.annoSelected.indexOf(selectedIco);
-              if (index > -1) {
-                _self.annoSelected.splice(index, 1);
-              }
-              // console.log("_self.annoSelected", _self.annoSelected);
-            }
-          }
-          if (found){
-            _self.updateSelectedAnnos()
-          } else {
-            let annos = [];
-            for (let anno of annotation.body){
-              if (Array.isArray(_self.icoAnnos)){
-                for (let ico of _self.icoAnnos){
-                  let res = _self.getIco(ico, anno.id)
-                  if (res !== null){
-                    annos.push(res)
-                    break
-                  }
-                }
-              } else {
-                let res = _self.getIco(_self.icoAnnos, anno.id)
-                if (res !== null){
-                  annos.push(res)
-                }
-              }
-            }
-            for (let anno of annos){
-              if (_self.annoSelected.find(el => el.iconographyID === anno.iconographyID) === undefined){
-                _self.annoSelected.push(anno)
-              }
-            }
-            _self.updateSelectedAnnos()
-            // console.log("annotation selected: ", _self.annoSelected)
-          }
         });
 
         this.viewerAnnos.addHandler("open", function (data) {
@@ -862,18 +828,6 @@ export default {
       //     this.annotoriousplugin.getAnnotationById(w3cAnno)['motivation'] = "highlight"
       //   }
       // }
-              },
-              inner: {
-                "vector-effect": "none",
-                "stroke": "#fff",
-                "stroke-width": "1px",
-                "transition": "stroke-width 0.7s"
-              }
-            }
-          }
-          this.annotoriousplugin.setAnnotationStyle(w3cAnno.id, style)
-        }
-      }
     },
     setOSDannos(image){
       if (this.getAccessLevel(this.annoImage) < 2){
@@ -965,7 +919,26 @@ export default {
           anno["target"] = target;
           this.w3cAnnos.push(anno);
         }
-        this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+        if (this.isVersion){
+          console.log(this.isVersion.date.toString());
+          if (this.isVersion.date.toString().includes('current')){
+            this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+          } else {
+            getIconogrpaphyByTimestamp(this.isVersion._source.timestamp)
+              .then( res => {
+                console.log("recieved versions of iconography.", res.data.hits.hits[0]._source.content.iconography)
+                this.icoAnnos = getIconographyByAnnosInGivenTree(allAnnotationEntries, res.data.hits.hits[0]._source.content.iconography)
+              }).catch(function (error) {
+                console.log(error)
+                return null
+              })
+            console.log("getIconogrpaphyByTimestamp");
+            this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+
+          }
+        } else {
+          this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
+        }
         for (let w3cAnno of this.w3cAnnos){
           this.putW3cInAnnos(w3cAnno)
         }
@@ -997,19 +970,11 @@ export default {
         if (Object.keys(this.annotoriousplugin).length > 0){
           let shownAnnos = []
           for (let anno of this.w3cAnnos){
-            console.log("annotation:", this.annoImage.filename);
-            console.log("annoImage is:", anno.target.id);
             if (this.annoImage.filename === anno.target.id){
               shownAnnos.push(anno)
             }
           }
-          console.log("added Annotations:", shownAnnos);
           this.annotoriousplugin.setAnnotations(shownAnnos)
-          if (!this.dontShowTree){
-            for (let anno of this.w3cAnnos){
-              this.hideAnnotation(anno.id)
-            }
-          }
         }
       }
     },
@@ -1045,12 +1010,6 @@ export default {
         this.updateSelectedAnnos()
 
       }
-          break
-        } else {
-          i = i + 1
-        }
-      }
-      this.updateSelectedAnnos()
     }
   },
   watch: {

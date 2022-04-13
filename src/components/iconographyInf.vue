@@ -1,9 +1,8 @@
 <template>
-    <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;" v-if="idealTypical">
-      <v-card-title ><a :href="getIcoURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Iconography Entry {{iconography.iconographyID}}</a> </v-card-title>
-      <v-card-subtitle v-html="iconography.text"> </v-card-subtitle>
+    <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;" v-if="iconographyShown">
+      <v-card-title ><a :href="getIcoURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for Iconography Entry {{iconographyShown.iconographyID}}</a> </v-card-title>
+      <v-card-subtitle v-html="iconographyShown.text"> </v-card-subtitle>
       <v-card class="mx-10">
-
       <v-treeview
           :items="icoTree"
           rounded
@@ -33,7 +32,7 @@
         </v-btn>
       </v-card-actions>
       <v-expand-transition v-if="idealTypical.annos.length>0">
-        <annotatedImage style="min-height: 60vh;" v-show="showAnno" v-if="idealTypical.annos.length>0" :item="iconography"  :annos="idealTypical.annos" :relatedAnnotations="idealTypical.relatedAnnotationList"/>
+        <annotatedImage style="min-height: 60vh;" v-show="showAnno" v-if="idealTypical.annos.length>0" :item="iconographyShown"  :annos="idealTypical.annos" :relatedAnnotations="iconographyShown.oe.relatedAnnotationList"/>
       </v-expand-transition>
       <v-card-actions v-if="hasAdditionalInfo">
         <v-btn
@@ -43,9 +42,7 @@
         >
           Additional Information
         </v-btn>
-
         <v-spacer></v-spacer>
-
         <v-btn
           icon
           @click="showDec = !showDec"
@@ -53,18 +50,16 @@
           <v-icon>{{ showDec ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-
       <v-expand-transition>
         <div v-show="showDec">
           <v-divider></v-divider>
 
               <v-card class="mx-10">
                 <v-card-title>
-                  Additional Information for Iconography Entry {{iconography.iconographyID}} ({{iconography.text}})
+                  Additional Information for Iconography Entry {{iconographyShown.iconographyID}} ({{iconographyShown.text}})
                 </v-card-title>
                 <v-tabs
                 v-model="tab"
-
                 >
                   <v-tab
                     v-for="(item_value, item_name, item_key) in idealTypical.data"
@@ -89,7 +84,6 @@
                       </v-tab-item>
                     </v-tabs-items>
                   </v-card>
-
               </v-card>
         </div>
       </v-expand-transition>
@@ -135,6 +129,42 @@
               </v-card>
       </v-expand-transition>
       <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+      <v-card-actions  v-if="versions.length>1">
+        <v-btn @click="showVersions = !showVersions"
+          color="orange lighten-2"
+          text
+        >
+          Versions
+        </v-btn>
+
+        <v-spacer></v-spacer>
+
+        <v-btn
+          icon
+          @click="showVersions = !showVersions"
+        >
+          <v-icon>{{ showVersions ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        </v-btn>
+      </v-card-actions>
+
+      <v-expand-transition  v-if="versions.length>1">
+        <div v-show="showVersions">
+          <v-divider></v-divider>
+           <v-card class="d-flex pa-2 mx-10" style='background-color: rgba(255, 255, 255, 1) !important'>
+            <v-combobox
+            style="width:50%"
+              class="d-flex justify-center align-center "
+              v-model="version"
+              :items="versions"
+              label="Select Version"
+              outlined
+              dense
+              item-text = "date"
+              item-value="_id"
+            ></v-combobox>
+           </v-card>
+        </div>
+      </v-expand-transition>
     </v-card>
 
 </template>
@@ -143,12 +173,13 @@
 import {fillPicsContainer, getRelatedDepictions} from '@/utils/helpers'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
+import {getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
 
 export default {
 
   name: 'iconographyInf',
   props: {
-    iconography: {}
+    iconography: {},
   },
   components: {
     annotatedImage,
@@ -161,6 +192,10 @@ export default {
       relatedDepictions:[],
       iconographyWithChildren:{},
       showAnno: true,
+      iconographyShown:{},
+      version:null,
+      versions:['current'],
+      showVersions: false,
     }
   },
   computed: {
@@ -176,10 +211,10 @@ export default {
       }
     },
     hasImages(){
-      console.log("hasImages:", this.idealTypical);
-      if (this.idealTypical){
-        if (this.idealTypical.images){
-          if (this.idealTypical.images.length > 0){
+      console.log("hasImages:", this.iconographyShown.oe);
+      if (this.iconographyShown.oe){
+        if (this.iconographyShown.oe.images){
+          if (this.iconographyShown.oe.images.length > 0){
             return true
           } else {
             return false
@@ -192,11 +227,11 @@ export default {
       }
     },
     hasAdditionalInfo(){
-      console.log("idealtypical:", this.idealTypical);
-      if (this.idealTypical){
-        if (Object.keys(this.idealTypical).length > 0){
+      console.log("idealtypical:", this.iconographyShown.oe);
+      if (this.iconographyShown.oe){
+        if (Object.keys(this.iconographyShown.oe).length > 0){
           if (Object.keys(this.idealTypical.data).length > 0){
-            console.log("idealtypical returned true:", Object.keys(this.idealTypical).length);
+            console.log("idealtypical returned true:", Object.keys(this.iconography.oe).length);
             return true
           } else {
             return false
@@ -211,9 +246,9 @@ export default {
     },
     icoTree(){
       var returnElement = []
-      for (var rootElement of this.$store.state.dic.iconography){
+      for (var rootElement of this.$store.state.iconography){
         var dummy =  Object.assign({}, rootElement)
-        var result = this.searchTree(dummy, this.iconography)
+        var result = this.searchTree(dummy, this.iconographyShown)
         if (result != null){
           returnElement.push(result)
         }
@@ -227,12 +262,11 @@ export default {
       let data = {}
       let basicInf = {}
       let desc = {}
-      console.log("iconography Entry", this.iconography);
+      console.log("iconography Entry", this.iconographyShown);
       // if (this.iconography.search !== "" && this.iconography.search !== this.iconography.text){
       //   basicInf["Alternative Terms"] = this.iconography.search
       // }
-      console.log(this.$store.state.dic.ornaments);
-      let idealTypical = this.$store.state.dic.ornaments.find(el => el.iconographyID === this.iconography.iconographyID)
+      let idealTypical = this.iconographyShown.oe
       icoInf.annos = []
       icoInf.relatedAnnotationList = []
       if (idealTypical !== undefined){
@@ -266,7 +300,7 @@ export default {
   },
   methods: {
     getIcoURL(){
-      return "/iconography/" + this.iconography.iconographyID
+      return "/iconography/" + this.iconographyShown.iconographyID
     },
     getIdsOfChildren(ico, ids){
       var result = []
@@ -290,8 +324,21 @@ export default {
     },
     initNewIconography(){
       this.getRelatedDepictions()
-      if (this.idealTypical.images){
-        if (this.idealTypical.images.length > 0){
+      getVersionsOfEntry(this.iconographyShown)
+        .then( res => {
+          console.log("recieved versions.", res.data.hits.hits)
+          this.versions = res.data.hits.hits
+          for (let v of this.versions){
+            v.date = new Date(v._source.timestamp)
+          }
+          this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
+          this.version = this.versions[this.versions.length - 1]
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+      if (this.iconographyShown.oe){
+        if (this.iconographyShown.oe.images.length > 0){
           OpenSeadragon.setString('TogetRelatedDepictionsoltips.SelectionToggle', 'Selection Demo');
           OpenSeadragon.setString('Tooltips.SelectionConfirm', 'Ok');
           OpenSeadragon.setString('Tooltips.ImageTools', 'Image tools');
@@ -317,12 +364,13 @@ export default {
       console.log("this.relatedDepictions", this.relatedDepictions);
     },
     initOSDimg(){
+      console.log("idealTypical.annos.length>0", this.idealTypical.annos);
       let tilesImg = []
-      console.log("Initializing Images: ", this.idealTypical.images);
-      if (this.idealTypical.images.length > 0){
-        console.log("images available, initiate OSDIMG");
-        tilesImg = this.getOSDURL(this.idealTypical.images[0])
-        this.image = this.idealTypical.images[0]
+      console.log("Initializing Images: ", this.iconographyShown.oe.images);
+      if (this.iconographyShown.oe.images.length > 0){
+        tilesImg = this.getOSDURL(this.iconographyShown.oe.images[0])
+        console.log("images available, initiate OSDIMG", tilesImg);
+        this.image = this.iconographyShown.oe.images[0]
         this.viewerImg = OpenSeadragon({
           id: "openseadragonImg",
           prefixUrl: '/static/',
@@ -344,7 +392,7 @@ export default {
       return res
     },
     getTitle(item){
-      if (item.iconographyID === this.iconography.iconographyID){
+      if (item.iconographyID === this.iconographyShown.iconographyID){
         return "<b>" + item.name + "</b>"
       } else {
         return "<a href=\"" + this.getItemURL(item) + "\" style=\"color: inherit;text-decoration: none\">" + item.name + "</a>"
@@ -377,9 +425,25 @@ export default {
     },
   },
   mounted:function () {
-    console.log("new Iconography started");
+    console.log("new Iconography started", this.iconographyShown);
     this.initNewIconography()
-  }
+  },
+  beforeMount:function () {
+    this.iconographyShown = this.iconography
+  },
+  watch: {
+    version(newVal, oldVal){
+      if (newVal != null){
+        getVersionOfEntry(newVal._id)
+          .then( res => {
+            this.iconographyShown = res.data._source.content
+          }).catch(function (error) {
+            console.log(error)
+            return null
+          })
+      }
+    }
+  },
 
 }
 </script>
