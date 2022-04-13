@@ -28,7 +28,7 @@
             <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
           </v-col>
           <v-col  style="min-width: 300px;">
-            <iconographySearch ref="iconographySearch" mode="depiction" :preSelected="selectedIcos" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." :aggregations="icoFacets"></iconographySearch>
+            <iconographySearch ref="iconographySearch" mode="depiction" :preSelected="selectedIcos" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." altPrefix="relatedIconographyList." :aggregations="icoFacets"></iconographySearch>
           </v-col>
         </v-row>
         <v-row>

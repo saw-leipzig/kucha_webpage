@@ -112,10 +112,18 @@
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
                 </v-list-item-icon>
             </v-list-item>
+            <v-list-item v-if="true" style="padding:0 0px!important" :ripple="false"
+              class="px-2"
+              to="/forum"
+            >
+                <v-list-item-icon :style="mini ? 'min-width: 56px;min-height: 56px;' : 'min-width: 100px;min-height: 100px;'">
+                  <v-icon  :style="mini ? 'font-size: 56px;' : 'font-size: 100px;'" :width="mini ? 56 : 100" :height="mini ? 56 : 100" >forum</v-icon>
+                </v-list-item-icon>
+            </v-list-item>
             <v-list-item to="/impressum" style="padding:0 0px!important" :ripple="false"
               class="px-2"
             >
-                <v-list-item-icon :style="mini ? 'width: 56px;' : 'width: 100px;'">
+                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconImpressum :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconImpressum>
                 </v-list-item-icon>
             </v-list-item>
@@ -132,14 +140,23 @@
     </v-main>
     </div>
     <v-footer
-      class="flex-column-reverse flex-sm-row flex-lg-row"
       :app="$vuetify.breakpoint.mdAndUp"
       color="black"
       height="80px"
       style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box;"
     >
-      <div content style="color:white;position: absolute;right: 20px; text-align: right;" v-html="getFooter"> </div>
-      <div class="logo" v-html="logo" style="color:white;position: absolute;left: 20px;"></div>
+      <v-row>
+        <v-col cols="6">
+          <div content style="color:white;position: absolute;left: 20px; text-align: left;" v-html="getFooter"> </div>
+        </v-col>
+        <v-col cols="6" class="text-right">
+          <v-layout warp justify-end>
+            <div class="logo text-right" v-html="logo" style="color:white;"></div>
+            <LoginComponent v-if="!$store.state.user.sessionID" />
+            <usermanager v-if="$store.state.user.sessionID" />
+          </v-layout>
+        </v-col>
+      </v-row>
     </v-footer>
     </div>
   </v-app>
@@ -157,7 +174,9 @@ import iconAbout from '@/components/icons/iconAbout'
 import iconImpressum from '@/components/icons/iconImpressum'
 import iconFilter from '@/components/icons/iconFilter'
 import iconTour from '@/components/icons/iconTour'
-
+import LoginComponent from '@/components/Login'
+import usermanager from '@/components/usermanager'
+import {isLoggedIn} from '@/services/repository'
 export default {
   name: 'App',
   data () {
@@ -174,6 +193,8 @@ export default {
   created() {
   },
   components: {
+    usermanager,
+    LoginComponent,
     iconCave,
     iconPaintedRepresentation,
     iconBibliography,
@@ -185,6 +206,7 @@ export default {
     iconTour
   },
   computed:{
+
     checkLandscape(){
       console.log("is Landscape:", this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height);
       return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
@@ -203,10 +225,26 @@ export default {
   },
   beforeMount:function () {
     console.log("Initialize Dictionaries");
+    console.log("User Infos:", this.$store.state.user);
+    if (this.$store.state.user.sessionID){
+      if (this.$store.state.user.sessionID !== "") {
+        isLoggedIn(this.$store.state.user.sessionID)
+          .then((res) => {
+            console.log("User still logged!", res.data);
+            this.$store.commit("setUser", res.data)
+          })
+          .catch((err) => {
+            console.log("error!", err.response);
+            this.$store.commit("setUser", {})
+          })
+      }
+
+    }
+    this.$store.dispatch('getIconography')
+    if (this.$store.state.wallLocation.length === 0){
+      this.$store.dispatch('getWallLocation')
+    }
     this.$store.dispatch('getMapping')
-    this.$store.dispatch('getDics').then(() => {
-      console.log("Iconography:", this.$store.state.dic.iconography);
-    })
   },
   mounted:function(){
     if (this.$vuetify.breakpoint.smAndDown){
@@ -244,6 +282,9 @@ export default {
 .v-main {
   height: 100%;
 
+}
+.theme--light.v-application {
+    background: transparent!important;;
 }
 .v-list-group__header__prepend-icon{
   margin-top: 0;
@@ -301,7 +342,7 @@ export default {
 .container{
   max-width: 80%;
 }
-.bg {
+body {
     background: url( '../static/backgroundKIS.jpg') no-repeat center center fixed;
     background-size: cover;
   }

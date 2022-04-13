@@ -1,7 +1,7 @@
 <template>
 
   <div>
-            <depictionInf v-if="Object.keys(depictionEntry).length>0" :depiction="depictionEntry" v-bind:presentCave="true"></depictionInf>
+            <depictionInf v-if="Object.keys(depictionEntry).length>0" :annotations="annotations" :depiction="depictionEntry" v-bind:presentCave="true"></depictionInf>
   </div>
 
 </template>
@@ -19,7 +19,8 @@ export default {
 
   data () {
     return {
-      depictionEntry:{}
+      depictionEntry:{},
+      annotations:[]
     }
   },
   computed: {
@@ -31,6 +32,7 @@ export default {
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
+          console.log("annotoriousID = ", params);
           this.$store.commit('setResults', res.data.hits.hits)
           this.depictionEntry = res.data.hits.hits[0]._source
         }).catch(function (error) {
@@ -38,6 +40,10 @@ export default {
         })
     },
     getDepiction() {
+      if (this.$route.params.annotoriousID) {
+        this.annotations.push(this.$route.params.annotoriousID)
+        console.log("annotation:", this.annotations);
+      }
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.depictionID === parseInt(this.$route.params.id))
         if (res === undefined){

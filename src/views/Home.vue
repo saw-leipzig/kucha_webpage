@@ -89,13 +89,14 @@ export default {
   },
   mounted:function() {
     var params = {}
-    params["searchtext"] = "zin"
+    params["searchtext"] = ""
     params["batchStart"] = 0
     this.loading = true
     searchRoot(params, this.$store.state.mapping)
       .then( res => {
         if (res.data.hits.total.value === 0){
-          this.alert = true;
+          console.log("res", res);
+          // this.alert = true;
         }
       }).catch(function (error) {
         console.log(error)

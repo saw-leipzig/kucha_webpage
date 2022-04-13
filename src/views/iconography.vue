@@ -1,5 +1,5 @@
 <template>
-    <iconographyInf v-if="Object.keys(iconography).length>0" :iconography="iconography"></iconographyInf>
+    <iconographyInf v-if="Object.keys(iconography).length>0" :iconography="iconography" :typical="idealTypical"></iconographyInf>
 </template>
 <script>
 import {getItemById} from '@/services/repository'
@@ -14,7 +14,8 @@ export default {
   data () {
     return {
       error:false,
-      iconography: {}
+      iconography: {},
+      idealTypical: undefined
     }
   },
   computed: {
@@ -27,10 +28,17 @@ export default {
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
-          console.log("results", res)
+          console.log("results", res.data.hits.hits)
           if (res.data.hits.hits.length > 0){
             this.$store.commit('setResults', res.data.hits.hits)
-            this.iconography = res.data.hits.hits[0]._source
+            for (let hit of res.data.hits.hits) {
+              if (hit.typicalID){
+                console.log("found typical!", hit);
+                this.idealTypical = hit._source
+              } else {
+                this.iconography = hit._source
+              }
+            }
           } else {
             this.error = true
           }
@@ -42,11 +50,16 @@ export default {
     },
     getIconography(){
       if (Object.keys(this.$store.state.results).length !== 0){
-        var res = this.$store.state.results.find(item => item._source.iconographyID === parseInt(this.$route.params.id))
+        var res = this.$store.state.results.find(item => ((item._source.iconographyID === parseInt(this.$route.params.id)) && (item._source.typicalID === undefined)))
         console.log("res after finding in results:", res);
         if (res !== undefined){
           console.log("reutrning stored result");
           this.iconography = res._source
+          var resTypical = this.$store.state.results.find(item => ((item._source.iconographyID === parseInt(this.$route.params.id)) && (item._source.typicalID)))
+          if (resTypical !== undefined){
+            console.log();
+            this.idealTypical = resTypical._source
+          }
         } else {
           this.getNewIconogrphy()
         }

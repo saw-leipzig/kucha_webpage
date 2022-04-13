@@ -63,7 +63,7 @@ function getTitleTRFull(bibliography) {
 }
 export function getIcosWithChildren(iconography){
   let returnElement = []
-  for (var rootElement of store.state.dic.iconography){
+  for (var rootElement of store.state.iconography){
     var dummy =  Object.assign({}, rootElement)
     var result = searchTreeForÍco(dummy, iconography)
     if (result != null){
@@ -202,7 +202,7 @@ export function fillPicsContainer(relatedImages, relatedAnnotationList){
 }
 export function getIconographyByAnnos(ids){
   var returnElement = []
-  for (var rootElement of store.state.dic.iconography){
+  for (var rootElement of store.state.iconography){
     var dummy = Object.assign({}, rootElement)
     var result = searchTree(dummy, ids)
     if (result !== null){
@@ -211,9 +211,21 @@ export function getIconographyByAnnos(ids){
   }
   return returnElement
 }
+export function getIconographyByAnnosInGivenTree(ids, iconography){
+  var returnElement = []
+  for (var rootElement of iconography){
+    var dummy = Object.assign({}, rootElement)
+    var result = searchTree(dummy, ids)
+    if (result !== null){
+      returnElement.push(result)
+    }
+  }
+  return returnElement
+}
+
 export function getIconographyByID(id){
   var returnElement = {}
-  for (var rootElement of store.state.dic.iconography){
+  for (var rootElement of store.state.iconography){
     var dummy = Object.assign({}, rootElement)
     var result = searchTreeMinuParents(dummy, id)
     if (result !== null){
@@ -285,7 +297,7 @@ export function getWallTreeByIDs(wallIDs, wallLocation){
 export function getWallLabels(depiction, label){
   var results = ""
   if (depiction){
-    var wallTrees = getWallTreeByIDs(depiction.wallIDs, store.state.dic.wallLocation)
+    var wallTrees = getWallTreeByIDs(depiction.wallIDs, store.state.wallLocation)
     for (var wallTree of wallTrees){
       var result = getWallTreeLabels(wallTree, label)
       if (results === ""){
@@ -621,7 +633,19 @@ export function setOSDImgOverlayImg(image, viewer){
   var copyrightHd = document.createElement("dt");
   copyrightHd.innerHTML = "Copyright:"
   var copyright = document.createElement("dd");
-  copyright.innerHTML = image.copyright
+  if (image.copyright === undefined){
+    copyright.innerHTML = ""
+  } else {
+    copyright.innerHTML = image.copyright
+  }
+  const freeAuthors = [4, 8]
+  if ((image.imageTypeID === 5) && (freeAuthors.includes(image.imageAuthor.photographerID))){
+    if (copyright.innerHTML === ""){
+      copyright.innerHTML = copyright.innerHTML + "<img src='/static/01_Cc-by-nc-sa_euro_icon.jpg' alt='Creative Commons NonCommercial 4.0' style=height:30px;'></img> </br>"
+    } else {
+      copyright.innerHTML = copyright.innerHTML + "<br> <img src='/static/01_Cc-by-nc-sa_euro_icon.jpg' alt='Creative Commons NonCommercial 4.0' style=height:30px;'></img> </br>"
+    }
+  }
   elm.appendChild(titleHd)
   elm.appendChild(title)
   elm.appendChild(copyrightHd)
@@ -663,19 +687,6 @@ export function getOSDURL(image){
   let tiles = []
   tiles.push(process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/info.json")
   return tiles
-}
-
-export function getSiteLabel(item, sites){
-  let site = item > 0 ? store.getters.getDics.sites.find(site => site.siteID === item).name : "";
-  return site
-}
-export function getRegionLabel(item, regions){
-  let region = item > 0 ? store.getters.getDics.region.find(region => region.regionID === item).englishName : "";
-  return region
-}
-export function getDistrictLabel(item){
-  let rdistrict = item > 0 ? store.getters.getDics.districts.find(district => district.districtID === item).name : "";
-  return rdistrict
 }
 export function findAgg(aggs, key){
   for (let agg of aggs){
@@ -771,14 +782,23 @@ export function getDepictionLabel(depiction){
   depictionLabel += ", " + getWallLabels(depiction, "")
   return depictionLabel
 }
+export function getDepictionLabelShort(depiction){
+  let depictionLabel =  "Painted Representation ID " + depiction.depictionID
+  if (depiction.shortName){
+    depictionLabel += " (" + depiction.shortName + ")"
+  }
+  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
+  depictionLabel += ", " + getWallLabels(depiction, "")
+  return depictionLabel
+}
 export function getCaveLabel(item){
-  let site = item.siteID > 0 ? store.getters.getDics.sites.find(site => site.siteID === item.siteID).shortName : "";
-  let district = item.districtID > 0 ? store.getters.getDics.districts.find(district => district.districtID === item.districtID).name : "";
-  let region = item.regionID > 0 ? store.getters.getDics.region.find(region => region.regionID === item.regionID).englishName : "";
+  let site = item.siteID > 0 ? item.site.shortName : "";
+  let district = item.districtID > 0 ? item.district.name : "";
+  let region = item.regionID > 0 ? item.region.englishName : "";
   let caveLabel = site + " " + item.officialNumber + (!(district.length === 0) ? " / " + district : "") + (!(region.length === 0) ? " / " + region : "");
   return caveLabel
 
 }
 export function getCaveShortLabel(item){
-  return item.site.shortName + " " + item.officialNumber
+  return item.site.name + " " + item.officialNumber
 }

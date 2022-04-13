@@ -1,6 +1,6 @@
 <template>
 <div>
-    <caveInf :showRelatedDepictions="true" v-if=cave :cave="cave"></caveInf>
+    <caveInf :showRelatedDepictions="true" v-if="Object.keys(cave).length>0" :caveDefault="cave"></caveInf>
 </div>
 </template>
 <script>
