@@ -49,8 +49,11 @@ export default {
   },
   computed: {
     getlocations(){
+      if (this.$store.state.caveTypes.length === 0){
+        this.$store.dispatch('getLocations')
+      }
       var locations = []
-      for (let location of this.$store.state.dic.location){
+      for (let location of this.$store.state.locations){
         location["fullName"] = location.name
         if (location.town){
           location["fullName"] += ", " + location.town

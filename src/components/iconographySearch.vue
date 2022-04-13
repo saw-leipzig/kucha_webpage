@@ -2,6 +2,15 @@
     <v-card outlined>
         <v-list-item-subtitle>Annotations</v-list-item-subtitle>
         <v-row>
+          <v-col cols="12">
+            <v-checkbox
+              dense
+              @change="startSearch"
+              v-model="includeIco"
+              label="Include related Painted Representations WITHOUT Annotations as well"
+            ></v-checkbox>
+          </v-col>
+        </v-row>        <v-row>
           <v-col cols="8">
             <v-text-field v-model="search" label="Search Iconography Tree" hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
           </v-col>
@@ -9,6 +18,7 @@
             <v-combobox label="Selection Type" v-model="selectedSelectionType" :items="selectionTypes"></v-combobox>
           </v-col>
         </v-row>
+
         <v-lazy
             transition="scroll-x-reverse-transition"
         >
@@ -40,6 +50,7 @@ export default {
   },
   props: {
     prefix:"",
+    altPrefix:"",
     aggregations:{},
     preSelected:null,
     mode:{
@@ -49,6 +60,7 @@ export default {
   },
   data () {
     return {
+      includeIco: false,
       newSelected:[],
       update:true,
       visible:true,
@@ -118,6 +130,9 @@ export default {
     },
     getCount(item){
       if (item.count){
+        if (item.iconographyID === 1050){
+          console.log("count of ico:", item);
+        }
         return item.count.length
       } else {
         return 0
@@ -295,43 +310,86 @@ export default {
       console.log("icoAggs buildaggs", icoIDs);
       let newAggs = {}
       if (Object.keys(aggs).length === 0){
-        newAggs = {
-          "Tags": {
-            "nested": {
-              "path": "relatedAnnotationList.tags"
-            },
-            "aggs": {
-              "iconographyID": {
-                "filter": {
-                  "terms": {
+        if (!this.includeIco){
+          newAggs = {
+            "Tags": {
+              "nested": {
+                "path": "relatedAnnotationList.tags"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "filter": {
+                    "terms": {
+                    }
+                  },
+                  "aggs": {
+                    "comment_to_issue": {
+                      "reverse_nested": {}
+                    }
                   }
-                },
-                "aggs": {
-                  "comment_to_issue": {
-                    "reverse_nested": {}
+                }
+              }
+            }
+          }
+        } else {
+          newAggs = {
+            "Tags": {
+              "nested": {
+                "path": "relatedIconographyList"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "filter": {
+                    "terms": {
+                    }
+                  },
+                  "aggs": {
+                    "comment_to_issue": {
+                      "reverse_nested": {}
+                    }
                   }
                 }
               }
             }
           }
         }
+
       } else {
-        newAggs = {
-          "Tags": {
-            "nested": {
-              "path": "relatedAnnotationList.tags"
-            },
-            "aggs": {
-              "iconographyID": {
-                "filter": {
-                  "terms": {
-                  }
-                },
+        if (!this.includeIco){
+          newAggs = {
+            "Tags": {
+              "nested": {
+                "path": "relatedAnnotationList.tags"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "filter": {
+                    "terms": {
+                    }
+                  },
+                }
               }
             }
           }
+          newAggs.Tags.aggs.iconographyID['aggs'] = aggs
+        } else {
+          newAggs = {
+            "Tags": {
+              "nested": {
+                "path": "relatedIconographyList"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "filter": {
+                    "terms": {
+                    }
+                  },
+                }
+              }
+            }
+          }
+          newAggs.Tags.aggs.iconographyID['aggs'] = aggs
         }
-        newAggs.Tags.aggs.iconographyID['aggs'] = aggs
       }
       newAggs.Tags.aggs.iconographyID.filter.terms[icoPath] = icoIDs.pop()
       if (icoIDs.length > 0){
@@ -397,48 +455,104 @@ export default {
       console.log("prepsearch triggered", this.selected);
       let searchObjects = []
       let icoAggs = {}
-      let icoPath = this.prefix + "iconographyID"
+      let icoPath = ""
+      if (!this.includeIco){
+        icoPath = this.prefix + "iconographyID"
+      } else {
+        icoPath = this.altPrefix + "iconographyID"
+      }
       if (this.isDepiction){
         if (this.selectedGroups.length > 0){
           for (let ico of this.selectedGroups){
             console.log("preparing group for:", ico);
-            let icoSearch = {
-              "nested": {
-                "path": "relatedAnnotationList",
-                "query": {
-                  "nested": {
-                    "path": "relatedAnnotationList.tags",
-                    "query": {
-                      "terms": {
+            let icoSearch = {}
+            if (!this.includeIco){
+              icoSearch = {
+                "nested": {
+                  "path": "relatedAnnotationList",
+                  "query": {
+                    "nested": {
+                      "path": "relatedAnnotationList.tags",
+                      "query": {
+                        "terms": {
+                        }
                       }
                     }
                   }
                 }
               }
+            } else {
+              icoSearch = {
+                "nested": {
+                  "path": "relatedIconographyList",
+                  "query": {
+                    "nested": {
+                      "path": "relatedIconographyList",
+                      "query": {
+                        "terms": {
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
             }
             icoSearch.nested.query.nested.query.terms[icoPath] = ico
             searchObjects.push(icoSearch)
           }
           icoAggs.filter = this.buildAggs({}, this.selectedGroups, icoPath)
         }
-        icoAggs.agg = {
-          "Tags": {
-            "nested": {
-              "path": "relatedAnnotationList.tags"
-            },
-            "aggs": {
-              "iconographyID": {
-                "terms": {
-                  "field": "relatedAnnotationList.tags.iconographyID",
-                  "size": 10000
-                },
-                "aggs": {
-                  "test": {
-                    "reverse_nested": {},
-                    "aggs": {
-                      "depictionID": {
-                        "terms": {
-                          "field": "depictionID"
+        if (!this.includeIco){
+          icoAggs.agg = {
+            "Tags": {
+              "nested": {
+                "path": "relatedAnnotationList.tags"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "terms": {
+                    "field": "relatedAnnotationList.tags.iconographyID",
+                    "size": 10000
+                  },
+                  "aggs": {
+                    "test": {
+                      "reverse_nested": {},
+                      "aggs": {
+                        "depictionID": {
+                          "terms": {
+                            "field": "depictionID",
+                            "size": 1000
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          icoAggs.agg = {
+            "Tags": {
+              "nested": {
+                "path": "relatedIconographyList"
+              },
+              "aggs": {
+                "iconographyID": {
+                  "terms": {
+                    "field": "relatedIconographyList.iconographyID",
+                    "size": 10000
+                  },
+                  "aggs": {
+                    "test": {
+                      "reverse_nested": {},
+                      "aggs": {
+                        "depictionID": {
+                          "terms": {
+                            "field": "depictionID",
+                            "size": 1000
+                          }
                         }
                       }
                     }
@@ -448,6 +562,7 @@ export default {
             }
           }
         }
+
         console.log("icoAggs:", icoAggs);
         console.log("searchObject", searchObjects)
       } else {
@@ -514,7 +629,7 @@ export default {
 
   },
   mounted:function () {
-    this.iconography = JSON.parse(JSON.stringify(this.$store.state.dic.iconography));
+    this.iconography = JSON.parse(JSON.stringify(this.$store.state.iconography));
     this.initiateIco()
     this.getPreSelectedByName()
   },

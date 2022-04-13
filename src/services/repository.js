@@ -8,17 +8,211 @@ const auth = {
   username: "read_only_user",
   password: "kuchaReadOnly"
 }
-export function getDic() {
+export function getDictionary(name){
   return axios({
-    url: process.env.VUE_APP_ESAPI + 'kucha_dic/_search',
+    url: process.env.VUE_APP_ESAPI + 'kucha_dic/_doc/' + name,
+    method: 'get',
+    auth: auth,
+    data: {
+    }
+  })
+}
+export function regUser(firstname, surname, email, affilation){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?registerrequest',
     method: 'post',
     auth: auth,
     data: {
-      "size" : 10000,
-      "query": {
-        "match_all" : {}
+      "firstname": firstname,
+      "lastname": surname,
+      "email": email,
+      "affilation": affilation
+    }
+  })
+}
+export function validateUser(email, pw){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?validateUser',
+    method: 'post',
+    auth: auth,
+    data: {
+      "email": email,
+      "sessionID": pw
+    }
+  })
+}
+export function isLoggedIn(sessionID){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?isLoggedIn',
+    method: 'post',
+    auth: auth,
+    data: {
+      "sessionID": sessionID
+    }
+  })
+}
+export function changeUserData(userdata, oldmail, oldPW){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?changeUser',
+    method: 'post',
+    auth: {
+      'username':oldmail,
+      'password': oldPW
+    },
+    data: userdata
+  })
+}
+export function putComments(data, uuid, user, passwordhash){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid,
+    method: 'PUT',
+    auth: auth,
+    data: data
+  })
+}
+export function getPRList(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'Post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "_source": {
+        "exclude": [
+          "cave.wallList",
+          "cave.preservationClassification",
+          "cave.caveAreaList",
+          "cave.caveSketchList",
+          "relatedAnnotationList",
+          "relatedImages",
+          "description",
+          "positionNotes",
+          "relatedIconographyList",
+          "relatedBibliographyList"
+        ]
       },
-      "_source": ["bibKeyWords.*", "location.*", "region.*", "districts.*", "ornaments.*", "iconography.*", "sites.*", "caveType.*", "wallLocation.*"]
+      "query": {
+        "exists": {
+          "field": "depictionID"
+        }
+      }
+    }
+  })
+}
+
+export function getIcoList(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'Post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "_source": {
+        "exclude": [
+          "oe"
+        ]
+      },
+      "query": {
+        "exists": {
+          "field": "iconographyID"
+        }
+      }
+    }
+  })
+}
+
+
+export function getCaveList(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'Post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "_source": {
+        "exclude": [
+          "wallList",
+          "caveAreaList"
+        ]
+      },
+      "query": {
+        "exists": {
+          "field": "caveID"
+        }
+      }
+    }
+  })
+}
+
+export function getComments(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "size": 4000
+    }
+  })
+}
+export function getWallTreeByTimestamp(timestamp){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_backup/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "sort": [
+        {"timestamp" : {"order" : "desc"}}
+      ],
+      "size": 4000,
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "range": {
+                "timestamp": {
+                  "lte": timestamp
+                }
+              }
+            },
+            {
+              "exists": {
+                "field": "content.wallTree"
+              }
+            }
+          ]
+        }
+      }
+    }
+  })
+}
+export function getIconogrpaphyByTimestamp(timestamp){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_backup/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "sort": [
+        {"timestamp" : {"order" : "desc"}}
+      ],
+      "size": 4000,
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "range": {
+                "timestamp": {
+                  "lte": timestamp
+                }
+              }
+            },
+            {
+              "exists": {
+                "field": "content.iconography"
+              }
+            }
+          ]
+        }
+      }
     }
   })
 }
@@ -31,6 +225,7 @@ export function getKuchaMapping() {
     }
   })
 }
+
 export function getDepictionStats() {
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
@@ -94,6 +289,48 @@ export function postQuery(queryInput){
     method: 'post',
     auth: auth,
     data: queryInput
+  })
+}
+export function getIdealByIcoID(icoID){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "multi_match": {
+                "query": icoID,
+                "fields": "iconographyID"
+              }
+            },
+            {
+              "exists": {
+                "field": "typicalID"
+              }
+            }
+          ]
+        }
+      }
+    }
+  })
+}
+export function getIdeals(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "query": {
+        "exists": {
+          "field": "oe.typicalID"
+        }
+      }
+    }
   })
 }
 
@@ -191,24 +428,101 @@ export function getDepictionByAnnotation(params) {
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
     method: 'post',
+    headers: {'Accept-Encoding': 'gzip,deflate', 'Content-Length':4000},
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
     auth: auth,
     data: {
-      "size": 2000,
+      "size": 6000,
       "query": {
-        "nested": {
-          "path": "relatedAnnotationList",
-          "query": {
-            "nested": {
-              "path": "relatedAnnotationList.tags",
-              "query": {
-                "terms": {
-                  "relatedAnnotationList.tags.iconographyID": params.iconographyID
+        "bool": {
+          "must": [
+            {
+              "nested": {
+                "path": "relatedAnnotationList",
+                "query": {
+                  "nested": {
+                    "path": "relatedAnnotationList.tags",
+                    "query": {
+                      "terms": {
+                        "relatedAnnotationList.tags.iconographyID": params.iconographyID
+                      }
+                    }
+                  }
                 }
               }
+            },
+            {
+              "exists": {
+                "field": "depictionID"
+              }
             }
-          }
+          ]
         }
       }
+    }
+  })
+}
+export function getVersionsOfEntry(entry){
+  var field
+  var ID
+  console.log("getversions", entry);
+  if (entry.depictionID){
+    field = "content.depictionID"
+    ID = entry.depictionID
+  } else if (entry.iconographyID){
+    field = "content.iconographyID"
+    ID = entry.iconographyID
+  } else if (entry.annotatedBibliographyID){
+    field = "content.annotatedBibliographyID"
+    ID = entry.annotatedBibliographyID
+  } else if (entry.caveID){
+    field = "content.caveID"
+    ID = entry.caveID
+  }
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_backup/_search',
+    method: 'post',
+    headers: {'Accept-Encoding': 'gzip,deflate', 'Content-Length':4000},
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+    auth: auth,
+    data: {
+      "_source": {
+        "excludes": [
+          "content"
+        ]
+      },
+      "sort" : [
+        "timestamp"
+      ],
+      "size": 4000,
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "multi_match": {
+                "query": ID,
+                "fields": field
+              }
+            },
+            {
+              "exists": {
+                "field": "content"
+              }
+            }
+          ]
+        }
+      }
+    }
+  })
+}
+export function getVersionOfEntry(entryUniqueID){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_backup/_doc/' + entryUniqueID,
+    method: 'get',
+    auth: auth,
+    data: {
     }
   })
 }

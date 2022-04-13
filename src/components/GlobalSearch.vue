@@ -15,10 +15,10 @@
       v-model="searchtext"
       @keyup="countAndSubmit"
       @focus="checkFocus"
+      @click="$event.target.select()"
       @click.stop="checkFocus"
       @mouseup.prevent
       @mousedown.prevent
-      @click:clear.prevent="checkClear"
       v-on:keyup.enter="formSubmit(0)"
       v-on:keyup.escape="checkClear"
       :persistent-hint="persistentHint"
@@ -271,7 +271,7 @@ export default {
       } else if (item._source.annotatedBibliographyID){
         return "Annotated Bibliography: " + getBibTitle(item._source)
       } else if (item._source.iconographyID){
-        return "Iconography: " + item._source.iconographyID
+        return "Iconography: " + item._source.text
       } else {
         return "unknown"
       }
@@ -284,7 +284,7 @@ export default {
       } else if (item._source.annotatedBibliographyID){
         return null
       } else if (item._source.iconographyID){
-        return "(" + item._source.text + ")"
+        return "(ID: " + item._source.iconographyID + ")"
       } else {
         return "unknown"
       }
@@ -345,6 +345,7 @@ export default {
 
 
     countAndSubmit(e) {
+      this.searchPack = 0
       if (e.location !== 0 || e.code.startsWith('Arrow') || e.code === "Insert" || e.code === "CapsLock" || e.code === "PageUp"  || e.code === "PageDown" || e.code === "End"  || e.code === "Home" || e.code.startsWith('F')) {
         return
       }
@@ -380,7 +381,10 @@ export default {
     },
     formSubmit(batch) {
       if (this.searchtext) {
+        this.results = []
+        this.totalres = 0
         this.start = 0
+        this.totalResults = 0
         var params = {}
         params["searchtext"] = this.searchtext
         params["batchStart"] = batch
@@ -463,7 +467,6 @@ export default {
 
 .va-search.dense .v-menu__content {
   max-width: 300px;
-  max-height: 600px;
 }
 
 .resultMenu .v-list-item__title {

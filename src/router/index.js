@@ -19,6 +19,12 @@ const router =  new Router({
       component: () => import('@/views/login'),
     },
     {
+      path: '/pr/:id/annotation/:annotoriousID',
+      name: 'depiction',
+      component: () => import('@/views/depiction'),
+      props: true
+    },
+    {
       path: '/pr/:id',
       name: 'depiction',
       component: () => import('@/views/depiction'),
@@ -74,6 +80,12 @@ const router =  new Router({
       path: '/tour/',
       name: 'Virtuel Tour',
       component: () => import('@/views/tour'),
+      props: true
+    },
+    {
+      path: '/forum/',
+      name: 'Forum for Dating Questions',
+      component: () => import('@/views/forum'),
       props: true
     },
     {

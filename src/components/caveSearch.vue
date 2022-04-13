@@ -154,8 +154,11 @@ export default {
       this.regionsSelected = [];
     },
     getCaveTypes(){
+      if (this.$store.state.caveTypes.length === 0){
+        this.$store.dispatch('getCaveTypes')
+      }
       this.caveTypes = []
-      for (let caveType of this.$store.state.dic.caveType){
+      for (let caveType of this.$store.state.caveTypes){
         let newCaveType = Object.assign({}, caveType)
         newCaveType["id"] = caveType.caveTypeID
         if (this.aggregations.caveType){
@@ -172,7 +175,10 @@ export default {
     },
     getSites(){
       this.sites = []
-      for (let site of this.$store.state.dic.sites){
+      if (this.$store.state.sites.length === 0){
+        this.$store.dispatch('getSites')
+      }
+      for (let site of this.$store.state.sites){
         let newSite = Object.assign({}, site)
         newSite['id'] = site.siteID
         if (this.aggregations.site){
@@ -188,7 +194,10 @@ export default {
     },
     getDistricts(){
       this.districts = []
-      for (let district of this.$store.state.dic.districts){
+      if (this.$store.state.districts.length === 0){
+        this.$store.dispatch('getDistricts')
+      }
+      for (let district of this.$store.state.districts){
         let newDistrict = Object.assign({}, district)
         newDistrict['id'] = district.districtID
         if (this.aggregations.district){
@@ -204,7 +213,10 @@ export default {
     },
     getRegions(){
       this.regions = []
-      for (let region of this.$store.state.dic.region){
+      if (this.$store.state.regions.length === 0){
+        this.$store.dispatch('getRegions')
+      }
+      for (let region of this.$store.state.regions){
         let newRegion = Object.assign({}, region)
         newRegion['id'] = region.regionID
         if (this.aggregations.region){

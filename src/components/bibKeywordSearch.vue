@@ -52,8 +52,12 @@ export default {
   },
   computed: {
     getkeywords(){
+      if (this.$store.state.bibKeywords.length === 0){
+        console.log("bibKeyWords not initiated, getting bibKeyWords");
+        this.$store.dispatch('getBibKeyWords')
+      }
       var keywords = []
-      for (let keyword of this.$store.state.dic.bibKeyWords){
+      for (let keyword of this.$store.state.bibKeywords){
         if (this.aggregations){
           keyword["count"] = findAgg(this.aggregations, keyword.bibKeywordID)
         }

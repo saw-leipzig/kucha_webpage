@@ -48,8 +48,11 @@ export default {
   },
   computed: {
     getWallLocations(){
+      if (this.$store.state.wallLocation.length === 0){
+        this.$store.dispatch('getWallLocation')
+      }
       let wallLocations = []
-      let walls = this.$store.state.dic.wallLocation
+      let walls = this.$store.state.wallLocation
       console.log("walls", walls)
       for (let element of walls){
         let el = Object.assign({}, element)

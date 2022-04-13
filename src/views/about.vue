@@ -23,7 +23,7 @@
         </v-col>
         <v-col :cols="!$vuetify.breakpoint.smAndDown ? 4 : 12">
           <v-card>
-            <v-card-title class="text-h6">Spezialized Search Options</v-card-title>
+            <v-card-title class="text-h6">Specialized Search Options</v-card-title>
             <div class="mx-5">
               <video ref="video3" id=player3 controls style="width: 100%; border: none" mx-5 src="/static/video_3_SpecificSearch.mp4?autoplay=0"/>
             </div>

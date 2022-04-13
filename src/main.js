@@ -9,6 +9,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import hideRelatedItems from '@/components/hideRelatedItems.vue'
 import store from './store'
 import '../static/annotorious.min.css'
+
 Vue.config.productionTip = false
 
 Vue.component("hideRelatedItems", hideRelatedItems)

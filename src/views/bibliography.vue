@@ -1,6 +1,6 @@
 <template>
   <div>
-    <bibliographyInf v-if=bibliography :bibliography="bibliography" ></bibliographyInf>
+    <bibliographyInf v-if="Object.keys(bibliography).length > 0" :bibliographyDefault="bibliography" ></bibliographyInf>
   </div>
 </template>
 <script>
