@@ -53,7 +53,6 @@
       <v-expand-transition>
         <div v-show="showDec">
           <v-divider></v-divider>
-
               <v-card class="mx-10">
                 <v-card-title>
                   Additional Information for Iconography Entry {{iconographyShown.iconographyID}} ({{iconographyShown.text}})
@@ -75,6 +74,9 @@
                         v-for="(item_value, item_name, item_key) in idealTypical.data"
                         :key="item_key"
                       >
+                        <div v-if="item_name=='dating'">
+                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                        </div>
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                           <v-list-item-content>
                             <v-list-item-title >{{name}}</v-list-item-title>
@@ -107,26 +109,24 @@
       </v-card-actions>
 
       <v-expand-transition>
-
-
-              <v-card class="mx-10" style='height:550px' v-if="hasImages">
-                <v-tabs
-                v-if="hasImages"
-                  slider-color="yellow"
-                  centered
-                >
-                  <v-tab
-                    v-for="(item, index) in idealTypical.images"
-                    :key="index"
-                    @click="setOSDimages(item)"
-                >
-                        <v-img
-                            :src="getThumbnail(item)"
-                          ></v-img>
-                  </v-tab>
-                </v-tabs>
-                <div id="openseadragonImg" style='height:500px'></div>
-              </v-card>
+        <v-card class="mx-10" style='height:550px' v-if="hasImages">
+          <v-tabs
+          v-if="hasImages"
+            slider-color="yellow"
+            centered
+          >
+            <v-tab
+              v-for="(item, index) in idealTypical.images"
+              :key="index"
+              @click="setOSDimages(item)"
+          >
+                  <v-img
+                      :src="getThumbnail(item)"
+                    ></v-img>
+            </v-tab>
+          </v-tabs>
+          <div id="openseadragonImg" style='height:500px'></div>
+        </v-card>
       </v-expand-transition>
       <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
       <v-card-actions  v-if="versions.length>1">
@@ -173,7 +173,9 @@
 import {fillPicsContainer, getRelatedDepictions} from '@/utils/helpers'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
-import {getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
+import {getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
+import Foruminf from '../components/foruminf.vue'
+
 
 export default {
 
@@ -183,6 +185,7 @@ export default {
   },
   components: {
     annotatedImage,
+    Foruminf
   },
   data () {
     return {
@@ -196,6 +199,7 @@ export default {
       version:null,
       versions:['current'],
       showVersions: false,
+      discussions: [],
     }
   },
   computed: {
@@ -227,8 +231,10 @@ export default {
       }
     },
     hasAdditionalInfo(){
-      console.log("idealtypical:", this.iconographyShown.oe);
-      if (this.iconographyShown.oe){
+      console.log("idealtypical:", this.idealTypical);
+      if (this.discussions.length > 0) {
+        return true
+      } else if (this.iconographyShown.oe){
         if (Object.keys(this.iconographyShown.oe).length > 0){
           if (Object.keys(this.idealTypical.data).length > 0){
             console.log("idealtypical returned true:", Object.keys(this.iconography.oe).length);
@@ -292,8 +298,11 @@ export default {
       if (Object.keys(desc).length > 0){
         data['Description'] = desc
       }
+      if (this.discussions.length > 0){
+        data['dating'] = ''
+      }
       icoInf['data'] = data
-      console.log("idealtypical.relatedAnnotationList", icoInf.relatedAnnotationList);
+      console.log("icoinf", icoInf);
       return icoInf
     },
 
@@ -301,6 +310,16 @@ export default {
   methods: {
     getIcoURL(){
       return "/iconography/" + this.iconographyShown.iconographyID
+    },
+    getComments(){
+      getCommentsByItems([], [], [this.iconographyShown.iconographyID], [])
+        .then( res => {
+          console.log("recieved discussions.", res.data.hits.hits)
+          this.discussions = res.data.hits.hits
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
     },
     getIdsOfChildren(ico, ids){
       var result = []
@@ -427,6 +446,7 @@ export default {
   mounted:function () {
     console.log("new Iconography started", this.iconographyShown);
     this.initNewIconography()
+    this.getComments()
   },
   beforeMount:function () {
     this.iconographyShown = this.iconography

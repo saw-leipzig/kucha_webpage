@@ -62,9 +62,9 @@ export function changeUserData(userdata, oldmail, oldPW){
     data: userdata
   })
 }
-export function putComments(data, uuid, user, passwordhash){
+export function putComments(data, uuid, sendMail, sessionID){
   return axios({
-    url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid,
+    url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID,
     method: 'PUT',
     auth: auth,
     data: data
@@ -94,6 +94,38 @@ export function getPRList(){
       "query": {
         "exists": {
           "field": "depictionID"
+        }
+      }
+    }
+  })
+}
+export function getBiblioList(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    method: 'Post',
+    auth: auth,
+    data: {
+      "size": 4000,
+      "_source": {
+        "exclude": [
+          "notes",
+          "bibtexKey",
+          "authorList.affiliation",
+          "authorList.email",
+          "authorList.homepage",
+          "authorList.kuchaVisitor",
+          "modifiedOn",
+          "authorList.modifiedOn",
+          "authorList.authorID",
+          "abstractText",
+          "url",
+          "uri",
+          "comments"
+        ]
+      },
+      "query": {
+        "exists": {
+          "field": "annotatedBibliographyID"
         }
       }
     }
@@ -143,7 +175,56 @@ export function getCaveList(){
     }
   })
 }
-
+export function getDiscussionKeywords(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    method: 'post',
+    auth: auth,
+    data: {
+      "size":0,
+      "aggs": {
+        "keywords": {
+          "terms": { "field": "keywords.keyword" }
+        }
+      }
+    }
+  })
+}
+export function getCommentsByItems(caveIDs, prIDs, icoIDs, biblioIDs){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    method: 'post',
+    auth: auth,
+    data:  {
+      "query": {
+        "bool": {
+          "should": [
+            {
+              "terms": {
+                "caves.value": caveIDs
+              }
+            },
+            {
+              "terms": {
+                "prs.value": prIDs
+              }
+            },
+            {
+              "terms": {
+                "iconography.value": icoIDs
+              }
+            },
+            {
+              "terms": {
+                "bibliography.value": biblioIDs
+              }
+            }
+          ]
+        }
+      }
+    }
+  })
+}
 export function getComments(){
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',

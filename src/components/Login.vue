@@ -89,7 +89,7 @@ export default {
       let login = this.user;
       let password = this.password;
       let pwHash = MD5(password).toString();
-      console.log("password is:", MD5(password).toString());
+      console.log("password is:", password, pwHash);
       validateUser( login, pwHash)
         .then((erg) => {
           console.log(erg.data);

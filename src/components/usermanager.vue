@@ -135,7 +135,8 @@ export default {
         "lastname": this.lastName,
         "email": this.email,
         "affiliation": this.affiliation,
-        "sessionID": newPW
+        "sessionID": newPW,
+        "granted": this.$store.state.user.granted
       }
       changeUserData(updatedUser, this.$store.state.user.email, MD5(this.oldPassword).toString())
         .then((res) => {

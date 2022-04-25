@@ -12,7 +12,7 @@
       <v-card>
         <v-form  @submit.prevent="validate" ref="form">
           <v-card-title>
-            <span class="headline"> Apply for Usser Account </span>
+            <span class="headline"> Apply for User Account </span>
           </v-card-title>
           <v-card-text>
             As dating of the caves of the Kucha region is contested, we would like to give other scholars the possibility to discuss the dating of the caves in this forum. However. The Discussion is only accessible for Scholars. Therefore, we kindly ask you, to register with your official e-mail.

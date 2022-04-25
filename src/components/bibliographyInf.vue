@@ -47,6 +47,9 @@
                         v-for="(item_value, item_name, item_key) in bibInfo"
                         :key="item_key"
                       >
+                        <div v-if="item_name=='dating'">
+                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                        </div>
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                           <v-list-item-content>
                             <v-list-item-title >{{name}}</v-list-item-title>
@@ -82,7 +85,6 @@
       <v-expand-transition v-if="bibliography.annotation">
         <div v-show="showAnno">
           <v-divider></v-divider>
-
               <v-card class="mx-10" >
                 <v-card-title>
                   <a :href="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'">
@@ -143,10 +145,11 @@
 
 <script>
 
-import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
+import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
+import Foruminf from '../components/foruminf.vue'
 
 export default {
   name: 'bibliographyInf',
@@ -155,7 +158,8 @@ export default {
   },
 
   components: {
-    VuePdfApp
+    VuePdfApp,
+    Foruminf
   },
 
   data () {
@@ -171,7 +175,7 @@ export default {
       version:null,
       versions:['current'],
       showVersions: false,
-
+      discussions: [],
     }
   },
   computed: {
@@ -208,6 +212,9 @@ export default {
         if (Object.keys(content).length > 0){
           bibInfo["Content"] = content
         }
+        if (this.discussions.length > 0){
+          bibInfo['dating'] = ''
+        }
 
         return bibInfo
       } else {
@@ -216,6 +223,16 @@ export default {
     }
   },
   methods: {
+    getComments(){
+      getCommentsByItems([], [], [], [this.bibliography.annotatedBibliographyID])
+        .then( res => {
+          console.log("recieved discussions.", res.data.hits.hits)
+          this.discussions = res.data.hits.hits
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+    },
     getAllPages(){
 
     },
@@ -251,6 +268,7 @@ export default {
   },
   mounted:function () {
     this.getRelatedDepictions()
+    this.getComments()
   },
   beforeMount:function () {
     console.log("beforemount:", this.bibliographyDefault);

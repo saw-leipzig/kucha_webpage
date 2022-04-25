@@ -112,7 +112,7 @@
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
                 </v-list-item-icon>
             </v-list-item>
-            <v-list-item v-if="true" style="padding:0 0px!important" :ripple="false"
+            <v-list-item v-if="$store.state.user.sessionID" style="padding:0 0px!important" :ripple="false"
               class="px-2"
               to="/forum"
             >

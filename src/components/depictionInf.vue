@@ -65,10 +65,13 @@
                       v-for="(item_value, item_name, item_key) in depictionInfo"
                       :key="item_key"
                     >
+                      <div v-if="item_name=='dating'">
+                        <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                      </div>
                       <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                         <v-list-item-content>
                           <v-list-item-title >{{name}}</v-list-item-title>
-                          <div v-if="name !== 'Wall Location'" style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                          <div v-if="(name !== 'Wall Location' && name !== 'dating')" style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
                           <v-treeview
                               v-if="name === 'Wall Location'"
                               :items="value"
@@ -78,8 +81,6 @@
                     </v-tab-item>
                   </v-tabs-items>
                 </v-card>
-
-
             </v-card>
         </div>
       </v-expand-transition>
@@ -218,9 +219,10 @@
 import image from '@/views/image'
 import caveInf from '@/components/caveInf'
 import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
-import {getVersionsOfEntry, getVersionOfEntry, getWallTreeByTimestamp} from '@/services/repository'
+import {getVersionsOfEntry, getVersionOfEntry, getWallTreeByTimestamp, getCommentsByItems} from '@/services/repository'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
+import Foruminf from '../components/foruminf.vue'
 
 export default {
 
@@ -228,7 +230,8 @@ export default {
   components: {
     caveInf,
     image,
-    annotatedImage
+    annotatedImage,
+    Foruminf
   },
   props: {
     depiction: {},
@@ -262,6 +265,7 @@ export default {
       showVersions: false,
       walllTree: [],
       walls:[],
+      discussions: [],
     }
   },
   computed:{
@@ -337,10 +341,23 @@ export default {
       if (Object.keys(depictionDes).length > 0){
         depictionInf["Description"] = depictionDes
       }
+      if (this.discussions.length > 0){
+        depictionInf['dating'] = ''
+      }
       return depictionInf
     }
   },
   methods: {
+    getComments(){
+      getCommentsByItems([this.pr.cave.caveID], [this.pr.depictionID], [], [])
+        .then( res => {
+          console.log("recieved discussions.", res.data.hits.hits)
+          this.discussions = res.data.hits.hits
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+    },
     initWalls(){
       if (this.version.date.toString().includes('current')){
         this.walls = getWallTreeByIDs(this.pr.wallIDs, this.$store.state.wallLocation)
@@ -530,6 +547,7 @@ export default {
   },
   mounted:function () {
     this.initNewDepiction()
+    this.getComments()
   },
   beforeMount:function(){
     this.pr = this.depiction

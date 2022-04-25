@@ -15,18 +15,23 @@
       </v-tabs>
       <v-card flat>
         <v-row>
-          <v-col style="width:50%">
+          <v-col cols="12">
             <v-tabs-items v-model="tab">
               <v-tab-item
               v-for="(item_value, item_name, item_key) in caveInfo"
               :key="item_key"
               >
-                <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
-                  <v-list-item-content>
-                    <v-list-item-title>{{name}}</v-list-item-title>
-                    <div style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
-                  </v-list-item-content>
-                </v-list-item>
+                <div v-if="item_name=='dating'">
+                  <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                </div>
+                <div v-if="item_name!='dating'" >
+                  <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
+                    <v-list-item-content>
+                      <v-list-item-title>{{name}}</v-list-item-title>
+                      <div style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                    </v-list-item-content>
+                  </v-list-item>
+                </div>
               </v-tab-item>
             </v-tabs-items>
           </v-col>
@@ -83,11 +88,16 @@
 
 <script>
 import {getCaveLabel} from  "@/utils/helpers"
-import {getItemById, getVersionsOfEntry, getVersionOfEntry} from '@/services/repository'
+import {getItemById, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
+
+import Foruminf from '../components/foruminf.vue'
 
 export default {
 
   name: 'caveInf',
+  components: {
+    Foruminf
+  },
   props: {
     caveDefault: {},
     showRelatedDepictions: {
@@ -95,9 +105,6 @@ export default {
       default: true
     },
     setWidth: true
-  },
-  components: {
-
   },
   data () {
     console.log("cave started.");
@@ -111,6 +118,7 @@ export default {
       version:null,
       versions:['current'],
       showVersions: false,
+      discussions: []
     }
   },
   computed: {
@@ -146,6 +154,9 @@ export default {
       }
       if (Object.keys(basciInf).length > 0){
         caveInfo['Basic Information'] = basciInf
+      }
+      if (this.discussions.length > 0){
+        caveInfo['dating'] = ''
       }
       var caveLayout = {}
       var caveMeasurements = {}
@@ -280,6 +291,16 @@ export default {
     getCaveLabel(entry){
       console.log("cave:", entry);
       return getCaveLabel(entry)
+    },
+    getComments(){
+      getCommentsByItems([this.cave.caveID], [], [], [])
+        .then( res => {
+          console.log("recieved discussions.", res.data.hits.hits)
+          this.discussions = res.data.hits.hits
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
     }
   },
   mounted:function () {
@@ -287,7 +308,7 @@ export default {
     if (this.showRelatedDepictions){
       this.getRelatedDepictions()
     }
-
+    this.getComments()
   },
   beforeMount:function () {
     console.log("beforemount:", this.caveDefault);
