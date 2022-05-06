@@ -1,9 +1,9 @@
 <template>
   <div>
-      <v-card-title v-if="item.topic !== '' && !editing" class="pt-2 text-h4 justify-right">{{item.topic}}</v-card-title>
+      <v-card-title v-if="item.title !== '' && !editing && isFirst" class="pt-2 text-h4 justify-right">{{item.title}}</v-card-title>
       <v-text-field v-if="editing && isFirst" v-model="topicTitleEdited" class="mx-5"></v-text-field>
       <v-card-text v-if="isFirst" class="font-weight-bold text-right">{{"(by: " + item.user + ", on: " + new Date(item.date).toGMTString()+")"}}</v-card-text>
-      <v-card-text v-if="!editing && item.keywords && item.keywords.length > 0">{{"Keywords: " + getKeywords}}</v-card-text>
+      <v-card-text v-if="!editing && item.keywordList && item.keywordList.length > 0 && isFirst">{{"Keywords: " + getKeywords}}</v-card-text>
       <v-combobox
         v-if="editing && isFirst"
         v-model="keywordsSelectedModified"
@@ -103,11 +103,11 @@
       </div>
       <v-divider v-if="(item.iconography && item.iconography.length>0)||(item.caves && item.caves.length>0)||(item.prs && item.prs.length>0)"></v-divider>
       <v-range-slider
-        v-if="isFirst && item.chronologicalRange.length>0 && !editing"
-        v-model="item.chronologicalRange"
-        min="0"
-        max="1700"
-        step="50"
+        v-if="isFirst && item.chronologicalRangeMin && !editing"
+        v-model="chronologicalRangeComputed"
+        min="-425"
+        max="2025"
+        step="25"
         thumb-label="always"
         readonly
         ticks
@@ -117,15 +117,15 @@
         label="Chronological Range"
       >
       <template v-slot:thumb-label="{ value }">
-        {{ chronologicalRange[(value / 50)] }}
+        {{ chronologicalRange[((value+425) / 25)] }}
       </template>
       </v-range-slider>
       <v-range-slider
         v-if="isFirst && editing"
         v-model="chronologicalRangeSelectedModified"
-        min="0"
-        max="1700"
-        step="50"
+        min="-425"
+        max="2025"
+        step="25"
         thumb-label="always"
         ticks
         hide-details
@@ -134,10 +134,10 @@
         label="Chronological Range"
       >
       <template v-slot:thumb-label="{ value }">
-        {{ chronologicalRange[(value / 50)] }}
+         {{ chronologicalRange[((value+425) / 25)] }}
       </template>
       </v-range-slider>
-      <v-divider v-if="isFirst && item.chronologicalRange.length>0"></v-divider>
+      <v-divider v-if="isFirst && item.chronologicalRangeMin"></v-divider>
       <v-alert type="warning" dense v-model="unpublishedAlert" border="left">Post is not published yet, waiting for authorisation by Admins.</v-alert>
       <v-card-text v-if="!editing" v-html="item.body"></v-card-text>
       <VueEditor v-if="editing" class="mx-5" v-model="editedText" />
@@ -146,9 +146,7 @@
       <v-card-actions>
         <v-btn
           @click="showEditor = !showEditor"
-          color="orange lighten-2"
-          text
-          class="ml-3"
+          color="success"
           v-if="$store.state.user.granted"
         >
           Reply
@@ -156,9 +154,7 @@
         <v-spacer v-if="editing"></v-spacer>
         <v-btn
           @click="editing=false"
-          color="orange lighten-2"
-          text
-          class="ml-3"
+          color="success"
           v-if="editing"
         >
           {{"Cancel"}}
@@ -166,9 +162,7 @@
         <v-spacer v-if="$store.state.user.userID === item.userID"></v-spacer>
         <v-btn
           @click="editingClicked()"
-          color="orange lighten-2"
-          text
-          class="ml-3"
+          color="success"
           v-if="$store.state.user.userID === item.userID"
         >
           {{editing ? 'Save' : 'Edit'}}
@@ -177,22 +171,20 @@
         <v-btn
           v-if="$store.state.user.accessLevel === 4 && !item.published"
           @click="publish()"
-          color="orange lighten-2"
-          text
           class="ml-3"
         >
           Publish
         </v-btn>
-        <v-spacer></v-spacer>
+        <v-spacer v-if="$store.state.user.userID === item.userID"></v-spacer>
         <v-btn
-          color="orange lighten-2"
-          text
-          @click="subscribe({'isSubscribed': !isSubscribed, 'uuid':item.uuid})"
+          v-if="$store.state.user.userID === item.userID"
+          color="success"
+          @click="subscribe({'isSubscribed': !isSubscribed, 'uuid':uuid})"
         >
           {{ isSubscribed ? 'unsubscribe' : 'subscribe' }}
         </v-btn>
       </v-card-actions>
-      <v-expand-transition >
+      <v-expand-transition>
         <div v-show="showEditor">
           <VueEditor class="mx-5" v-model=replyBody />
           <v-col>
@@ -202,20 +194,22 @@
           </v-col>
         </div>
       </v-expand-transition>
-    <div v-if="publishedComments.length>0" >
-      <v-expansion-panels Focusable popout v-model="showAnswers">
-        <v-expansion-panel class="ml-3">
+    <div v-if="publishedComments.length>0"   class="mx-5 mt-3">
+      <v-expansion-panels dense Focusable v-model="showAnswers">
+        <v-expansion-panel class=" mb-5">
         <v-expansion-panel-header>
-            {{showAnswers ? 'Hide Answers' : 'Show Answers'}}
+            {{showAnswers === 0 ? 'Hide Answers' : 'Show Answers'}}
         </v-expansion-panel-header>
           <v-expansion-panel-content>
             <discussion
+              @clicked="setComment"
               @publish="publishedComment"
               @editComment="editComment"
               @subscribe="subscribe"
               v-for="(item, index) in publishedComments"
+              :uuid="item.uuid"
               :item="item"
-              :key="index" @clicked="setComment"
+              :key="index"
               :user="item.user"
               :userID="item.userID"
               :subscribed="subscribed"
@@ -245,6 +239,12 @@ export default {
       type: Array,
       default: function(){
         return []
+      }
+    },
+    uuid:{
+      type: String,
+      default: function(){
+        return ""
       }
     },
     chronologicalRange:{
@@ -323,6 +323,9 @@ export default {
     }
   },
   computed:{
+    chronologicalRangeComputed(){
+      return [this.item.chronologicalRangeMin, this.item.chronologicalRangeMax]
+    },
     publishedComments(){
       if (this.$store.state.user.accessLevel === 4){
         return this.item.comments
@@ -341,7 +344,7 @@ export default {
     },
     getKeywords(){
       let keywordText = ""
-      for (let keyword of this.item.keywords){
+      for (let keyword of this.item.keywordList){
         if (keywordText === ""){
           keywordText = keyword
         } else {
@@ -351,6 +354,7 @@ export default {
       return keywordText
     },
     isSubscribed(){
+      console.log("subscribed:", this.subscribed);
       if (this.unsubscribed.includes(this.$store.state.user.userID)){
         return false
       } else if (this.subscribed.includes(this.$store.state.user.userID)){
@@ -361,20 +365,29 @@ export default {
   },
   methods: {
     publishedComment(value){
+      console.log("publishing triggered", value);
       let newComments = []
+      let messageText = ""
       for (let comment of this.item.comments){
         if (comment.uuid === value){
           comment["published"] = true
+          messageText = comment.body
           newComments.push(comment)
         } else {
           newComments.push(comment)
         }
       }
       console.log(newComments);
-      this.$emit('clicked', newComments)
+      let data = {
+        "comment": newComments,
+        "sendMail": true,
+        "text": messageText
+      }
+      this.$emit('clicked', data)
     },
     publish(){
-      this.$emit('publish', this.item.uuid)
+      console.log("item", this.uuid);
+      this.$emit('publish', this.uuid)
     },
     editingClicked(){
       if (!this.editing){
@@ -384,21 +397,21 @@ export default {
         this.prsEdited = this.item.prs
         this.editedText = this.item.body
         this.bibliosEdited = this.item.bibliography
-        this.topicTitleEdited = this.item.topic
-        this.chronologicalRangeSelectedModified = this.item.chronologicalRange
-        this.keywordsSelectedModified = this.item.keywords
+        this.topicTitleEdited = this.item.title
+        this.chronologicalRangeSelectedModified = [this.item.chronologicalRangeMin, this.item.chronologicalRangeMax]
+        this.keywordsSelectedModified = this.item.keywordList
       } else {
-        console.log("saving");
+        console.log("saving", this.item.components);
         this.editing = false
         let data = {
-          "uuid": this.item.uuid,
+          "uuid": this.uuid,
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
           "body": this.editedText,
           "comments": this.item.comments,
           "date" : this.item.date,
           "latestUpdate": Date.now(),
-          "published": this.published
+          "published": this.item.published
         }
         if (this.isFirst){
           data["title"] = this.topicTitleEdited
@@ -408,8 +421,9 @@ export default {
           data["iconography"] = this.icosEdited
           data["subscribed"] = this.subscribed
           data["unsubscribed"] = this.unsubscribed
-          data["keywords"] = this.keywordsSelectedModified
-          data["chronologicalRange"] = this.chronologicalRangeSelectedModified
+          data["keywordList"] = this.keywordsSelectedModified
+          data["chronologicalRangeMin"] = this.chronologicalRangeSelectedModified[0]
+          data["chronologicalRangeMax"] = this.chronologicalRangeSelectedModified[1]
         }
         this.$emit('editComment', data)
 
@@ -427,10 +441,15 @@ export default {
           newComments.push(comment)
         }
       }
-      this.$emit('clicked', newComments)
+      let data = {
+        "comment": newComments,
+        "sendMail": false,
+        "text": ""
+      }
+      this.$emit('clicked', data)
     },
     subscribe(value){
-      var data = {"isSubscribed": value.isSubscribed, "uuid":this.item.uuid}
+      var data = {"isSubscribed": value.isSubscribed, "uuid":this.uuid}
       this.$emit('subscribe', data)
     },
     getIcoURL(value){
@@ -461,7 +480,7 @@ export default {
       if (this.replyBody !== ""){
         const now = Date.now();
         var newComment = {
-          "parentUuid": this.item.uuid,
+          "parentUuid": this.uuid,
           "uuid": uuidv4(),
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
@@ -472,24 +491,30 @@ export default {
           "published": false
         }
         var newComments = JSON.parse(JSON.stringify(this.item.comments))
+        console.log("THIS.ITEM", this.item);
+        console.log("newComments", newComments);
         newComments.push(newComment)
         console.log("post answer", newComments);
-        this.$emit('clicked', newComments)
+        let data = {
+          "comment": newComments,
+          "sendMail": false,
+          "text": ""
+        }
+        this.$emit('clicked', data)
 
       } else {
         this.postError = true
       }
     },
     setComment(newComment){
-      console.log("setComment", newComment);
+      console.log("setComment", newComment.comment);
       console.log("oldComments", this.item.comments);
       var newComments = []
       for (let comment of this.item.comments){
-        console.log("comment", comment.uuid);
-        console.log("newComment", newComment[0].parentUuid);
-        if (comment.uuid === newComment[0].parentUuid){
+        console.log("comment", comment);
+        if (comment.uuid === newComment.comment[0].parentUuid){
           var addedComment = Object.assign({}, comment)
-          addedComment.comments = newComment
+          addedComment.comments = newComment.comment
           console.log("addedComment", addedComment);
           newComments.push(addedComment)
         } else {
@@ -497,10 +522,17 @@ export default {
         }
       }
       console.log("newComments", newComments);
-      this.$emit('clicked', newComments)
+      let data = {
+        "sendMail" : false,
+        "comment": newComments,
+        "text": ""
+
+      }
+      this.$emit('clicked', data)
     }
   },
   mounted:function () {
+    console.log("discussions called");
     if (!this.item.published){
       this.unpublishedAlert = true
     }
@@ -516,10 +548,17 @@ export default {
     'unsubscribed': function(newVal, oldVal) {
       console.log("unsubscribed:", newVal);
     },
+    'showAnswers': function(newVal, oldVal) {
+      console.log("showAnswers:", newVal);
+    }
 
   },
 }
 
 </script>
 
-<style></style>
+<style lang="css">
+.v-expansion-panel-content__wrap {
+  padding: 0px
+}
+</style>

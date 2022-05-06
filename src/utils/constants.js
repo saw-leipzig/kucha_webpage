@@ -33,6 +33,12 @@ export const TextSearchCave = {
   "Historic Name":{"historicName":{}},
   "Optional Historic Name":{"optionalHistoricName":{}},
 }
+export const TextSearchForum = {
+  "Forum Text":{"body":{}},
+  "Forum Topic":{"title.keyword":{}},
+  "Comments": {"comments":{"nested":true}},
+  "Authors":{"user":{}},
+}
 export const TextSearchBibliography = {
   "Title":{
     "titleEN":{},

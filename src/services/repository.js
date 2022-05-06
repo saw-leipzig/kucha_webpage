@@ -62,9 +62,9 @@ export function changeUserData(userdata, oldmail, oldPW){
     data: userdata
   })
 }
-export function putComments(data, uuid, sendMail, sessionID){
+export function putComments(data, uuid, sendMail, sessionID, text){
   return axios({
-    url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID,
+    url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID + '&message=' + text,
     method: 'PUT',
     auth: auth,
     data: data
@@ -177,14 +177,14 @@ export function getCaveList(){
 }
 export function getDiscussionKeywords(){
   return axios({
-    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
     method: 'post',
     auth: auth,
     data: {
       "size":0,
       "aggs": {
-        "keywords": {
-          "terms": { "field": "keywords.keyword" }
+        "keywordList": {
+          "terms": { "field": "keywordList.keyword" }
         }
       }
     }
@@ -192,7 +192,7 @@ export function getDiscussionKeywords(){
 }
 export function getCommentsByItems(caveIDs, prIDs, icoIDs, biblioIDs){
   return axios({
-    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
     method: 'post',
     auth: auth,
     data:  {
@@ -227,7 +227,7 @@ export function getCommentsByItems(caveIDs, prIDs, icoIDs, biblioIDs){
 }
 export function getComments(){
   return axios({
-    url: process.env.VUE_APP_ESAPI + 'kucha_dicussion/_search',
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
     method: 'post',
     auth: auth,
     data: {
@@ -307,6 +307,16 @@ export function getKuchaMapping() {
   })
 }
 
+export function getKuchaDiscussionMapping() {
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_mapping',
+    method: 'get',
+    auth: auth,
+    data: {
+    }
+  })
+}
+
 export function getDepictionStats() {
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
@@ -364,9 +374,12 @@ export function getBibStats() {
     }
   })
 }
-export function postQuery(queryInput){
+export function postQuery(queryInput, destination){
+  if (!destination){
+    destination = process.env.VUE_APP_ESAPI + 'kucha_deep/_search'
+  }
   return axios({
-    url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
+    url: destination,
     method: 'post',
     auth: auth,
     data: queryInput

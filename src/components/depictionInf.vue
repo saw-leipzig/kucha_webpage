@@ -349,7 +349,7 @@ export default {
   },
   methods: {
     getComments(){
-      getCommentsByItems([this.pr.cave.caveID], [this.pr.depictionID], [], [])
+      getCommentsByItems(this.pr.cave ? [this.pr.cave.caveID] : [], [this.pr.depictionID], [], [])
         .then( res => {
           console.log("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits

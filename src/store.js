@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getKuchaMapping, getDictionary } from '@/services/repository'
+import {getKuchaDiscussionMapping, getKuchaMapping, getDictionary} from '@/services/repository'
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
@@ -21,6 +21,7 @@ export default new Vuex.Store({
     locations:[],
     wallLocation:[],
     mapping: {},
+    discussionMapping: {},
     searchText:"",
     totalRes:0,
     searchPack:0,
@@ -85,6 +86,9 @@ export default new Vuex.Store({
     setMapping (state, payload){
       state.mapping = payload
     },
+    setDiscussionMapping (state, payload){
+      state.discussionMapping = payload
+    },
     setDisableSearch (state, payload){
       state.disableSearch = payload
     }
@@ -143,6 +147,9 @@ export default new Vuex.Store({
     },
     getMapping : state => {
       return state.mapping
+    },
+    getDiscussionMapping : state => {
+      return state.discussionMapping
     },
     getDisableSearch : state => {
       return state.disableSearch
@@ -237,6 +244,15 @@ export default new Vuex.Store({
       getKuchaMapping()
         .then(res=> {
           context.commit('setMapping', res.data.kucha_deep.mappings.properties);
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+    },
+    getDiscussionMapping: (context) =>{
+      getKuchaDiscussionMapping()
+        .then(res=> {
+          context.commit('setMapping', res.data.kucha_discussion.mappings.properties);
         }).catch(function (error) {
           console.log(error)
           return null

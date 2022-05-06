@@ -6,12 +6,12 @@
         Cave Filter
       </v-expansion-panel-header>
       <v-expansion-panel-content>
-        <v-row align="start" dense style="flex-wrap: wrap;">
+        <v-row no-gutters>
           <v-col  style="min-width: 265px;">
             <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput" @update="updateTextSearchInput" :aggregations="textFacets"></free-text-search>
           </v-col>
         </v-row>
-        <v-row align="start" dense style="flex-wrap: wrap;">
+        <v-row no-gutters>
           <v-col  style="min-width: 265px;">
             <v-row>
               <v-col>

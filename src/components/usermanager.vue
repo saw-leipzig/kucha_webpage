@@ -20,42 +20,60 @@
                   <v-text-field
                   label="First Name"
                   v-model="firstName"
-                  required
+                  :rules="[rules.required]"
                   autofocus></v-text-field>
                 </v-flex>
                 <v-flex xs12>
                   <v-text-field
                   label="Last Name"
                   v-model="lastName"
-                  required
+                  :rules="[rules.required]"
                   autofocus></v-text-field>
                 </v-flex>
                 <v-flex xs12>
                   <v-text-field
                   label="Official Email Adresse"
                   v-model="email"
-                  required
+                  :rules="[rules.email, rules.required]"
                   autofocus></v-text-field>
                 </v-flex>
                 <v-flex xs12>
                   <v-text-field
                   label="Affiliation"
                   v-model="affiliation"
-                  required
+                  :rules="[rules.required]"
                   autofocus></v-text-field>
                 </v-flex>
                 <v-checkbox label="Set New Password." v-model="changePW"></v-checkbox>
                 <v-flex xs12 v-if="changePW">
-                  <v-text-field label="New Password" type="password" v-model="password" :rules="[rules.password]"
-                  required></v-text-field>
+                  <v-text-field
+                    label="New Password"
+                    :append-icon="showNewPW ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="showNewPW ? 'text' : 'password'"
+                    @click:append="showNewPW = !showNewPW"
+                    v-model="password"
+                    :rules="[rules.password, rules.required]"
+                  ></v-text-field>
                 </v-flex>
                 <v-flex xs12 v-if="changePW">
-                  <v-text-field label="New Password Repeat" type="password" v-model="passwordRepeated"
-                  required></v-text-field>
+                  <v-text-field
+                    :append-icon="showNewPWRepeat ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="showNewPWRepeat ? 'text' : 'password'"
+                    @click:append="showNewPWRepeat = !showNewPWRepeat"
+                    label="New Password Repeat"
+                    v-model="passwordRepeated"
+                    :rules="[rules.password, rules.required]"
+                  ></v-text-field>
                 </v-flex>
                 <v-flex xs12>
-                  <v-text-field label="Current Password for conformation" type="password" v-model="oldPassword"
-                  required></v-text-field>
+                  <v-text-field
+                    :append-icon="showOldPW ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="showOldPW ? 'text' : 'password'"
+                    @click:append="showOldPW = !showOldPW"
+                    label="Current Password for conformation"
+                    v-model="oldPassword"
+                    :rules="[rules.password, rules.required]"
+                  ></v-text-field>
                 </v-flex>
                 <!--   <small>* {{ $t('login-field-explanation') }} </small> -->
                 <v-flex xs12 class="error--text"  v-if="error">
@@ -108,6 +126,9 @@ export default {
     userManagerDialog: false,
     postError:false,
     errorText: "",
+    showNewPW:false,
+    showNewPWRepeat:false,
+    showOldPW:false,
     rules: {
       required: value => !!value || "Required.",
       password: value => {
@@ -117,6 +138,10 @@ export default {
           pattern.test(value) ||
           "Min. 8 characters with at least one capital letter, a number and a special character."
         );
+      },
+      email: value => {
+        var re = /\S+@\S+\.\S+/;
+        return (re.test(value) || "Please enter a valid E-Mail!");
       }
     }
   }),
@@ -165,8 +190,19 @@ export default {
       if (!this.validateEmail(this.email)){
         validated = false
       }
+      if (this.changePW){
+        if (this.password !== this.passwordRepeated){
+          validated = false
+        }
+      }
+      if (this.oldPassword === ""){
+        validated = false
+      }
       if (validated){
         this.doModify()
+      } else {
+        this.errorText = "Form not filled correctly."
+        this.postError = true
       }
 
     },

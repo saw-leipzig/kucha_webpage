@@ -2,8 +2,8 @@
   <div>
     <div v-for="n in textSearchFields" v-bind:key="n">
       <v-card outlined>
-      <v-row align="start" dense style="flex-wrap: wrap;margin-right:5px;margin-left:5px;" >
-        <v-col class="flex-grow-1 flex-shrink-0" style="min-width: 265px;">
+      <v-row dense no-gutters class="mx-2" >
+        <v-col>
           <v-text-field
             :prepend-icon="advancedSearch ? 'mdi-plus' : undefined"
             :append-icon="(advancedSearch && (textSearchFields.length > 1)) ? 'mdi-minus' : undefined"
@@ -84,7 +84,11 @@ export default {
   components: {
   },
   props: {
-    textSearchParam:{}
+    textSearchParam:{},
+    isForum: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
@@ -157,7 +161,7 @@ export default {
         if (this.textSearch[field].length > 0){
           if (this.advancedSearch){
             for (let searchfield of this.selectedTextChips[field]){
-              let mustQuery = {
+              let shouldQuery = {
                 "bool": {
                   "should": [
                   ]
@@ -188,14 +192,14 @@ export default {
                 if (this.shouldMustSelect[field] === "should"){
                   searchObjects.should.push(query)
                 } else {
-                  mustQuery.bool.should.push(query)
+                  shouldQuery.bool.should.push(query)
                 }
               }
-              searchObjects.must.push(mustQuery)
+              searchObjects.must.push(shouldQuery)
             }
           } else {
             let textSearchmust = {}
-            let deepquery = buildNestedQueries(this.$store.state.mapping, "", this.textSearch[field])
+            let deepquery = buildNestedQueries(this.isForum ? this.$store.state.discussionMapping : this.$store.state.mapping, "", this.textSearch[field])
             console.log("deepquery", deepquery);
 
             textSearchmust["query_string"] = {

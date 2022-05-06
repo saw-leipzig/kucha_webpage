@@ -4,7 +4,7 @@
 
       <template v-slot:activator="{ on }">
          <slot name="activator" v-bind:on="on">
-            <v-btn text @click="doRegister()"  >Register</v-btn>
+            <v-btn color="grey lighten-2" @click="doRegister()"  >Register</v-btn>
         </slot>
 
       </template>
@@ -24,7 +24,7 @@
                   <v-text-field
                   label="Fist Name"
                   v-model="firstName"
-                  required
+                  :rules="[rules.required]"
                   v-if="registerDialog"
                   autofocus></v-text-field>
                 </v-flex>
@@ -32,7 +32,7 @@
                   <v-text-field
                   label="Last Name"
                   v-model="lastName"
-                  required
+                  :rules="[rules.required]"
                   v-if="registerDialog"
                   autofocus></v-text-field>
                 </v-flex>
@@ -40,7 +40,7 @@
                   <v-text-field
                   label="Official Email Address"
                   v-model="email"
-                  required
+                  :rules="[rules.required, rules.email]"
                   v-if="registerDialog"
                   autofocus></v-text-field>
                 </v-flex>
@@ -48,7 +48,7 @@
                   <v-text-field
                   label="Affilation"
                   v-model="affilation"
-                  required
+                  :rules="[rules.required]"
                   v-if="registerDialog"
                   autofocus></v-text-field>
                 </v-flex>
@@ -60,8 +60,8 @@
            </v-container>
          </v-card-text>
          <v-card-actions>
+          <v-btn color="grey lighten-2" @click="closeDialog($refs.form)">  Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog($refs.form)">  Cancel</v-btn>
           <v-btn color="primary" type="submit">  Submit</v-btn>
         </v-card-actions>
       </v-form>
@@ -85,6 +85,21 @@ export default {
     loginerror: false,
     postError:false,
     errorText: "An error occured!",
+    rules: {
+      required: value => !!value || "Required.",
+      password: value => {
+        // eslint-disable-next-line
+        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+        return (
+          pattern.test(value) ||
+          "Min. 8 characters with at least one capital letter, a number and a special character."
+        );
+      },
+      email: value => {
+        var re = /\S+@\S+\.\S+/;
+        return (re.test(value) || "Please enter a valid E-Mail!");
+      }
+    }
   }),
 
   methods : {
@@ -99,13 +114,16 @@ export default {
     validate: function () {
       if (this.$refs.form.validate()) {
         this.register();
+      } else {
+        this.errorText = "The Form is not filled out correctly!"
+        this.postError = true
       }
     },
 
     register: function() {
       regUser(this.firstName, this.lastName, this.email, this.affilation)
         .then((res) => {
-          console.log("sent!", res);
+          this.registerDialog = false
         })
         .catch((err) => {
           console.log("error!", err.response);

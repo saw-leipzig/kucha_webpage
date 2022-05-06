@@ -772,6 +772,21 @@ export function getBuckets(element){
   }
   return null
 }
+export function appendFilterToAgg(agg, filter, propertyName){
+  for (let prop in filter){
+    if (prop === propertyName){
+      filter["aggs"] = agg
+      return filter
+    } else {
+      if ( (typeof filter[prop] === "object" || typeof filter[prop] === 'function') && (filter[prop] !== null) ) {
+        if (appendFilterToAgg(agg, filter[prop], propertyName) !== null){
+          return filter
+        }
+      }
+    }
+  }
+  return null
+}
 
 export function getDepictionLabel(depiction){
   let depictionLabel =  "Information for Painted Representation ID " + depiction.depictionID

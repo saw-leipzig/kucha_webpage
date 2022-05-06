@@ -41,7 +41,7 @@
          <v-card-actions>
           <Register @click.stop="doRegister()"></Register>
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog($refs.form)">  Cancel</v-btn>
+          <v-btn color="grey lighten-2"  @click="closeDialog($refs.form)">  Cancel</v-btn>
           <v-btn color="primary" type="submit">  Submit</v-btn>
         </v-card-actions>
       </v-form>

@@ -176,7 +176,7 @@ export default {
         statsDepiction.chartOptions.labels = []
         for (const [key, value] of Object.entries(this.kuchaStats)) {
           statsDepiction.series.push(value)
-          statsDepiction.chartOptions.labels.push(this.$store.state.dic.sites.find(element => element.siteID === parseInt(key)).name)
+          statsDepiction.chartOptions.labels.push(this.$store.state.sites.find(element => element.siteID === parseInt(key)).name)
         }
         console.log("stats.series", statsDepiction.series);
       }
@@ -335,6 +335,9 @@ export default {
 
   },
   mounted:function () {
+    if (this.$store.state.sites.length === 0){
+      this.$store.dispatch('getSites')
+    }
     console.log(this.$refs);
     this.$refs.video1.onplay = this.onPlay
     this.$refs.video2.onplay = this.onPlay

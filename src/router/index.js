@@ -85,7 +85,7 @@ const router =  new Router({
     {
       path: '/forum/',
       name: 'Forum for Dating Questions',
-      component: () => import('@/views/forum'),
+      component: () => import('@/views/forumFilter'),
       props: true
     },
     {

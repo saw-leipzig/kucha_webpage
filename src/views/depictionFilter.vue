@@ -6,13 +6,13 @@
         Depiction Filter
       </v-expansion-panel-header>
       <v-expansion-panel-content>
-        <v-row align="start" dense style="flex-wrap: wrap;">
+        <v-row no-gutters class="mb-1" >
           <v-col  style="min-width: 265px;">
             <free-text-search ref="textSearch" :textSearchParam="getTextSearchParams" @clicked="onTextSearchInput"  @update="updateTextSearchInput" :aggregations="textFacets"></free-text-search>
           </v-col>
         </v-row>
-        <v-row align="start" dense style="flex-wrap: wrap;">
-          <v-col  style="min-width: 265px;">
+        <v-row no-gutters >
+          <v-col  style="min-width: 265px;" class="mr-1">
             <v-row>
               <v-col>
                 <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets"></caveSearch>
@@ -27,7 +27,7 @@
           <v-col style="min-width: 200px;max-width: 265px;">
             <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
           </v-col>
-          <v-col  style="min-width: 300px;">
+          <v-col class="ml-1" style="min-width: 300px;">
             <iconographySearch ref="iconographySearch" mode="depiction" :preSelected="selectedIcos" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." altPrefix="relatedIconographyList." :aggregations="icoFacets"></iconographySearch>
           </v-col>
         </v-row>
@@ -230,7 +230,7 @@ export default {
       let wallLocationRes = this.$refs.wallLocationSearch.prepSearch();
       this.wallLocationSearch = wallLocationRes.search
       this.aggsObject["wallLocation"] = wallLocationRes.aggs
-      console.log("blubb");
+
       this.initiateFacets()
     },
     clear(){

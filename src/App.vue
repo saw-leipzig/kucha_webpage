@@ -76,7 +76,6 @@
               </v-list-item>
             <v-list-group
                 :value="true"
-                append-icon=null
                 :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'"
               >
                 <v-list-item-icon slot="prependIcon" :style="mini ? 'margin:0!important;padding: 0px!important;min-width: 56px;': 'margin:0!important;padding: 0px!important;min-width: 100px;'" :ripple="false">
@@ -104,12 +103,10 @@
               </v-list-item>
             </v-list-group>
 
-            <v-list-item style="padding:0 0px!important" :ripple="false"
-              class="px-2"
-              to="/about"
-            >
-                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
+            <v-list-item to="/about" style="padding:0 0px!important" :ripple="false">
+                <v-list-item-icon title="About"  :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
+                  <title>About</title>
                 </v-list-item-icon>
             </v-list-item>
             <v-list-item v-if="$store.state.user.sessionID" style="padding:0 0px!important" :ripple="false"
@@ -131,7 +128,7 @@
           <v-divider></v-divider>
         </v-navigation-drawer>
       </template>
-    <v-main :style="navigation?'padding: 5px 0px 80px 56px;flex-direction: column;flex:1':'padding: 5px 0px 80px 0px;flex-direction: column;flex:1'">
+    <v-main >
       <v-row justify="center" style="flex:1" >
         <v-col no-gutters>
           <router-view></router-view>
@@ -245,6 +242,7 @@ export default {
       this.$store.dispatch('getWallLocation')
     }
     this.$store.dispatch('getMapping')
+    this.$store.dispatch('getDiscussionMapping')
   },
   mounted:function(){
     if (this.$vuetify.breakpoint.smAndDown){
