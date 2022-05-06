@@ -830,6 +830,7 @@ export default {
       // }
     },
     setOSDannos(image){
+      console.log("image in setOSDannos", image);
       if (this.getAccessLevel(this.annoImage) < 2){
         this.disableUnavailableInTree();
       } else {
@@ -1000,11 +1001,33 @@ export default {
     choosPicForAnno(icoAnno){
       if (this.annos.length > 0){
         let anno = this.getAnnoByIcoID(icoAnno)
+        let annoImages = []
+        for (let a of anno){
+          if (!annoImages.includes(a.image)) {
+            annoImages.push(a.image);
+          }
+        }
+        console.log("anno", anno);
         const freepics = this.annos.filter(word => word.accessLevel === 2);
-        const annosInPic = anno.filter(anno => anno.image  === this.annoImage.filename);
+        console.log("this.annos", this.annos);
+        console.log("freepics", freepics);
+        console.log("this.annoImage", this.annoImage);
+        let annosInPic
+        if (!this.annoImage || this.annoImage.accessLevel < 2){
+          annosInPic = []
+        } else {
+          annosInPic = anno.filter(anno => anno.image  === this.annoImage.filename);
+        }
+        console.log("annosInPic", annosInPic);
         if (annosInPic.length === 0){
           if (anno.length > 0){
-            this.setOSDannos(freepics.filter(img => img.filename === anno[0].image)[0])
+            let relevantFreePics = freepics.filter(img => annoImages.includes(img.filename))[0]
+            console.log("relevantFreePics", relevantFreePics);
+            if (relevantFreePics) {
+              this.setOSDannos(relevantFreePics)
+            } else {
+              this.setOSDannos(this.annos.filter(img => annoImages.includes(img.filename))[0])
+            }
           }
         }
         this.updateSelectedAnnos()
@@ -1014,6 +1037,7 @@ export default {
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
+      console.log("annoSelected", newVal);
       if (this.annos.length > 1){
         let difference = newVal
           .filter(x => !oldVal.includes(x))
