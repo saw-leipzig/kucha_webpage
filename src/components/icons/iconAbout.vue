@@ -38,7 +38,7 @@
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="g8" />
-     <g v-if="isHover"
+     <g v-if="!isHover"
      id="g8"
      inkscape:groupmode="layer"
      inkscape:label="about the project_mouse over"
@@ -87,7 +87,7 @@
              d="m 0,0 c 0,-0.418 -0.282,-0.758 -0.632,-0.758 h -51.175 c -0.352,0 -0.634,0.34 -0.634,0.758 v 50.926 c 0,0.421 0.282,0.757 0.634,0.757 H -0.632 C -0.282,51.683 0,51.347 0,50.926 Z"
              style="fill:none;stroke:#772e18;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
              id="path56" /></g></g></g></g>
-    <g v-if="!isHover"
+    <g v-if="isHover"
      id="g8"
      inkscape:groupmode="layer"
      inkscape:label="about the project_button"

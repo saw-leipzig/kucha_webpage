@@ -154,7 +154,7 @@
     <title
       :id="iconName"
       lang="en"
-    >Impressum</title>
+    >Filter</title>
   </svg>
 </template>
 

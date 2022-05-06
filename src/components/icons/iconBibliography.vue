@@ -311,8 +311,8 @@
            id="g102"
            transform="translate(15.0635,27.3481)"><path
              d="M 0,0 C 1.083,0.827 2.695,1.225 3.671,0.97 2.354,0.346 1.103,-0.061 0,0"
-             s   viewBox="0 0 73.014931 74.802803"
-tyle="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
+            viewBox="0 0 73.014931 74.802803"
+            style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
              id="path108" /></g><g
            id="g110"
            transform="translate(14.4351,31.4063)"><path
