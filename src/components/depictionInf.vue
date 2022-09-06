@@ -1,5 +1,5 @@
 <template>
-    <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
+    <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;" @scroll="handleScroll()">
       <v-card-title ><a :href="getDeptictionURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{getDepictionLabel()}}</a> </v-card-title>
       <v-card-actions v-if="pr.relatedAnnotationList.length>0">
         <v-btn
@@ -17,8 +17,8 @@
           <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-      <v-expand-transition v-if="pr.relatedAnnotationList.length>0">
-        <annotatedImage :highlightedAnnotations="annotations" style="min-height: 60vh;" treeShowOption v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="pr"  :annos="annos" :relatedAnnotations="pr.relatedAnnotationList" :isVersion="version"/>
+      <v-expand-transition v-if="pr.relatedAnnotationList.length>0" >
+        <annotatedImage :highlightedAnnotations="annotations" style="min-height: 60vh;" treeShowOption v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="pr"  :annos="annos" :relatedAnnotations="pr.relatedAnnotationList" :isVersion="version" :preSelected="preSelected"/>
       </v-expand-transition>
 
       <v-card-actions v-if="Object.keys(depictionInfo).length>0" >
@@ -105,7 +105,7 @@
       <v-expand-transition v-if="pr.cave && presentCave">
         <div v-show="showCave">
           <v-divider></v-divider>
-              <caveInf class="mx-10" :setWidth="false" :showRelatedDepictions="false" v-if=pr.cave :caveDefault="pr.cave"></caveInf>
+              <caveInf class="mx-10" :setWidth="false" :loadVersions="false" :showRelatedDepictions="false" v-if="pr.cave" :caveDefault="pr.cave"></caveInf>
         </div>
       </v-expand-transition>
 
@@ -146,6 +146,13 @@
             <v-icon x-large v-if="!checkImgPermitted(item)">mdi-lock</v-icon>
               </v-tab>
             </v-tabs>
+              <div
+                ref="mouseWheelOverlayIMG"
+                id="instructions"
+                class="hidden"
+                >
+                    <h3>Press ctrl or use two fingers to navigate on the image!</h3>
+              </div>
               <div id="openseadragonImg" ref="test" :style=" checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
               <v-alert
                 class="mx-5"
@@ -165,7 +172,7 @@
                   Access to this picture is restricted due to copyright reasons.
                 </v-card-title>
                 <v-card-text class="pa-10">
-                  The is Image from:<p>
+                  Image published in:<p>
                   {{image.copyright}}
                   </p>
                   <p>For further information, please contact <a href= "mailto:kucha@saw-leipzig.de">the project</a></p>
@@ -174,7 +181,7 @@
               </v-card>
             </div>
       </v-expand-transition>
-      <hideRelatedItems v-if="pr.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="pr.relatedBibliographyList"></hideRelatedItems>
+      <hideRelatedItems v-if="pr.relatedBibliographyList.length>0" title="Related Annotated Bibliography" :items="pr.relatedBibliographyList" :open="false"></hideRelatedItems>
       <v-card-actions v-if="versions.length>1">
         <v-btn @click="showVersions = !showVersions"
           color="orange lighten-2"
@@ -218,7 +225,7 @@
 <script>
 import image from '@/views/image'
 import caveInf from '@/components/caveInf'
-import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel} from  "@/utils/helpers"
+import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel, deviceType} from  "@/utils/helpers"
 import {getVersionsOfEntry, getVersionOfEntry, getWallTreeByTimestamp, getCommentsByItems} from '@/services/repository'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
@@ -236,12 +243,19 @@ export default {
   props: {
     depiction: {},
     presentCave:true,
-    annotations:[]
+    annotations:[],
+    preSelected:{
+      type: Array,
+      default: function(){
+        return {}
+      }
+    }
   },
 
   data () {
     return {
       pr:{},
+      isFullScreen: false,
       isDrawing:false,
       showAnno:true,
       tab:[],
@@ -348,6 +362,9 @@ export default {
     }
   },
   methods: {
+    handleScroll(){
+      console.log("scrolling!");
+    },
     getComments(){
       getCommentsByItems(this.pr.cave ? [this.pr.cave.caveID] : [], [this.pr.depictionID], [], [])
         .then( res => {
@@ -401,10 +418,10 @@ export default {
           id: "openseadragonImg",
           prefixUrl: '/static/',
           tileSources: tilesImg,
-          ajaxWithCredentials: true,
-          loadTilesWithAjax: true,
-          tileRequestHeaders: {"SessionID": ""},
-          ajaxHeaders: {"SessionID": ""},
+          // ajaxWithCredentials: true,
+          // loadTilesWithAjax: true,
+          // tileRequestHeaders: {"SessionID": ""},
+          // ajaxHeaders: {"SessionID": ""},
 
         })
 
@@ -418,6 +435,89 @@ export default {
         })
         this.setOSDImgOverlayImg()
         this.viewerImg.addControl(infoButtonImg.element, { anchor: OpenSeadragon.ControlAnchor.TOP_LEFT });
+        const _self = this
+        document.getElementById('openseadragonImg').addEventListener('fullscreenchange', (event) => {
+          if (document.fullscreenElement) {
+            _self.isFullScreen = true
+          } else {
+            _self.isFullScreen = false
+          }
+        });
+
+        const canvas = document.getElementsByClassName('openseadragon-canvas')[0]
+        canvas.style.touchAction = 'pan-y'
+        console.log("canvas.style", canvas.style);
+
+        // Handle desktop scroll
+        this.viewerImg.addHandler("pre-full-page", function (data) {
+          data.preventDefaultAction = true;
+          if (data.eventSource.element.requestFullscreen) {
+            data.eventSource.element.requestFullscreen();
+          } else if (data.eventSource.element.mozRequestFullScreen) {
+            data.eventSource.element.mozRequestFullScreen();
+          } else if (data.eventSource.element.webkitRequestFullscreen) {
+            data.eventSource.element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+          } else if (data.eventSource.element.msRequestFullscreen) {
+            data.eventSource.element.msRequestFullscreen();
+          } else if (data.eventSource.element.webkitEnterFullScreen) {
+            data.eventSource.element.webkitEnterFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+          } else {
+            var el = document.documentElement;
+            el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+          }
+        });
+        this.viewerImg.addViewerInputHook({ hooks: [
+          {tracker: 'viewer',
+            handler: 'scrollHandler',
+            hookHandler: function (event) {
+              console.log("scrollHandler", canvas);
+              if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
+                event.preventDefaultAction = true;
+                event.stopHandlers = true;
+                // display meta key warning
+                _self.$refs.mouseWheelOverlayIMG.className = 'visible'
+                setTimeout(function(){ _self.$refs.mouseWheelOverlayIMG.className = 'hidden'}, 2000);
+              } else {
+                _self.$refs.mouseWheelOverlayIMG.className = 'hidden'
+              }
+              return true;
+            }},
+        ]});
+
+        // Handle drag scroll.
+        // Only works if touch-action: pan-y else scroll event doesn't propigate to documen
+        this.viewerImg.addViewerInputHook({ hooks: [
+          {tracker: 'viewer',
+            handler: 'dragHandler',
+            hookHandler: function (event) {
+            // if mobile disable drag event
+            // pinch event handles panning with 2 fingers
+              console.log("dragHandler", event);
+              if (!_self.isFullScreen && deviceType() === "mobile") {
+                event.preventDefaultAction = true;
+                event.stopHandlers = true;
+                _self.$refs.mouseWheelOverlayIMG.className = 'visible'
+                setTimeout(function(){ _self.$refs.mouseWheelOverlayIMG.className = 'hidden'}, 2000);
+              } else {
+                _self.$refs.mouseWheelOverlayIMG.className = 'hidden'
+              }
+              return true;
+            }},
+        ]});
+
+        // Finally, remove the instructions on any pinch event.
+        // This covers both mouse and touch devices
+        this.viewerImg.addViewerInputHook({ hooks: [
+          {tracker: 'viewer',
+            handler: 'pinchHandler',
+            hookHandler: function (event) {
+              console.log("pinchHandler", event);
+              if (_self.$refs.mouseWheelOverlayIMG.className === 'visible') {
+                _self.$refs.mouseWheelOverlayIMG.className = 'hidden';
+              }
+              return true;
+            }},
+        ]});
       }
     },
     initNewDepiction(){
@@ -565,4 +665,27 @@ export default {
     overflow-y: auto;
     max-height: 100% !important;
 }
+.hidden {
+  visibility: hidden;
+}
+
+.visible {
+  visibility: visible;
+}
+#instructions {
+  pointer-events: none!important;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 16px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 </style>

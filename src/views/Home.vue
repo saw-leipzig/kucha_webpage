@@ -1,5 +1,5 @@
 <template>
-<div style="height:100%;opacity:1;">
+<div style="width:100%;height:100%;opacity:1;">
 
 <v-card class="justify-center"  style="top: 30vh;" color="white" >
     <v-row class="mx-3">

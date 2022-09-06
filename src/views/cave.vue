@@ -1,24 +1,28 @@
 <template>
-<div>
+<div style="width:100%">
     <caveInf :showRelatedDepictions="true" v-if="Object.keys(cave).length>0" :caveDefault="cave"></caveInf>
+    <pageNotFound v-if="notFound" ></pageNotFound>
 </div>
 </template>
 <script>
 import { getItemById } from '@/services/repository'
 import caveInf from '@/components/caveInf'
 import depictionInf from '@/components/depictionInf'
+import pageNotFound from '@/views/pageNotFound'
 
 export default {
   name: 'cave',
   components: {
     caveInf,
     depictionInf,
+    pageNotFound,
   },
 
   data () {
     return {
       cave: {},
-      showRelatedItems:false
+      showRelatedItems:false,
+      notFound:false,
     }
   },
   computed: {
@@ -32,15 +36,16 @@ export default {
       getItemById(params)
         .then( res => {
           console.log("results", res)
-          if (res.data.hits.hits.length > 0){
+          if (res.data.hits.hits[0]){
+            this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
             this.getCave()
           } else {
-            this.error = true
+            this.notFound = true
           }
         }).catch(function (error) {
           console.log(error)
-          this.error = true
+          this.notFound = true
         })
       return null
     },
@@ -66,8 +71,7 @@ export default {
     }
   },
   mounted:function () {
-    console.log("setting error false");
-    this.error = false;
+    this.notFound = false;
     this.getCave()
   },
   beforeUpdate:function () {

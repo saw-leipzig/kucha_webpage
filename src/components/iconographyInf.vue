@@ -109,7 +109,7 @@
       </v-card-actions>
 
       <v-expand-transition>
-        <v-card class="mx-10" style='height:550px' v-if="hasImages">
+        <v-card class="mx-10" style='height:550px' v-show="showImage" v-if="hasImages">
           <v-tabs
           v-if="hasImages"
             slider-color="yellow"
@@ -125,10 +125,10 @@
                     ></v-img>
             </v-tab>
           </v-tabs>
-          <div id="openseadragonImg" style='height:500px'></div>
+          <div :id="'openseadragonImgIconography' + iconography.iconographyID" style='height:500px'></div>
         </v-card>
       </v-expand-transition>
-      <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions"></hideRelatedItems>
+      <hideRelatedItems v-if="hasRelatedDepictions" title="Related Painted Representations" :items="relatedDepictions" :iconography="iconography === {} ? []: [iconography]"></hideRelatedItems>
       <v-card-actions  v-if="versions.length>1">
         <v-btn @click="showVersions = !showVersions"
           color="orange lighten-2"
@@ -391,7 +391,7 @@ export default {
         console.log("images available, initiate OSDIMG", tilesImg);
         this.image = this.iconographyShown.oe.images[0]
         this.viewerImg = OpenSeadragon({
-          id: "openseadragonImg",
+          id: "openseadragonImgIconography" + this.iconography.iconographyID,
           prefixUrl: '/static/',
           tileSources: tilesImg,
         })

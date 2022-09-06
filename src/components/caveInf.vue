@@ -1,7 +1,7 @@
 <template>
-  <v-card raised :width="setWidth ? '98%': 'unset'" style="margin: auto;button:20px;">
-    <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">Information for cave {{getCaveLabel(cave)}} </a> </v-card-title>
-    <v-card class="mx-10">
+  <v-card :class="paddingCaveCard" raised :width="setWidth ? '98%': 'unset'" style="margin: auto;button:20px;">
+    <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{cave.caveID === -1 ? "Cave Unknown" : "Information for cave" +getCaveLabel(cave)}} </a> </v-card-title>
+    <v-card class="mx-10" v-if="cave.caveID !== -1">
       <v-tabs
       v-model="tab" v-if="Object.keys(caveInfo).length>0"
 
@@ -104,11 +104,13 @@ export default {
       type: Boolean,
       default: true
     },
+    loadVersions: {
+      type: Boolean,
+      default: true
+    },
     setWidth: true
   },
   data () {
-    console.log("cave started.");
-    console.log("cave:", this.cave);
     return {
       show: false,
       tab:[],
@@ -122,6 +124,11 @@ export default {
     }
   },
   computed: {
+    paddingCaveCard(){
+      const padding = this.cave.caveID === -1 ? 'pb-1' : ''
+      console.log(this.cave.caveID, "padding", padding);
+      return padding
+    },
     caveInfo (){
       var caveInfo = {}
       var basciInf = {}
@@ -313,20 +320,22 @@ export default {
   beforeMount:function () {
     console.log("beforemount:", this.caveDefault);
     this.cave = this.caveDefault
-    getVersionsOfEntry(this.caveDefault)
-      .then( res => {
-        console.log("recieved versions.", res.data.hits.hits)
-        this.versions = res.data.hits.hits
-        for (let v of this.versions){
-          v.date = new Date(v._source.timestamp)
-        }
-        this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
-        this.version = this.versions[this.versions.length - 1]
-        console.log("versions:", this.versions);
-      }).catch(function (error) {
-        console.log(error)
-        return null
-      })
+    if (this.loadVersions){
+      getVersionsOfEntry(this.caveDefault)
+        .then( res => {
+          console.log("recieved versions.", res.data.hits.hits)
+          this.versions = res.data.hits.hits
+          for (let v of this.versions){
+            v.date = new Date(v._source.timestamp)
+          }
+          this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
+          this.version = this.versions[this.versions.length - 1]
+          console.log("versions:", this.versions);
+        }).catch(function (error) {
+          console.log(error)
+          return null
+        })
+    }
   },
   watch: {
     version(newVal, oldVal){

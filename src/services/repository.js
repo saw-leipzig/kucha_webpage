@@ -444,7 +444,8 @@ export function buildNestedQueries(mapping, path, queryWord){
           "query":{
             "query_string": {
               "lenient": true,
-              "query": queryWord
+              "query": queryWord,
+              "default_operator": "AND"
             }
           }
         }
@@ -476,6 +477,7 @@ export function searchRoot(params, source) {
         "should" : [
           {
             "query_string": {
+              "default_operator": "AND",
               "query" : params.searchtext.trim()
             }
           }
@@ -532,18 +534,40 @@ export function getDepictionByAnnotation(params) {
         "bool": {
           "must": [
             {
-              "nested": {
-                "path": "relatedAnnotationList",
-                "query": {
-                  "nested": {
-                    "path": "relatedAnnotationList.tags",
-                    "query": {
-                      "terms": {
-                        "relatedAnnotationList.tags.iconographyID": params.iconographyID
-                      }
-                    }
-                  }
-                }
+              "bool" : {
+                "should":
+                    [
+                      {
+                        "nested": {
+                          "path": "relatedAnnotationList",
+                          "query": {
+                            "nested": {
+                              "path": "relatedAnnotationList.tags",
+                              "query": {
+                                "terms": {
+                                  "relatedAnnotationList.tags.iconographyID": params.iconographyID
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "nested": {
+                          "path": "relatedIconographyList",
+                          "query": {
+                            "nested": {
+                              "path":  "relatedIconographyList",
+                              "query": {
+                                "terms": {
+                                  "relatedIconographyList.iconographyID": params.iconographyID
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                    ]
               }
             },
             {
@@ -577,7 +601,7 @@ export function getVersionsOfEntry(entry){
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_backup/_search',
     method: 'post',
-    headers: {'Accept-Encoding': 'gzip,deflate', 'Content-Length':4000},
+    // headers: {'Accept-Encoding': 'gzip,deflate', 'Content-Length':4000},
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
     auth: auth,

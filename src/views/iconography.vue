@@ -1,21 +1,27 @@
 <template>
+<div style="width:100%">
     <iconographyInf v-if="Object.keys(iconography).length>0" :iconography="iconography" :typical="idealTypical"></iconographyInf>
+    <pageNotFound v-if="notFound" ></pageNotFound>
+</div>
 </template>
 <script>
 import {getItemById} from '@/services/repository'
 import iconographyInf from '@/components/iconographyInf'
+import pageNotFound from '@/views/pageNotFound'
 
 export default {
   name: 'iconography',
   components: {
     iconographyInf,
+    pageNotFound,
   },
 
   data () {
     return {
       error:false,
       iconography: {},
-      idealTypical: undefined
+      idealTypical: undefined,
+      notFound:false,
     }
   },
   computed: {
@@ -29,7 +35,8 @@ export default {
       getItemById(params)
         .then( res => {
           console.log("results", res.data.hits.hits)
-          if (res.data.hits.hits.length > 0){
+          if (res.data.hits.hits[0]){
+            this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
             for (let hit of res.data.hits.hits) {
               if (hit.typicalID){
@@ -40,11 +47,11 @@ export default {
               }
             }
           } else {
-            this.error = true
+            this.notFound = true
           }
         }).catch(function (error) {
           console.log(error)
-          this.error = true
+          this.notFound = true
         })
       return null
     },

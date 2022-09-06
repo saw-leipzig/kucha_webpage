@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
-// import store from '../store'
+import store from '../store'
 
 Vue.use(Router)
 
@@ -20,59 +20,59 @@ const router =  new Router({
     },
     {
       path: '/pr/:id/annotation/:annotoriousID',
-      name: 'depiction',
+      name: 'Depiction Entry',
       component: () => import('@/views/depiction'),
       props: true
     },
     {
       path: '/pr/:id',
-      name: 'depiction',
+      name: 'Depiction Entry',
       component: () => import('@/views/depiction'),
       props: true
     },
     {
       path: '/pr/',
-      name: 'depictionFilter',
+      name: 'Depiction',
       component: () => import('@/views/depictionFilter'),
       props: true
     },
     {
       path: '/iconography/',
-      name: 'iconographyFilter',
+      name: 'Iconography',
       component: () => import('@/views/iconographyFilter')
     },
     {
       path: '/iconography/:id',
-      name: 'iconography',
+      name: 'Iconography Entry',
       component: () => import('@/views/iconography'),
       props: true
     },
     {
       path: '/bibliography/',
-      name: 'bibliographyFilter',
+      name: 'Bibliography',
       component: () => import('@/views/bibliographyFilter')
     },
     {
       path: '/bibliography/:id',
-      name: 'bibliography',
+      name: 'bibliography Entry',
       component: () => import('@/views/bibliography'),
       props: true
     },
     {
       path: '/cave/',
-      name: 'caveFilter',
+      name: 'Cave',
       component: () => import('@/views/caveFilter'),
       props: true
     },
     {
       path: '/cave/:id',
-      name: 'cave',
+      name: 'Cave Entry',
       component: () => import('@/views/cave'),
       props: true
     },
     {
       path: '/impressum/',
-      name: 'impressum',
+      name: 'Impressum',
       component: () => import('@/views/impressum'),
       props: true
     },
@@ -90,14 +90,47 @@ const router =  new Router({
     },
     {
       path: '/about/',
-      name: 'About the project',
+      name: 'About the Project',
       component: () => import('@/views/about'),
       props: true
     },
+    { path: "*",
+      component:  () => import('@/views/pageNotFound'),
+    }
   ]
 })
 router.beforeEach((to, from, next) => {
-  // console.log(store.getters.getAuthenticated);
+  console.log("url", to);
+  let breadcrumb = [
+    {
+      text: 'Home',
+      disabled: false,
+      href: '/',
+    },
+  ]
+  if (to.path !== "/"){
+    breadcrumb.push(
+      {
+        text: to.name,
+        disabled: false,
+        href: to.fullPath,
+      }
+    )
+    if (Object.keys(to.params).length > 0){
+      breadcrumb.push(
+        {
+          text: to.name + ' ' + to.params.id,
+          disabled: false,
+          href: to.fullPath,
+        }
+      )
+    }
+  } else {
+    breadcrumb = []
+  }
+  store.commit("setBreadcrumb", breadcrumb)
+  console.log("new url", store.state.breadcrumb);
+
   // if (store.getters.getAuthenticated){
   //   next()
   // } else {

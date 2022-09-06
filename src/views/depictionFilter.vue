@@ -1,5 +1,5 @@
 <template>
-<div>
+<div  style="width:100%">
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
@@ -44,7 +44,7 @@
     </v-expansion-panel>
   </v-expansion-panels>
   <v-card v-if="relatedDepictions.length > 0">
-    <hideRelatedItems v-if="relatedDepictions.length > 0" :title="resultsTitle" :items="relatedDepictions" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
+    <hideRelatedItems :iconography="iconography" v-if="relatedDepictions.length > 0" :title="resultsTitle" :items="relatedDepictions" v-bind:presentCave="true" v-bind:open="true"></hideRelatedItems>
   </v-card>
 </div>
 
@@ -85,7 +85,8 @@ export default {
       resAmount:0,
       loading:false,
       sort: [],
-      direction:"asc"
+      direction:"asc",
+      iconography: []
     }
   },
   computed: {
@@ -264,6 +265,7 @@ export default {
       console.log("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
+      this.iconography = value.ico
       this.initiateFacets()
     },
     changedLocationInput(value){

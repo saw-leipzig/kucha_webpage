@@ -9,6 +9,13 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
+    breadcrumb:[
+      {
+        text: 'Home',
+        disabled: false,
+        href: '/',
+      },
+    ],
     authenticated: false,
     result: 0,
     results: {},
@@ -32,6 +39,9 @@ export default new Vuex.Store({
     user: {},
   },
   mutations: {
+    setBreadcrumb(state, payload){
+      state.breadcrumb = payload
+    },
     setUser(state, payload){
       state.user = payload
     },
@@ -94,6 +104,9 @@ export default new Vuex.Store({
     }
   },
   getters:{
+    getBreadcrumb: (state) => {
+      return state.breadcrumb
+    },
     getUser: (state) => {
       return state.user
     },
@@ -252,7 +265,7 @@ export default new Vuex.Store({
     getDiscussionMapping: (context) =>{
       getKuchaDiscussionMapping()
         .then(res=> {
-          context.commit('setMapping', res.data.kucha_discussion.mappings.properties);
+          context.commit('setDiscussionMapping', res.data.kucha_discussion.mappings.properties);
         }).catch(function (error) {
           console.log(error)
           return null

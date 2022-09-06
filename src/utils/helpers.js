@@ -200,7 +200,18 @@ export function fillPicsContainer(relatedImages, relatedAnnotationList){
   }
   return images
 }
+export function deviceType() {
+  const ua = navigator.userAgent;
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+    return "tablet";
+  } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+    console.log("mobile device");
+    return "mobile";
+  }
+  return "desktop"
+}
 export function getIconographyByAnnos(ids){
+  console.log("getIconographyByAnnos:", ids);
   var returnElement = []
   for (var rootElement of store.state.iconography){
     var dummy = Object.assign({}, rootElement)
@@ -789,11 +800,16 @@ export function appendFilterToAgg(agg, filter, propertyName){
 }
 
 export function getDepictionLabel(depiction){
-  let depictionLabel =  "Information for Painted Representation ID " + depiction.depictionID
+  let depictionLabel = ""
+  if (deviceType() === "mobile"){
+    depictionLabel =  "Painted Representation ID " + depiction.depictionID
+  } else {
+    depictionLabel =  "Information for Painted Representation ID " + depiction.depictionID
+  }
   if (depiction.shortName){
     depictionLabel += " (" + depiction.shortName + ")"
   }
-  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
+  if (depiction.cave && depiction.cave.caveID !== -1) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
   depictionLabel += ", " + getWallLabels(depiction, "")
   return depictionLabel
 }
@@ -802,18 +818,25 @@ export function getDepictionLabelShort(depiction){
   if (depiction.shortName){
     depictionLabel += " (" + depiction.shortName + ")"
   }
-  if (depiction.cave) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
+  if (depiction.cave && depiction.cave.caveID !== -1) depictionLabel += ", " + getCaveShortLabel(depiction.cave);
   depictionLabel += ", " + getWallLabels(depiction, "")
   return depictionLabel
 }
 export function getCaveLabel(item){
-  let site = item.siteID > 0 ? item.site.shortName : "";
-  let district = item.districtID > 0 ? item.district.name : "";
-  let region = item.regionID > 0 ? item.region.englishName : "";
-  let caveLabel = site + " " + item.officialNumber + (!(district.length === 0) ? " / " + district : "") + (!(region.length === 0) ? " / " + region : "");
-  return caveLabel
+  if (item.caveID !== -1){
+    let site = item.siteID > 0 ? item.site.shortName : "";
+    let district = item.districtID > 0 ? item.district.name : "";
+    let region = item.regionID > 0 ? item.region.englishName : "";
+    let caveLabel = site + " " + item.officialNumber + (!(district.length === 0) ? " / " + district : "") + (!(region.length === 0) ? " / " + region : "");
+    return caveLabel
+  } else {
+    return "unknown"
+  }
 
 }
 export function getCaveShortLabel(item){
+  if (item.caveID === -1){
+    return "unknown"
+  }
   return item.site.name + " " + item.officialNumber
 }

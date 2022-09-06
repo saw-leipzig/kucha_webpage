@@ -600,7 +600,8 @@ export default {
       }
       let result = {
         "search": searchObjects,
-        "aggs":  icoAggs
+        "aggs":  icoAggs,
+        "ico": this.selected
       }
       console.log("prepsearch ended");
       return result

@@ -1,5 +1,15 @@
 <template>
-  <tourInf :idealTypicals="idealTypicals"></tourInf>
+  <div :style="loading? 'margin: auto;' : ''" class="d-flex flex-row align-stretch flex-grow-1">
+    <v-progress-circular
+    :size="120"
+    :width="9"
+    color="primary"
+    style="margin: auto;"
+    v-if="loading"
+    indeterminate
+  ></v-progress-circular>
+  <tourInf v-if="!loading" :idealTypicals="idealTypicals"></tourInf>
+  </div>
 </template>
 
 <script>
@@ -17,7 +27,8 @@ export default {
   data () {
     return {
       idealTypicalsWithoutDepictions: [],
-      idealTypicals: []
+      idealTypicals: [],
+      loading: true
     }
   },
   methods: {
@@ -35,18 +46,16 @@ export default {
     setRelatedDepictions(idealTypicalIDs){
       var params = {}
       params.iconographyID = idealTypicalIDs
-      // console.log("params of getDepictions", params);
+      console.log("params of getDepictions", params);
       getDepictionByAnnotation(params)
         .then( res => {
-          console.log("parinirvana got results", res.data.hits.hits);
+          console.log("anno.tags, git results");
           for (let typical of this.idealTypicalsWithoutDepictions){
             for ( var entry of res.data.hits.hits){
               if (this.getAnnos(entry._source).length > 0){
                 let newAnnos = []
-                if (typical.iconographyID === 1069 && entry._source.depictionID === 400){
-                  console.log("parinirvana", entry._source.relatedAnnotationList);
-                }
                 for (let anno of entry._source.relatedAnnotationList){
+                  let tagDummy = []
                   let found = false
                   for (let tag of anno.tags){
                     if (tag.iconographyID === typical.iconographyID){
@@ -54,11 +63,15 @@ export default {
                       if (img) {
                         if (img.accessLevel === 2){
                           found = true
+                          tagDummy.push(tag)
+                          break
                         }
                       }
                     }
                   }
                   if (found) {
+                    anno.tags = tagDummy
+                    console.log("anno.tags:", anno.tags);
                     newAnnos.push(anno)
                   }
                 }
@@ -87,6 +100,7 @@ export default {
             }
             return 0
           }
+          this.loading = false;
           this.idealTypicals = this.idealTypicalsWithoutDepictions.sort(compare)
           console.log("Typicals", this.idealTypicals);
           // Vue.set(this.relatedDepictions, idealTypical.iconographyID, newDepictions)
@@ -97,6 +111,7 @@ export default {
 
   },
   mounted:function () {
+    this.loading = true
     console.log("started Virtual Tour");
     getIdeals()
       .then( res => {

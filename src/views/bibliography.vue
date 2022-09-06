@@ -1,22 +1,25 @@
 <template>
-  <div>
+  <div style="width:100%">
     <bibliographyInf v-if="Object.keys(bibliography).length > 0" :bibliographyDefault="bibliography" ></bibliographyInf>
+    <pageNotFound v-if="notFound" ></pageNotFound>
   </div>
 </template>
 <script>
 import {getItemById} from '@/services/repository'
 import bibliographyInf from '@/components/bibliographyInf'
+import pageNotFound from '@/views/pageNotFound'
 
 export default {
   name: 'bibliography',
   components: {
     bibliographyInf,
+    pageNotFound,
   },
 
   data () {
     return {
-      error:false,
-      bibliography:{}
+      notFound:false,
+      bibliography:{},
     }
   },
   computed: {
@@ -30,15 +33,16 @@ export default {
       getItemById(params)
         .then( res => {
           console.log("results", res)
-          if (res.data.hits.hits.length > 0){
+          if (res.data.hits.hits[0]){
+            this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
             this.bibliography = res.data.hits.hits[0]._source
           } else {
-            this.error = true
+            this.notFound = true
           }
         }).catch(function (error) {
           console.log(error)
-          this.error = true
+          this.notFound = true
         })
     },
     getBibliography(){
@@ -64,8 +68,7 @@ export default {
     }
   },
   mounted:function () {
-    console.log("setting error false");
-    this.error = false;
+    this.page = false;
     this.getBibliography()
   },
   beforeUpdate:function () {

@@ -1,7 +1,6 @@
 <template>
-  <v-card ref="card" raised width="98%"  height="99%"
+  <v-card ref="card" raised width="98%"  height="100%" class="d-flex align-stretch"
   style="margin: auto;
-          padding-bottom: 15px;
           display: flex;
           align-items: stretch;
           flex-direction: column;
@@ -11,17 +10,16 @@
       Buddhist Murals of Kucha - Virtual Tour
     </v-card-title>
     <v-carousel
+    ref="carousel"
     progress
     hide-delimiters
       :continuous="false"
       :show-arrows="true"
       light
-      :touchless="false"
+      class="d-flex align-stretch"
+      :touchless="true"
       v-model="currentIndexIdealTypical"
-      style="flex: 1 !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;"
+      style="justify-content: space-evenly;"
       @change="changed(currentIndexIdealTypical)"
       @onload="changed(0)"
     >
@@ -52,85 +50,77 @@
       <v-carousel-item
         v-for="(idealTypical, i) in idealTypicals"
         :key="i"
-        style="flex:1 !important;padding-bottom: 20px;;"
+        style="flex:1 !important;"
       >
-       <v-card ref="IdealTypicalCard" raised width="98%" height="99%"
+       <v-card ref="IdealTypicalCard" raised width="98%" :height="checkLandscape? '100%':'100%'"
        style="margin: auto;
-        padding-bottom: 15px;
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;"
+        class="pb-2"
         >
-         <v-card-title v-if="!$vuetify.breakpoint.smAndDown">
-            <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.text}}</a>
+         <v-card-title ref="icoTitle" v-if="!$vuetify.breakpoint.smAndDown">
+            <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;padding-bottom: 0px !important;">{{idealTypical.text}}</a>
          </v-card-title>
         <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.oe.description}} </v-card-text>
-        <v-expansion-panels flat v-if="$vuetify.breakpoint.smAndDown">
-          <v-expansion-panel>
-            <v-expansion-panel-header>
-              <v-card-title>{{idealTypical.text}}</v-card-title>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{idealTypical.oe.description}}</a>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-         <v-row style="flex:1" no-gutters >
-          <v-col :cols="(!checkLandscape || idealTypical.relatedDepictions.length===0) ? 12 : 6" no-gutters :style="checkLandscape ? 'min-height: 70vh;flex:1;display: flex;flex-direction: column;':'min-height: 50%;flex:1;display: flex;flex-direction: column;'">
+        <v-menu rounded="Removed" content-class="description" offset-y flat v-if="$vuetify.breakpoint.smAndDown" >
+          <template v-slot:activator="{ on, attrs }">
+            <v-list
+              rounded flat outlined light class="my-0 py-0"
+            >
+            <v-list-item
+              v-bind="attrs"
+              v-on="on"
+              rounded
+              class="d-flex justify-center my-0 text-center allign-center">
+                  {{idealTypical.text}}
+              <v-icon> {{ attrs["aria-expanded"] === "true" ? 'mdi-chevron-up' : 'mdi-chevron-down' }} </v-icon>
+            </v-list-item>
+            </v-list>
+          </template>
+              <v-card outlined style="background-color: rgb(255, 255, 255,1) !important;" class="pb-2 rounded-lg rounded-t-0" >
+                <v-card-text style="max-height:60vh; ;overflow-y: auto;">
+                  {{idealTypical.oe.description}} <a :href="getIcoURL(idealTypical)" >Click here to find out more.</a>
+                </v-card-text>
+              </v-card>
+        </v-menu>
+         <v-row style="flex:1;max-height:100%" no-gutters >
+          <v-col :cols="(!checkLandscape() || idealTypical.relatedDepictions.length===0) ? 12 : 6" no-gutters :style="checkLandscape() ? 'min-height: 50%;flex:1;display: flex;flex-direction: column;':'max-height: 50%;;flex:1;display: flex;flex-direction: column;'">
             <annotatedImage hideTree relativeHeight isZoom ref="idealTypicalImage" style="flex:1" :showControls = "false" :treeShowOption="$vuetify.breakpoint.smAndDown ? false : true" :item="idealTypical"  :annos="idealTypical.oe.images" :preSelected="getPreselected(idealTypical)" :relatedAnnotations="idealTypical.oe.relatedAnnotationList"/>
           </v-col>
-          <v-col :cols="!checkLandscape ? 12 : 6" v-if="idealTypical.relatedDepictions.length>0" style="display: flex!important;flex-direction: column;">              <v-slide-group
-              :show-arrows="true"
-              light
-              center-active
-              v-model="currentIndexDepiction"
-              style="display:flex!important;flex:1"
-            >
-              <template v-slot:prev="{on, attrs }">
-                <v-btn
-                  color="green darken-2"
-                  style="left:20px;top:55px;"
-                  v-bind="attrs"
-                  icon
-                  v-on="on"
-                >
-                  <v-icon> mdi-chevron-left </v-icon>
-                </v-btn>
-              </template>
-              <template v-slot:next=" { on , attrs }" >
-                <v-btn
-                  v-bind="attrs"
-                  style="right:20px;top:55px;"
-                  color="green darken-2"
-                  icon
-                  v-on="on"
-                >
-                  <v-icon> mdi-chevron-right </v-icon>
-                </v-btn>
-              </template>
-
-                <v-slide-item
-                  v-for="(depiction, x) in idealTypicals[currentIndexIdealTypical].relatedDepictions"
-                  :key="x"
-                  style="flex: 1;"
-                >
-                <v-lazy
-                  v-model="isActive"
-                  :options="{
-                    threshold: .5
-                  }"
-                  min-height="200"
-                  transition="fade-transition"
-                >
-                  <v-card style="display: flex;
-                    flex-direction: column;width:100%">
-                    <a :href="getDeptictionURL(depiction)"> <v-card-text class="font-weight-bold"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'color:black;font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'color:black;word-break: break-word;display: block; word-break: break-words;'" v-html="getExampleLabel(depiction)"></v-card-text></a>
-                    <annotatedImage :treeShowOption="false" hideTree isZoom :style="checkLandscape? 'min-height:50%;flex:1 1 100%':'min-height:100%;flex:1 1 100%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" :item="depiction"  :annos="getAnnos(depiction)" :preSelected="getPreselectedDepiction(idealTypical.iconographyID)" :relatedAnnotations="depiction.relatedAnnotationList"/>
+          <v-col v-touch="{left: () => decreaseDepictionCount(),right: () => increaseDepictionCount()}" :cols="!checkLandscape() ? 12 : 6" v-if="idealTypical.relatedDepictions.length>0" style="display: flex!important;flex-direction: column;">
+            <v-row no-gutters align="center" class="d-flex align-stretch" >
+              <v-col cols="1" v-if="idealTypical.relatedDepictions.length>1" class="d-flex align-center">
+                  <v-btn
+                    class="d-flex align-content-space-around flex-wrap"
+                    color="green darken-2"
+                    style="z-index:10;left:20px;top:55px;"
+                    icon
+                    @click="decreaseDepictionCount"
+                  >
+                    <v-icon> mdi-chevron-left </v-icon>
+                  </v-btn>
+              </v-col>
+              <v-col :cols="idealTypical.relatedDepictions.length>1 ? 10 : 12" class="my-1 d-flex align-stretch">
+                <v-slide-x-transition>
+                  <v-card v-if="showDepictionImage" class="pb-0" style="display: flex; flex-direction: column;width:100%;z-index:1;" elevation="0">
+                    <a :href="getDeptictionURL(getrelatedDepiction)"> <v-card-text  class="font-weight-bold my-0"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'color:black;font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'color:black;word-break: break-word;display: block; word-break: break-words;'"><p class="mb-0" v-line-clamp="3">{{getExampleLabel(getrelatedDepiction)}}</p></v-card-text></a>
+                    <annotatedImage isZoom :treeShowOption="false" hideTree :style="checkLandscape()? 'flex:1 1 100%':'min-height:50%;flex:1 1 80%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" :item="getrelatedDepiction"  :annos="getAnnos(getrelatedDepiction)" :preSelected="getPreselectedDepiction" :relatedAnnotations="getrelatedDepiction.relatedAnnotationList"/>
                   </v-card>
-                  </v-lazy>
-                </v-slide-item>
-
-            </v-slide-group>
+                </v-slide-x-transition>
+              </v-col>
+              <v-col cols="1" v-if="idealTypical.relatedDepictions.length>1" class="d-flex align-center">
+                  <v-btn
+                    class="d-flex align-content-space-around flex-wrap"
+                    style="right:20px;top:55px;z-index:10;"
+                    color="green darken-2"
+                    icon
+                    @click="increaseDepictionCount"
+                  >
+                    <v-icon> mdi-chevron-right </v-icon>
+                  </v-btn>
+              </v-col>
+            </v-row>
           </v-col>
          </v-row>
       </v-card>
@@ -143,6 +133,7 @@
 // import Vue from 'vue'
 import {getIconographyByID, getCaveLabel, getCaveShortLabel, getIconographyByAnnos, getWallLabels} from '@/utils/helpers'
 import annotatedImage from '@/components/annotatedImage'
+
 export default {
   name: 'tourInf',
   components: {
@@ -158,14 +149,67 @@ export default {
       showDepictions:true,
       on:true,
       isActive:false,
+      showDepictionImage:true,
+      landscape:0,
     }
   },
   computed:{
-    checkLandscape(){
-      return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
+    getPreselectedDepiction(){
+      console.log("getPreselectedDepiction called",  this.idealTypicals[this.currentIndexIdealTypical].iconographyID);
+      let icoIDs = [this.idealTypicals[this.currentIndexIdealTypical].iconographyID]
+      const icos = getIconographyByAnnos(icoIDs)
+      let icosFlat = []
+      for (let ico of icos){
+        icosFlat = icosFlat.concat(this.flatIconography(ico))
+      }
+      return icosFlat
+    },
+    getrelatedDepiction(){
+      return this.idealTypicals[this.currentIndexIdealTypical].relatedDepictions[this.currentIndexDepiction]
     },
   },
   methods: {
+    checkLandscape(){
+      const ratio = this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
+      if (this.landscape !== ratio){
+        this.landscape = ratio
+        const _self = this
+        if (_self.$refs.idealTypicalImage){
+          setTimeout(function(){ _self.$refs.idealTypicalImage[0].goHome(true)}, 2000);
+          setTimeout(function(){ _self.$refs.depictionCarousel[_self.currentIndexDepiction].goHome(true)}, 2000);
+        }
+
+      }
+      return ratio
+    },
+    increaseDepictionCount(){
+      this.showDepictionImage = !this.showDepictionImage
+      if (this.idealTypicals[this.currentIndexIdealTypical].relatedDepictions.length > 1) {
+        if (this.currentIndexDepiction < this.idealTypicals[this.currentIndexIdealTypical].relatedDepictions.length - 1){
+          this.currentIndexDepiction += 1
+        } else {
+          this.currentIndexDepiction = 0
+        }
+      } else {
+        return 0
+      }
+      const _self = this
+      setTimeout(function(){ _self.showDepictionImage = !_self.showDepictionImage }, 600);
+    },
+    decreaseDepictionCount(){
+      this.showDepictionImage = !this.showDepictionImage
+      if (this.idealTypicals[this.currentIndexIdealTypical].relatedDepictions.length > 1) {
+        if (this.currentIndexDepiction > 0 ){
+          this.currentIndexDepiction -= 1
+        } else {
+          this.currentIndexDepiction = this.idealTypicals[this.currentIndexIdealTypical].relatedDepictions.length - 1
+        }
+      } else {
+        return 0
+      }
+      const _self = this
+      setTimeout(function(){ _self.showDepictionImage = !_self.showDepictionImage }, 600);
+    },
     changed(){
       this.currentIndexDepiction = 0
     },
@@ -238,15 +282,6 @@ export default {
     getIcoURL(ico){
       return "/iconography/" + ico.iconographyID
     },
-    getPreselectedDepiction(icoID){
-      let icoIDs = [icoID]
-      const icos = getIconographyByAnnos(icoIDs)
-      let icosFlat = []
-      for (let ico of icos){
-        icosFlat = icosFlat.concat(this.flatIconography(ico))
-      }
-      return icosFlat
-    },
     getAnnos(depiction){
       let annos = []
       if (depiction){
@@ -273,11 +308,16 @@ export default {
     'idealTypicals': function(newVal, oldVal) {
     },
     'currentIndexIdealTypical': function(newVal, oldVal) {
-      // this.changedIdealTypical(newVal)
+      this.currentIndexDepiction = 0
     },
   },
   mounted:function () {
     // this.nextDepiction()
+    const _self = this
+    setTimeout(function(){
+      console.log(_self.$refs.carousel);
+      _self.$vuetify.goTo(_self.$refs.carousel)
+    }, 2000);
   },
   updated:function () {
   }
@@ -295,6 +335,10 @@ export default {
       flex: 1!important;
       display: flex;
       flex-direction: column!important;;
+  }
+  .description{
+    -webkit-box-shadow: none;
+    box-shadow: none;
   }
   .v-responsive__content {
     display: flex;

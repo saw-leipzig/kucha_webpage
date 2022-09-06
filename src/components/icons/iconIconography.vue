@@ -37,7 +37,7 @@
     <title
       :id="iconName"
       lang="en"
-    >Typical Pictures</title>
+    >Examplary Representation</title>
    <g v-if="!isHover">
      <g>
  <path fill="none" d="M15.208,44.995c0.833-0.193,1.726-0.361,2.674-0.499c-0.768-0.335-1.542-0.188-2.369-0.26

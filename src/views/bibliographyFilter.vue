@@ -1,5 +1,5 @@
 <template>
-<div>
+<div style="width:100%">
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>

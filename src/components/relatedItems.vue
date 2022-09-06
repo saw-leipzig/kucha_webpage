@@ -16,7 +16,7 @@
           </v-row>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-            <depictionInf v-if="item.depictionID" :depiction="item" :presentCave="presentCave"></depictionInf>
+            <depictionInf v-if="item.depictionID" :depiction="item" :presentCave="presentCave" :preSelected="preselectedAnnotations"></depictionInf>
             <caveInf v-if="item.caveID" :caveDefault="item" ></caveInf>
             <bibliographyInf v-if="item.annotatedBibliographyID" :bibliographyDefault="item" ></bibliographyInf>
             <iconographyInf v-if="item.iconographyID" :iconography="item" ></iconographyInf>
@@ -39,6 +39,12 @@ export default {
     presentCave:{
       type: Boolean,
       default: false
+    },
+    preselectedAnnotations:{
+      type: Array,
+      default: function(){
+        return {}
+      }
     }
   },
   components: {
@@ -95,7 +101,10 @@ export default {
         return "unknown item"
       }
     }
-  }
+  },
+  mounted:function () {
+    console.log("iconography is:", this.iconography);
+  },
 }
 </script>
 

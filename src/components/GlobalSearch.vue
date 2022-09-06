@@ -1,24 +1,17 @@
 <template>
   <v-form @submit.prevent="formSubmit" class="va-search d-flex align-center" :class="{'dense': dense}" :style="getStyle">
     <v-text-field
+      solo
+      outlined
+      dense
       :disabled="searchDisabled"
       id="global-search-input-field"
       ref="globalSearchInput"
       label="Search"
-      clearable
-      :autofocus="autofocus"
-      :filled="filled"
-      :outlined="outlined"
-      :dense="dense"
       light
       prepend-inner-icon="mdi-magnify"
       v-model="searchtext"
       @keyup="countAndSubmit"
-      @focus="checkFocus"
-      @click="$event.target.select()"
-      @click.stop="checkFocus"
-      @mouseup.prevent
-      @mousedown.prevent
       v-on:keyup.enter="formSubmit(0)"
       v-on:keyup.escape="checkClear"
       :persistent-hint="persistentHint"
@@ -54,8 +47,8 @@
             </v-btn>
           </v-list-item-action>
           <v-list-item-content class="text-center">
-            <v-list-item-title class="grey--text">{{"Results "+searchPack+"-"+searchPackEnd+" of "+totalres}}</v-list-item-title>
-            <v-list-item-subtitle>{{ 'Results for' + ': ' + searchtext}}</v-list-item-subtitle>
+            <v-list-item-title class="grey--text">{{getSearchRangeText}}</v-list-item-title>
+            <v-list-item-subtitle>{{ getResultsForText}}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
               <v-btn icon v-on:click="loadNext" :disabled="searchPack+results.length===totalres">
@@ -154,6 +147,23 @@ export default {
     }
   },
   computed: {
+    getResultsForText(){
+      if (this.searchtext === undefined || this.searchtext === ""){
+        return "Please enter a search term."
+      } else {
+        return 'Results for' + ': ' +  this.searchtext
+      }
+    },
+    getSearchRangeText(){
+      if (this.totalres > 0){
+        return "Results " + this.getStartNumber + "-" + this.searchPackEnd + " of " + this.totalres
+      } else {
+        return ""
+      }
+    },
+    getStartNumber(){
+      return this.searchPack + 1
+    },
     getStyle(){
       if (this.$vuetify.breakpoint.xs){
         return "width:80%;margin: 0 auto;"
@@ -354,6 +364,8 @@ export default {
       } else {
         this.results = []
         this.totalResults = 0
+        this.totalres = 0
+        this.totalResults = []
         this.showResults = false
       }
     },

@@ -22,14 +22,12 @@
         <v-expand-transition>
         <div v-show="showRelatedItems">
             <v-divider></v-divider>
-                <relatedItems class="mx-5" :relatedItems="items" :presentCave="presentCave"></relatedItems>
+                <relatedItems class="mx-5" :relatedItems="items" :presentCave="presentCave" :preselectedAnnotations="iconography"></relatedItems>
             </div>
         </v-expand-transition>
     </div>
 </template>
 <script>
-import caveInf from '@/components/caveInf.vue'
-import depictionInf from '@/components/depictionInf.vue'
 import relatedItems from '../components/relatedItems.vue'
 
 export default {
@@ -43,12 +41,16 @@ export default {
     },
     open:{
       type: Boolean,
-      default: false
+      default: true
     },
+    iconography:{
+      type: Array,
+      default: function(){
+        return []
+      }
+    }
   },
   components: {
-    caveInf,
-    depictionInf,
     relatedItems
   },
   data () {
@@ -56,6 +58,11 @@ export default {
       relatedDepictions:[],
       showRelatedItems:this.open
     }
+  },
+  computed:{
+  },
+  mounted:function () {
+    console.log("conography is:", this.iconography);
   },
 }
 </script>

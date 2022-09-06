@@ -1,7 +1,8 @@
 <template>
 
-  <div>
-            <depictionInf v-if="Object.keys(depictionEntry).length>0" :annotations="annotations" :depiction="depictionEntry" v-bind:presentCave="true"></depictionInf>
+  <div style="width:100%">
+            <depictionInf v-if="Object.keys(depictionEntry).length>0" :annotations="annotations" :depiction="depictionEntry" v-bind:presentCave="true" :preSelected="[]"></depictionInf>
+            <pageNotFound v-if="notFound" ></pageNotFound>
   </div>
 
 </template>
@@ -9,18 +10,21 @@
 <script>
 import { getItemById } from '@/services/repository'
 import depictionInf from '@/components/depictionInf'
+import pageNotFound from '@/views/pageNotFound'
 
 export default {
 
   name: 'depiction',
   components: {
-    depictionInf
+    depictionInf,
+    pageNotFound
   },
 
   data () {
     return {
       depictionEntry:{},
-      annotations:[]
+      annotations:[],
+      notFound:false,
     }
   },
   computed: {
@@ -34,7 +38,12 @@ export default {
         .then( res => {
           console.log("annotoriousID = ", params);
           this.$store.commit('setResults', res.data.hits.hits)
-          this.depictionEntry = res.data.hits.hits[0]._source
+          if (res.data.hits.hits[0]){
+            this.notFound = false
+            this.depictionEntry = res.data.hits.hits[0]._source
+          } else {
+            this.notFound = true
+          }
         }).catch(function (error) {
           console.log(error)
         })
