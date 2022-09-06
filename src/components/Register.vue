@@ -15,14 +15,14 @@
             <span class="headline"> Apply for User Account </span>
           </v-card-title>
           <v-card-text>
-            As dating of the caves of the Kucha region is contested, we would like to give other scholars the possibility to discuss the dating of the caves in this forum. However. The Discussion is only accessible for Scholars. Therefore, we kindly ask you, to register with your official e-mail.
+            As dating of the caves of the Kucha region is contested, we would like to give other scholars the possibility to discuss the dating of the caves in this forum. However, the discussion is only accessible for scholars. Therefore, we kindly ask you to register with your official e-mail.
           </v-card-text>
           <v-card-text>
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12>
                   <v-text-field
-                  label="Fist Name"
+                  label="First Name"
                   v-model="firstName"
                   :rules="[rules.required]"
                   v-if="registerDialog"
@@ -89,7 +89,7 @@ export default {
       required: value => !!value || "Required.",
       password: value => {
         // eslint-disable-next-line
-        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
+        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\"\]\[\)\()]])(?=.{8,})/;
         return (
           pattern.test(value) ||
           "Min. 8 characters with at least one capital letter, a number and a special character."

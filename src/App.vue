@@ -36,7 +36,7 @@
           :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important'"
         >
           <v-list>
-            <v-subheader>
+            <v-subheader style="height:30px">
               <v-btn v-if="!$vuetify.breakpoint.smAndDown"
                 icon
                 absolute
@@ -58,8 +58,8 @@
               to="/"
               style="padding:0 0px!important">
               <v-list-item style="padding:0 0px" :ripple="false" >
-                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconHome :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconHome>
+                <v-list-item-icon :style="mini ? 'min-width: 10%;' : 'min-width: 100px;'">
+                  <iconHome :width="mini ? '56px' : 100" :height="mini ? '55px' : 100"></iconHome>
                 </v-list-item-icon>
               </v-list-item>
             </v-list-item>
@@ -68,37 +68,37 @@
             to="/tour"
             style="padding:0 0px!important">
             <v-list-item to="/tour" style="padding:0 0px" :ripple="false">
-                <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconTour :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconTour>
+                <v-list-item-icon :style="mini ? 'min-width: 55px;' : 'min-width: 100px;'">
+                  <iconTour :width="mini ? 56 : 100" :height="mini ? '55px' : 100"></iconTour>
                 </v-list-item-icon>
               </v-list-item>
 
               </v-list-item>
             <v-list-group
                 :value="true"
-                :style="mini ? 'padding: 0px!important;min-width: 56px;': 'padding: 0px!important;min-width: 100px;'"
+                :style="mini ? 'padding: 0px!important;min-width: 55px;': 'padding: 0px!important;min-width: 100px;'"
               >
-                <v-list-item-icon slot="prependIcon" :style="mini ? 'margin:0!important;padding: 0px!important;min-width: 56px;': 'margin:0!important;padding: 0px!important;min-width: 100px;'" :ripple="false">
-                  <iconFilter :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconFilter>
+                <v-list-item-icon slot="prependIcon" :style="mini ? 'margin:0!important;padding: 0px!important;min-width: 55px;': 'margin:0!important;padding: 0px!important;min-width: 100px;'" :ripple="false">
+                  <iconFilter :width="mini ? '55px' : 100" :height="mini ? '55px' : 100"></iconFilter>
                 </v-list-item-icon>
             <v-list-item to="/cave" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconCave :width="mini ? 56 : 100" :height="mini ? 56 : 100"></iconCave>
+                  <iconCave :width="mini ? '55px' : 100" :height="mini ? '55px' : 100"></iconCave>
                 </v-list-item-icon>
               </v-list-item>
             <v-list-item to="/pr" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconPaintedRepresentation :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconPaintedRepresentation>
+                  <iconPaintedRepresentation :width="mini ? '55px' : 100" :height="mini ? '55px' : 100" ></iconPaintedRepresentation>
                 </v-list-item-icon>
               </v-list-item>
             <v-list-item to="/bibliography" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconBibliography :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconBibliography>
+                  <iconBibliography :width="mini ? '55px' : 100" :height="mini ? '55px' : 100" ></iconBibliography>
                 </v-list-item-icon>
               </v-list-item>
             <v-list-item to="/iconography" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
-                  <iconIconography :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconIconography>
+                  <iconIconography :width="mini ? '55px' : 100" :height="mini ? '55px' : 100" ></iconIconography>
                 </v-list-item-icon>
               </v-list-item>
             </v-list-group>
@@ -109,12 +109,13 @@
                   <title>About</title>
                 </v-list-item-icon>
             </v-list-item>
-            <v-list-item v-if="$store.state.user.sessionID" style="padding:0 0px!important" :ripple="false"
+            <v-list-item v-if="true" style="padding:0 0px!important" :ripple="false"
               class="px-2"
               to="/forum"
             >
                 <v-list-item-icon :style="mini ? 'min-width: 56px;min-height: 56px;' : 'min-width: 100px;min-height: 100px;'">
-                  <v-icon  :style="mini ? 'font-size: 56px;' : 'font-size: 100px;'" :width="mini ? 56 : 100" :height="mini ? 56 : 100" >forum</v-icon>
+                  <iconDiscussion :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconDiscussion>
+                  <title>Discussion Forum</title>
                 </v-list-item-icon>
             </v-list-item>
             <v-list-item to="/impressum" style="padding:0 0px!important" :ripple="false"
@@ -129,8 +130,22 @@
         </v-navigation-drawer>
       </template>
     <v-main >
-      <v-row justify="center" style="flex:1" >
-        <v-col no-gutters>
+      <v-row justify="center" style="flex:1 mx-0" >
+        <v-col no-gutters class="d-flex mt-1 mx-1 flex-column">
+          <v-breadcrumbs
+            :items="$store.state.breadcrumb"
+          >
+            <template v-slot:item="{ item }">
+              <v-breadcrumbs-item
+                :href="item.href"
+                :disabled="item.disabled"
+              >
+                <span style="color: black;">
+                  {{item.text}}
+                </span>
+              </v-breadcrumbs-item>
+            </template>
+          </v-breadcrumbs>
           <router-view></router-view>
         </v-col>
       </v-row>
@@ -143,10 +158,10 @@
       style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box;"
     >
       <v-row>
-        <v-col cols="6">
+        <v-col cols="8">
           <div content style="color:white;position: absolute;left: 20px; text-align: left;" v-html="getFooter"> </div>
         </v-col>
-        <v-col cols="6" class="text-right">
+        <v-col cols="4" class="text-right">
           <v-layout warp justify-end>
             <div class="logo text-right" v-html="logo" style="color:white;"></div>
             <LoginComponent v-if="!$store.state.user.sessionID" />
@@ -171,6 +186,7 @@ import iconAbout from '@/components/icons/iconAbout'
 import iconImpressum from '@/components/icons/iconImpressum'
 import iconFilter from '@/components/icons/iconFilter'
 import iconTour from '@/components/icons/iconTour'
+import iconDiscussion from '@/components/icons/iconDiscussion'
 import LoginComponent from '@/components/Login'
 import usermanager from '@/components/usermanager'
 import {isLoggedIn} from '@/services/repository'
@@ -178,6 +194,7 @@ export default {
   name: 'App',
   data () {
     return {
+      route: window.location.hash,
       show: false,
       drawer: null,
       navigation: true,
@@ -200,10 +217,18 @@ export default {
     iconAbout,
     iconImpressum,
     iconFilter,
-    iconTour
+    iconTour,
+    iconDiscussion
   },
   computed:{
-
+    breadcrumb:{
+      get: function(){
+        return this.$store.state.breadcrumb;
+      },
+      set: function (newValue){
+        this.$store.commit("setBreadcrumb", newValue)
+      }
+    },
     checkLandscape(){
       console.log("is Landscape:", this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height);
       return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
@@ -245,6 +270,7 @@ export default {
     this.$store.dispatch('getDiscussionMapping')
   },
   mounted:function(){
+    console.log("breadcrumb is: ", this.breadcrumb);
     if (this.$vuetify.breakpoint.smAndDown){
       this.navigation = false
       this.mini = false

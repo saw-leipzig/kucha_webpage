@@ -27,13 +27,13 @@
                   autofocus></v-text-field>
                 </v-flex>
                 <v-flex xs12>
-                  <v-text-field label="login-field-password" type="password" v-model="password"
-                  :rules="[() => !!password || 'login-error-password-required']"
+                  <v-text-field label="User Password" type="password" v-model="password"
+                  :rules="[() => !!password || 'Password is required']"
                   required></v-text-field>
                 </v-flex>
                 <!--   <small>* {{ $t('login-field-explanation') }} </small> -->
                 <v-flex xs12 class="error--text"  v-if="loginerror">
-                 'login-error-wrongcredentials'
+                 'Email or Password is wrong.'
                </v-flex>
              </v-layout>
            </v-container>

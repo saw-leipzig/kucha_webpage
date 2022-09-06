@@ -17,7 +17,7 @@ export function getDictionary(name){
     }
   })
 }
-export function regUser(firstname, surname, email, affilation){
+export function regUser(firstname, surname, email, affiliation){
   return axios({
     url: process.env.VUE_APP_USERREG + 'resource?registerrequest',
     method: 'post',
@@ -26,7 +26,7 @@ export function regUser(firstname, surname, email, affilation){
       "firstname": firstname,
       "lastname": surname,
       "email": email,
-      "affilation": affilation
+      "affiliation": affiliation
     }
   })
 }

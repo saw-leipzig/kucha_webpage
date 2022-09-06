@@ -72,7 +72,7 @@
                     @click:append="showOldPW = !showOldPW"
                     label="Current Password for conformation"
                     v-model="oldPassword"
-                    :rules="[rules.password, rules.required]"
+                    :rules="[rules.required]"
                   ></v-text-field>
                 </v-flex>
                 <!--   <small>* {{ $t('login-field-explanation') }} </small> -->

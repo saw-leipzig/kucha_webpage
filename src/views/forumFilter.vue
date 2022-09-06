@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width:100%">
     <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
@@ -50,7 +50,7 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
-        <v-alert border="top" class="mt-5 mx-5" v-model="loggedOut" color="amber"> You need to have an aproved Account for creating a new Thread and commenting. You can register here. <Register @click.stop="doRegister()"></Register></v-alert>
+        <v-alert border="top" class="mt-5 mx-5" v-model="loggedOut" color="amber"> You need to have an aproved Account for creating a new thread and commenting. You can register here. <Register @click.stop="doRegister()"></Register></v-alert>
         <v-expansion-panels class="mx-5 pr-10 pt-5" v-model="panel" v-if="$store.state.user.granted&&newPosts">
           <v-expansion-panel  >
             <v-expansion-panel-header>
