@@ -52,8 +52,15 @@
                         </div>
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                           <v-list-item-content>
-                            <v-list-item-title >{{name}}</v-list-item-title>
-                            <div style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                            <v-list-item-title class="ml-1 mt-5" >{{name}}</v-list-item-title>
+                            <div v-if="!item_name.includes('Author') && !item_name.includes('Editor')" style="white-space: pre-line;padding:0px 0px 0px 10px;">{{value}}</div>
+                            <div v-if="item_name.includes('Author') || item_name.includes('Editor')">
+                              <v-list-item style="min-height:30px" v-for="(author_value, author_name, author_index) in value" :key=author_index>
+                              <v-list-item-content style="padding:0">
+                                <v-list-item-title class="ml-5" >{{author_name + ": "+ author_value}}</v-list-item-title>
+                              </v-list-item-content>
+                              </v-list-item>
+                          </div>
                           </v-list-item-content>
                         </v-list-item>
                       </v-tab-item>
@@ -205,6 +212,54 @@ export default {
         }
         if (this.bibliography.notes !== ""){
           content["Notes"] = this.bibliography.notes
+        }
+        if (this.bibliography.authorList.length > 0){
+          let authorList = {}
+          for (let authorInf of this.bibliography.authorList){
+            let authorInfShown = {}
+            if (authorInf.alias !== null && authorInf.alias !== "" && authorInf.alias !== undefined){
+              authorInfShown["Alias"] = authorInf.alias
+            }
+            if (authorInf.homepage !== null && authorInf.homepage !== "" && authorInf.homepage !== undefined){
+              authorInfShown["Homepage"] = authorInf.homepage
+            }
+            if (authorInf.firstname === null || authorInf.firstname === "" || authorInf.firstname === undefined){
+              if (authorInf.lastname === null || authorInf.lastname === "" || authorInf.lastname === undefined){
+                authorList[authorInf.alias] = authorInfShown
+              } else {
+                authorList[authorInf.lastname] = authorInfShown
+              }
+            } else {
+              authorList[authorInf.firstname + " " + authorInf.lastname] = authorInfShown
+            }
+          }
+          let authors = ""
+          this.bibliography.authorList.length > 1 ? authors = "Authors" : authors = "Author"
+          bibInfo[authors] = authorList
+        }
+        if (this.bibliography.editorList.length > 0){
+          let editorList = {}
+          for (let authorInf of this.bibliography.editorList){
+            let authorInfShown = {}
+            if (authorInf.alias !== null && authorInf.alias !== "" && authorInf.alias !== undefined){
+              authorInfShown["Alias"] = authorInf.alias
+            }
+            if (authorInf.homepage !== null && authorInf.homepage !== "" && authorInf.homepage !== undefined){
+              authorInfShown["Homepage"] = authorInf.homepage
+            }
+            if (authorInf.firstname === null || authorInf.firstname === "" || authorInf.firstname === undefined){
+              if (authorInf.lastname === null || authorInf.lastname === "" || authorInf.lastname === undefined){
+                editorList[authorInf.alias] = authorInfShown
+              } else {
+                editorList[authorInf.lastname] = authorInfShown
+              }
+            } else {
+              editorList[authorInf.firstname + " " + authorInf.lastname] = authorInfShown
+            }
+          }
+          let authors = ""
+          this.bibliography.authorList.length > 1 ? authors = "Editor" : authors = "Editors"
+          bibInfo[authors] = editorList
         }
         if (Object.keys(basciInf).length > 0){
           bibInfo["Basic Information"] = basciInf
