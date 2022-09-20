@@ -18,11 +18,17 @@
             <v-combobox label="Selection Type" v-model="selectedSelectionType" :items="selectionTypes"></v-combobox>
           </v-col>
         </v-row>
-
-        <v-lazy
+        <v-row v-show="!isReady">
+          <v-col>
+            <v-layout align-center justify-center column fill-height>
+            <v-progress-circular v-if="true" color="primary" indeterminate />
+            </v-layout>
+          </v-col>
+        </v-row>
+        <v-lazy v-model="isReady"
             transition="scroll-x-reverse-transition"
         >
-        <v-treeview  ref="tree" @input="select" style="max-height: 300px!important;"  :filter="filter" item-key="iconographyID" :search="search" return-object  rounded  hoverable open-all :items="iconography" dense >
+        <v-treeview ref="tree" @input="select" style="max-height: 300px!important;"  :filter="filter" item-key="iconographyID" :search="search" return-object  rounded  hoverable open-all :items="iconography" dense >
                 <template v-slot:prepend="{item}" >
                   <v-checkbox hide-details class="shrink mr-2 mt-0" dense  @click="selectedIco(item)" v-model="item.checked" ></v-checkbox>
                 </template>
@@ -77,10 +83,14 @@ export default {
       selectionTypes: ["leaf", "independent"],
       selectedSelectionType: "leaf",
       selectedGroups: [],
-      selectedTriggered:false
+      selectedTriggered:false,
+      isReady:false
     }
   },
   computed: {
+    hasAggs(){
+      return this.isReady
+    },
     isDepiction(){
       if (this.mode === "iconography"){
         return false
@@ -130,9 +140,6 @@ export default {
     },
     getCount(item){
       if (item.count){
-        if (item.iconographyID === 1050){
-          console.log("count of ico:", item);
-        }
         return item.count.length
       } else {
         return 0
@@ -212,6 +219,7 @@ export default {
       if (this.$refs.tree) {
         this.$refs.tree.updateAll(true)
       }
+      this.isReady  = true
       console.log("iconographySelectedLocal", this.iconographySelected.length);
       // this.setAggs(this.iconography)
     },

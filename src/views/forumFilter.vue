@@ -17,6 +17,23 @@
       </v-breadcrumbs>
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
+        <v-expansion-panels class="mx-5 pr-10 pt-5"  v-model="introPanel">
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Introduction
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card>
+                <v-card-title>
+                  Overview of the Different Approaches to Establish a Relative and Absolute Chronology of the Buddhist Murals of Kucha
+                </v-card-title>
+                <v-card-subtitle>Ines Konczak-Nagel</v-card-subtitle>
+                <v-card-text>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
         <v-expansion-panels class="mx-5 pr-10 pt-5"  v-model="filterPanel">
           <v-expansion-panel>
             <v-expansion-panel-header>
@@ -204,6 +221,7 @@ export default {
       loading: false,
       discussions: [],
       filterPanel: 0,
+      introPanel: false,
       sort: ["yearORG.keyword"],
       direction:"asc",
       aggregations:{},

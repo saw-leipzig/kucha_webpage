@@ -325,6 +325,13 @@ export function getDepictionStats() {
     data: {
       "size":0,
       "aggs": {
+        "depiction_count": {
+          "filter": {
+            "exists": {
+              "field": "depictionID"
+            }
+          }
+        },
         "genres": {
           "terms": { "field": "cave.site.siteID" }
         },
@@ -556,13 +563,8 @@ export function getDepictionByAnnotation(params) {
                         "nested": {
                           "path": "relatedIconographyList",
                           "query": {
-                            "nested": {
-                              "path":  "relatedIconographyList",
-                              "query": {
-                                "terms": {
-                                  "relatedIconographyList.iconographyID": params.iconographyID
-                                }
-                              }
+                            "terms": {
+                              "relatedIconographyList.iconographyID": params.iconographyID
                             }
                           }
                         }
@@ -616,20 +618,9 @@ export function getVersionsOfEntry(entry){
       ],
       "size": 4000,
       "query": {
-        "bool": {
-          "must": [
-            {
-              "multi_match": {
-                "query": ID,
-                "fields": field
-              }
-            },
-            {
-              "exists": {
-                "field": "content"
-              }
-            }
-          ]
+        "multi_match": {
+          "query": ID,
+          "fields": field
         }
       }
     }

@@ -217,7 +217,12 @@ export default new Vuex.Store({
     getSites(context){
       getDictionary('sites')
         .then(res=> {
-          context.commit('setSites', res.data._source.sites);
+          let sites = res.data._source.sites
+          sites.push({
+            siteID: 0,
+            name: "unknown"
+          })
+          context.commit('setSites', sites);
         }).catch(function (error) {
           console.log(error)
           return null
@@ -236,6 +241,7 @@ export default new Vuex.Store({
       console.log("initiated getIconography");
       getDictionary('iconographyTree')
         .then(res=> {
+          console.log("getIconography", res);
           function setChecked(item) {
             item['checked'] = false
             for (let child of item.children){
