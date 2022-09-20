@@ -1,6 +1,20 @@
 <template>
   <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
-    <v-card>
+    <v-breadcrumbs
+      :items="$store.state.breadcrumb"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :href="item.href"
+          :disabled="item.disabled"
+        >
+          <span style="color: black;">
+            {{item.text}}
+          </span>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+    <v-card width="98%" style="margin:auto">
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Impressum</v-card-title>
       <v-card-text></v-card-text>
       <v-card-title class="text-h5">Anbieter</v-card-title>

@@ -6,6 +6,20 @@
           flex-direction: column;
           flex-wrap: wrap;
           align-content: stretch;">
+    <v-breadcrumbs
+      :items="$store.state.breadcrumb"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :href="item.href"
+          :disabled="item.disabled"
+        >
+          <span style="color: black;">
+            {{item.text}}
+          </span>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
     <v-card-title ref="cardTitle" :class="$vuetify.breakpoint.smAndDown ? 'h4 justify-center' : 'h1 justify-center'">
       Buddhist Murals of Kucha - Virtual Tour
     </v-card-title>
@@ -104,7 +118,7 @@
               <v-col :cols="idealTypical.relatedDepictions.length>1 ? 10 : 12" class="my-1 d-flex align-stretch">
                 <v-slide-x-transition>
                   <v-card v-if="showDepictionImage" class="pb-0" style="display: flex; flex-direction: column;width:100%;z-index:1;" elevation="0">
-                    <a :href="getDeptictionURL(getrelatedDepiction)"> <v-card-text  class="font-weight-bold my-0"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'color:black;font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'color:black;word-break: break-word;display: block; word-break: break-words;'"><p class="mb-0" v-line-clamp="3">{{getExampleLabel(getrelatedDepiction)}}</p></v-card-text></a>
+                    <a :href="getDeptictionURL(getrelatedDepiction)"> <v-card-text  class="font-weight-bold my-0"  ref="depictionTitle" :style="$vuetify.breakpoint.smAndDown ? 'color:black;font-size: .7rem;line-height: 1rem;word-break: break-word;display: block; word-break: break-words;' : 'color:black;word-break: break-word;display: block; word-break: break-words;'"><p class="mb-0" v-line-clamp="3" v-html="getExampleLabel(getrelatedDepiction)"></p></v-card-text></a>
                     <annotatedImage isZoom :treeShowOption="false" hideTree :style="checkLandscape()? 'flex:1 1 100%':'min-height:50%;flex:1 1 80%'" :showControls = "false" v-if="showDepictions" ref="depictionCarousel" :item="getrelatedDepiction"  :annos="getAnnos(getrelatedDepiction)" :preSelected="getPreselectedDepiction" :relatedAnnotations="getrelatedDepiction.relatedAnnotationList"/>
                   </v-card>
                 </v-slide-x-transition>
@@ -231,7 +245,7 @@ export default {
     getExampleLabel(depiction){
       if (depiction){
         if (!this.$vuetify.breakpoint.smAndDown){
-          return "Example from " + this.getCaveLabel(depiction.cave) +  " <br> " + this.getWallLabel(depiction) + " (Painted Representation " + depiction.depictionID + ")</a>"
+          return "Example from " + this.getCaveLabel(depiction.cave) +  " <br> " + this.getWallLabel(depiction) + " (Painted Representation " + depiction.depictionID + ")"
 
         } else {
           return getCaveShortLabel(depiction.cave) +  ", " + this.getWallLabel(depiction)

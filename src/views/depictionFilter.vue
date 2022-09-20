@@ -3,7 +3,20 @@
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
-        Depiction Filter
+        <v-breadcrumbs
+          :items="$store.state.breadcrumb"
+        >
+          <template v-slot:item="{ item }">
+            <v-breadcrumbs-item
+              :href="item.href"
+              :disabled="item.disabled"
+            >
+              <span style="color: black;">
+                {{item.text}}
+              </span>
+            </v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-row no-gutters class="mb-1" >
@@ -265,6 +278,7 @@ export default {
       console.log("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
+      console.log("iconography:", value.ico);
       this.iconography = value.ico
       this.initiateFacets()
     },

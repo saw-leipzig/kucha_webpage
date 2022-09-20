@@ -132,20 +132,6 @@
     <v-main >
       <v-row justify="center" style="flex:1 mx-0" >
         <v-col no-gutters class="d-flex mt-1 mx-1 flex-column">
-          <v-breadcrumbs
-            :items="$store.state.breadcrumb"
-          >
-            <template v-slot:item="{ item }">
-              <v-breadcrumbs-item
-                :href="item.href"
-                :disabled="item.disabled"
-              >
-                <span style="color: black;">
-                  {{item.text}}
-                </span>
-              </v-breadcrumbs-item>
-            </template>
-          </v-breadcrumbs>
           <router-view></router-view>
         </v-col>
       </v-row>
@@ -305,7 +291,14 @@ export default {
 }
 .v-main {
   height: 100%;
+  word-break: break-word!important;
 
+}
+p {
+  word-break: break-word!important;
+}
+element {
+  word-break: break-word!important;
 }
 .theme--light.v-application {
     background: transparent!important;;

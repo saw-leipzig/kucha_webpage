@@ -1,6 +1,6 @@
 <template>
   <v-card :class="paddingCaveCard" raised :width="setWidth ? '98%': 'unset'" style="margin: auto;button:20px;">
-    <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{cave.caveID === -1 ? "Cave Unknown" : "Information for cave" +getCaveLabel(cave)}} </a> </v-card-title>
+    <v-card-title ><a :href="getCaveURL()" style="flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;">{{cave.caveID === -1 ? "Cave Unknown" : "Information for cave " +getCaveLabel(cave)}} </a> </v-card-title>
     <v-card class="mx-10" v-if="cave.caveID !== -1">
       <v-tabs
       v-model="tab" v-if="Object.keys(caveInfo).length>0"

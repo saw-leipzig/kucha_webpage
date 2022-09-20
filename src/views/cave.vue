@@ -1,7 +1,23 @@
 <template>
 <div style="width:100%">
-    <caveInf :showRelatedDepictions="true" v-if="Object.keys(cave).length>0" :caveDefault="cave"></caveInf>
+  <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
+    <v-breadcrumbs
+      :items="$store.state.breadcrumb"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :href="item.href"
+          :disabled="item.disabled"
+        >
+          <span style="color: black;">
+            {{item.text}}
+          </span>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+    <caveInf :setWidth="true" :showRelatedDepictions="true" v-if="Object.keys(cave).length>0" :caveDefault="cave"></caveInf>
     <pageNotFound v-if="notFound" ></pageNotFound>
+  </v-card>
 </div>
 </template>
 <script>

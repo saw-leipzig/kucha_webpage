@@ -1,5 +1,19 @@
 <template>
   <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
+    <v-breadcrumbs
+      :items="$store.state.breadcrumb"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :href="item.href"
+          :disabled="item.disabled"
+        >
+          <span style="color: black;">
+            {{item.text}}
+          </span>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
         <Foruminf @getComments="getComments()" :discussions="discussions"></Foruminf>

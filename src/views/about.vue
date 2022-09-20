@@ -1,6 +1,20 @@
 <template>
   <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
-    <v-card>
+    <v-breadcrumbs
+      :items="$store.state.breadcrumb"
+    >
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+          :href="item.href"
+          :disabled="item.disabled"
+        >
+          <span style="color: black;">
+            {{item.text}}
+          </span>
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+    <v-card width="98%" style="margin:auto">
      <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">About the Project</v-card-title>
       <v-card-text></v-card-text>
       <v-card-title class="text-h5">Video Tutorials</v-card-title>
@@ -344,6 +358,7 @@ export default {
     this.$refs.video3.onplay = this.onPlay
     getDepictionStats()
       .then( res => {
+        let depictionCount = res.data.aggregations.depiction_count.doc_count
         let stats = {}
         for (let stat of res.data.aggregations.relatedAnnotationList.tags.genres.buckets){
           stats[stat.key] = stat.doc_count
@@ -352,7 +367,11 @@ export default {
         let statsDepictions = {}
         for (let stat of res.data.aggregations.genres.buckets){
           statsDepictions[stat.key] = stat.doc_count
+          depictionCount = depictionCount - stat.doc_count
         }
+        console.log("depictionCount:", depictionCount);
+        console.log("depictionCount: sites", this.$store.state.sites);
+        statsDepictions[0] = depictionCount
         this.kuchaStats = statsDepictions
       }).catch(function (error) {
         console.log(error)

@@ -3,7 +3,20 @@
   <v-expansion-panels v-model="panel">
     <v-expansion-panel>
       <v-expansion-panel-header>
-        Iconography Filter
+        <v-breadcrumbs
+          :items="$store.state.breadcrumb"
+        >
+          <template v-slot:item="{ item }">
+            <v-breadcrumbs-item
+              :href="item.href"
+              :disabled="item.disabled"
+            >
+              <span style="color: black;">
+                {{item.text}}
+              </span>
+            </v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
             <iconographySearch ref="iconographySearch" @clicked="changedIcoInput" prefix="" mode="iconography"></iconographySearch>
