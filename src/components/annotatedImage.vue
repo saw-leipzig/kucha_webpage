@@ -214,7 +214,7 @@
           >
             <v-treeview
               item-disabled="locked"
-              selection-type="leaf"
+              selection-type="independent"
               :filter="filter"
               :search="search"
               return-object
@@ -1240,6 +1240,7 @@ export default {
         if (this.viewerAnnos === null){
           this.initOSDanno()
         }
+        this.annoSelected = []
         if (this.preSelected){
           for (let annoSelected of this.preSelected){
             for (let treeElement of this.icoAnnos){
@@ -1320,10 +1321,35 @@ export default {
         this.updateSelectedAnnos()
 
       }
+    },
+    selectChildren(parent){
+      for (let child of parent.children){
+        this.selectChildren(child)
+        this.annoSelected.push(child)
+      }
+    },
+    deselectChildren(parent){
+      for (let child of parent.children){
+        this.deselectChildren(child)
+        const index = this.annoSelected.indexOf(child);
+        if (index > -1) {
+          this.annoSelected.splice(index, 1);
+        }
+      }
     }
   },
   watch: {
     'annoSelected': function(newVal, oldVal) {
+      let newlySelected = newVal
+        .filter(x => !oldVal.includes(x))
+      for (let nselected of newlySelected){
+        this.selectChildren(nselected)
+      }
+      let newlyDeselected = oldVal
+        .filter(x => !newVal.includes(x))
+      for (let ndeselected of newlyDeselected){
+        this.deselectChildren(ndeselected)
+      }
       if (this.isMounted){
         if (this.annos.length > 1){
           let difference = newVal
