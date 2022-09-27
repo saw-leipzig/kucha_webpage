@@ -111,7 +111,7 @@ export default {
       return TextSearchCave
     },
     caveFacets(){
-      console.log("aggregations caveFacetts: ", this.aggregations);
+      this.$log.debug("aggregations caveFacetts: ", this.aggregations);
       let aggregations = {}
       if (this.aggregations){
         if (this.aggregations["caveType"]){
@@ -134,7 +134,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["iconography"])
       }
-      console.log("aggregations icoFacetts: ", aggregations);
+      this.$log.debug("aggregations icoFacetts: ", aggregations);
       return aggregations
     },
     locationFacets(){
@@ -142,7 +142,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["location"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      this.$log.debug("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
     textFacets(){
@@ -150,7 +150,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["text"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      this.$log.debug("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
     wallLocationFacets(){
@@ -158,7 +158,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["wallLocation"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      this.$log.debug("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -175,7 +175,7 @@ export default {
   },
   methods: {
     changedSort(value){
-      console.log("new changed sort Value:", value);
+      this.$log.debug("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
       this.relatedCaves = []
@@ -359,26 +359,26 @@ export default {
     },
 
     changedCaveInput(value){
-      console.log("new changed Cave Value:", value);
+      this.$log.debug("new changed Cave Value:", value);
       this.caveSearchObjects = value.search
       this.buildCaveAggs(value.aggs)
       this.initiateFacets()
-      console.log("built aggs:", this.aggsObject);
+      this.$log.debug("built aggs:", this.aggsObject);
     },
     changedIcoInput(value){
-      console.log("new changed Ico Value:", value);
+      this.$log.debug("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
       this.initiateFacets()
     },
     changedLocationInput(value){
-      console.log("new changed location Value:", value);
+      this.$log.debug("new changed location Value:", value);
       this.locationSearchObjects = value.search
       buildAgg(value.aggs, "location", this.aggsObject)
       this.initiateFacets()
     },
     changedWallInput(value){
-      console.log("new changed wall Value:", value);
+      this.$log.debug("new changed wall Value:", value);
       this.wallSearchObjects = value.search
       this.aggsObject["wallLocation"] = value.aggs
       this.initiateFacets()
@@ -410,7 +410,7 @@ export default {
         }
         this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
       }
-      console.log("built aggsObject", this.aggsObject);
+      this.$log.debug("built aggsObject", this.aggsObject);
     },
     buildQueries(){
       let queries = {
@@ -490,7 +490,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
-          console.log("search results", res);
+          this.$log.debug("search results", res);
           var newCaves = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
@@ -501,10 +501,10 @@ export default {
           this.sortBib()
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
           this.loading = false
         })
-      console.log("search initiated:", searchObject);
+      this.$log.debug("search initiated:", searchObject);
     },
     appendFilterToAgg(agg, filter, propertyName){
       for (let prop in filter){
@@ -525,7 +525,7 @@ export default {
       this.relatedCaves = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
-        console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
+        this.$log.debug("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
         let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
         for (let filterProp in this.aggsObject){
           if (filterProp !== aggProp){
@@ -576,23 +576,23 @@ export default {
       }
       postQuery(aggregations)
         .then( res => {
-          console.log("aggs results", res.data.aggregations);
+          this.$log.debug("aggs results", res.data.aggregations);
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
   },
   watch: {
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on should", newVal);
+      this.$log.debug("updated aggregations on should", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Cave filter");
+    this.$log.debug("started Cave filter");
 
     let caveRes = this.$refs.caveSearch.prepSearch();
     this.caveSearchObjects = caveRes.search

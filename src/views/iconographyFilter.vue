@@ -104,7 +104,7 @@ export default {
   },
   methods: {
     changedSort(value){
-      console.log("new changed sort Value:", value);
+      this.$log.debug("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
       this.sortIco()
@@ -152,7 +152,7 @@ export default {
               var bNum = 0
               let relPRa = getIconographyByID(a.iconographyID)
               let relPRb = getIconographyByID(b.iconographyID)
-              console.log(relPRa, relPRb);
+              this.$log.debug(relPRa, relPRb);
               aNum = getRelatedDepictions(relPRa).length
               bNum = getRelatedDepictions(relPRb).length
               return bNum - aNum
@@ -179,7 +179,7 @@ export default {
       this.initiateFacets();
     },
     changedIcoInput(value){
-      console.log("new changed Ico Value:", value);
+      this.$log.debug("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
       this.initiateFacets()
@@ -261,7 +261,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
-          console.log("search results", res);
+          this.$log.debug("search results", res);
           var newDepictions = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
@@ -271,10 +271,10 @@ export default {
           this.relatedIconography = newDepictions
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
           this.loading = false
         })
-      console.log("search initiated:", searchObject);
+      this.$log.debug("search initiated:", searchObject);
     },
     appendFilterToAgg(agg, filter, propertyName){
       for (let prop in filter){
@@ -292,7 +292,7 @@ export default {
       return null
     },
     initiateFacets(){
-      console.log("initFacets started");
+      this.$log.debug("initFacets started");
       this.relatedIconography = []
       let aggregations = {}
       aggregations["size"] = 0
@@ -328,26 +328,26 @@ export default {
       }
       postQuery(aggregations)
         .then( res => {
-          console.log("aggs results", res.data.aggregations);
+          this.$log.debug("aggs results", res.data.aggregations);
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
   },
   watch: {
     'panel': function(newVal, oldVal) {
-      console.log("updated caveTypes panel", newVal);
+      this.$log.debug("updated caveTypes panel", newVal);
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on should", newVal);
+      this.$log.debug("updated aggregations on should", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Depiction filter");
+    this.$log.debug("started Depiction filter");
 
     let icoRes = this.$refs.iconographySearch.prepSearch();
     this.icoSearchObjects = icoRes.search

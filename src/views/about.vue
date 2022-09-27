@@ -183,16 +183,16 @@ export default {
         series: [],
         chartOptions: this.getChartOptions()
       }
-      console.log("kuchaStats: ", this.kuchaStats, Object.keys(this.kuchaStats));
+      this.$log.debug("kuchaStats: ", this.kuchaStats, Object.keys(this.kuchaStats));
       if (Object.keys(this.kuchaStats).length > 0) {
-        console.log(" anno is, kuchaStats: ", this.kuchaStats);
+        this.$log.debug(" anno is, kuchaStats: ", this.kuchaStats);
         statsDepiction.series = []
         statsDepiction.chartOptions.labels = []
         for (const [key, value] of Object.entries(this.kuchaStats)) {
           statsDepiction.series.push(value)
           statsDepiction.chartOptions.labels.push(this.$store.state.sites.find(element => element.siteID === parseInt(key)).name)
         }
-        console.log("stats.series", statsDepiction.series);
+        this.$log.debug("stats.series", statsDepiction.series);
       }
       statsDepiction.chartOptions.plotOptions.pie.donut.labels.total.label = "Painted Representations"
       statsDepiction.chartOptions.colors = ['#99C784', '#3f888f', '#ff9999', '#ffb90f', "#6495ed"]
@@ -202,13 +202,13 @@ export default {
         series: [],
         chartOptions: this.getChartOptions()
       }
-      console.log("bibStats", this.bibStats, Object.keys(this.bibStats).length );
+      this.$log.debug("bibStats", this.bibStats, Object.keys(this.bibStats).length );
 
       if (Object.keys(this.bibStats).length > 0) {
         statsbib.series = []
         statsbib.chartOptions.labels = []
         for (const [key, value] of Object.entries(this.bibStats)) {
-          console.log(key, value);
+          this.$log.debug(key, value);
           statsbib.series.push(value)
           if (key === "1"){
             (statsbib.chartOptions.labels.push("With Annotation"))
@@ -226,24 +226,24 @@ export default {
   },
   methods: {
     pushToFilteredDepictions(event, chartContext, config) {
-      console.log("Chosen depiction");
-      console.log("chartContext", chartContext);
-      console.log("config", config.w.config.labels[config.dataPointIndex]);
-      console.log("chosen", config.dataPointIndex);
+      this.$log.debug("Chosen depiction");
+      this.$log.debug("chartContext", chartContext);
+      this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
+      this.$log.debug("chosen", config.dataPointIndex);
       this.$router.push({name: 'depictionFilter'})
     },
     pushToFilteredBibs(event, chartContext, config) {
-      console.log("Chosen Bib");
-      console.log("chartContext", chartContext);
-      console.log("config", config.w.config.labels[config.dataPointIndex]);
-      console.log("chosen", config.dataPointIndex);
+      this.$log.debug("Chosen Bib");
+      this.$log.debug("chartContext", chartContext);
+      this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
+      this.$log.debug("chosen", config.dataPointIndex);
       this.$router.push({name: 'bibliographyFilter'})
     },
     pushToFilteredAnnos(event, chartContext, config) {
-      console.log("Chosen Anno");
-      console.log("chartContext", chartContext);
-      console.log("config", config.w.config.labels[config.dataPointIndex]);
-      console.log("chosen", config.dataPointIndex);
+      this.$log.debug("Chosen Anno");
+      this.$log.debug("chartContext", chartContext);
+      this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
+      this.$log.debug("chosen", config.dataPointIndex);
       this.$router.push({name: 'depictionFilter',
         query:{
           "iconography": [config.w.config.labels[config.dataPointIndex]]
@@ -271,7 +271,7 @@ export default {
       }
     },
     onPlay(player){
-      console.log("Hello", player.explicitOriginalTarget.id);
+      this.$log.debug("Hello", player.explicitOriginalTarget.id);
       if (player.explicitOriginalTarget.id !== "player1"){
         this.$refs.video1.pause()
       }
@@ -335,13 +335,13 @@ export default {
         series: [],
         chartOptions: this.getChartOptions()
       }
-      console.log("kuchaStats: ", this.kuchaStats);
+      this.$log.debug("kuchaStats: ", this.kuchaStats);
       if (Object.keys(this.kuchaStats).length > 0) {
-        console.log(" anno is, kuchaStats: ", this.kuchaStats);
+        this.$log.debug(" anno is, kuchaStats: ", this.kuchaStats);
         data.series = [this.kuchaStats[1], this.kuchaStats[2], this.kuchaStats[3]]
         data.chartOptions.labels = ["Iconography", "Pictorial Elements", "Decoration & Ornaments"]
       }
-      console.log("data for Stats: ", data);
+      this.$log.debug("data for Stats: ", data);
 
       return data
     },
@@ -352,7 +352,7 @@ export default {
     if (this.$store.state.sites.length === 0){
       this.$store.dispatch('getSites')
     }
-    console.log(this.$refs);
+    this.$log.debug(this.$refs);
     this.$refs.video1.onplay = this.onPlay
     this.$refs.video2.onplay = this.onPlay
     this.$refs.video3.onplay = this.onPlay
@@ -369,24 +369,24 @@ export default {
           statsDepictions[stat.key] = stat.doc_count
           depictionCount = depictionCount - stat.doc_count
         }
-        console.log("depictionCount:", depictionCount);
-        console.log("depictionCount: sites", this.$store.state.sites);
+        this.$log.debug("depictionCount:", depictionCount);
+        this.$log.debug("depictionCount: sites", this.$store.state.sites);
         statsDepictions[0] = depictionCount
         this.kuchaStats = statsDepictions
       }).catch(function (error) {
-        console.log(error)
+        this.$log.debug(error)
         return null
       })
     getBibStats()
       .then( res => {
-        console.log("bibStats res", res);
+        this.$log.debug("bibStats res", res);
         let dicStats = {}
         for (let stat of res.data.aggregations.bibliography.Annotated.buckets){
           dicStats[stat.key] = stat.doc_count
         }
         this.bibStats = dicStats;
       }).catch(function (error) {
-        console.log(error)
+        this.$log.debug(error)
         return null
       })
 

@@ -142,7 +142,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["keyword"])
       }
-      console.log("aggregations bibKeywordsFacetts: ", aggregations);
+      this.$log.debug("aggregations bibKeywordsFacetts: ", aggregations);
       return aggregations
     },
     bibCheckBoxFacets(){
@@ -152,7 +152,7 @@ export default {
           aggregations[checkBox] = getBuckets(this.aggregations[checkBox])
         }
       }
-      console.log("aggregations bibKeywordsFacetts: ", aggregations);
+      this.$log.debug("aggregations bibKeywordsFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -186,20 +186,20 @@ export default {
       this.textSearch = value.search
     },
     changedBibKeywordInput(value){
-      console.log("new changed keyword Value:", value);
+      this.$log.debug("new changed keyword Value:", value);
       this.bibKeywordsSearchObjects = value.search
       this.aggsObject["keyword"] = value.aggs
       this.initiateFacets()
     },
     changedBibCeckboxInput(value){
-      console.log("new changed checkbox Value:", value);
+      this.$log.debug("new changed checkbox Value:", value);
       this.bibCheckBoxSearchObjects = value.search
       buildAgg(value.aggs, Object.keys(value.aggs), this.aggsObject)
 
       this.initiateFacets()
     },
     changedSort(value){
-      console.log("new changed sort Value:", value);
+      this.$log.debug("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
       this.relatedBibliography = []
@@ -209,7 +209,7 @@ export default {
       if (this.aggregations){
         aggregations = this.getBuckets(this.aggregations["text"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      this.$log.debug("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
     sortBib(){
@@ -346,7 +346,7 @@ export default {
         }
         this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
       }
-      console.log("built aggsObject", this.aggsObject);
+      this.$log.debug("built aggsObject", this.aggsObject);
     },
     buildQueries(){
       let queries = {
@@ -413,7 +413,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
-          console.log("search results", res);
+          this.$log.debug("search results", res);
           var newDepictions = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
@@ -422,13 +422,13 @@ export default {
           this.loading = false
           this.relatedBibliography = newDepictions
           this.sortBib()
-          console.log("relatedBibliography", this.relatedBibliography);
+          this.$log.debug("relatedBibliography", this.relatedBibliography);
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
           this.loading = false
         })
-      console.log("search initiated:", searchObject);
+      this.$log.debug("search initiated:", searchObject);
     },
     appendFilterToAgg(agg, filter, propertyName){
       for (let prop in filter){
@@ -449,7 +449,7 @@ export default {
       this.relatedBibliography = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
-        console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
+        this.$log.debug("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
         let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
         for (let filterProp in this.aggsObject){
           if (filterProp !== aggProp){
@@ -500,26 +500,26 @@ export default {
       }
       postQuery(aggregations)
         .then( res => {
-          console.log("aggs results", res.data.aggregations);
+          this.$log.debug("aggs results", res.data.aggregations);
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
   },
   watch: {
     'panel': function(newVal, oldVal) {
-      console.log("updated caveTypes panel", newVal);
+      this.$log.debug("updated caveTypes panel", newVal);
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on bibliographyFilter", newVal);
+      this.$log.debug("updated aggregations on bibliographyFilter", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Bibliography filter");
+    this.$log.debug("started Bibliography filter");
     let bibKeywordRes = this.$refs.bibKeywordSearch.prepSearch();
     this.bibKeywordsSearchObjects = bibKeywordRes.search
     this.aggsObject["keyword"] = bibKeywordRes.aggs

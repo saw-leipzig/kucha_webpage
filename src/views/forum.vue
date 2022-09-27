@@ -41,12 +41,12 @@ export default {
     getComments(){
       getComments()
         .then( res => {
-          console.log("Discussions", res.data.hits.hits);
+          this.$log.debug("Discussions", res.data.hits.hits);
           this.discussions = res.data.hits.hits
           this.discussions.sort(function(a, b){return b._source.latestUpdate - a._source.latestUpdate})
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
   },

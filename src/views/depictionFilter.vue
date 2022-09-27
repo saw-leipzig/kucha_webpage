@@ -151,7 +151,7 @@ export default {
     },
     selectedIcos(){
       if (this.$route.query.iconography){
-        console.log("hello", this.$route.query.iconography);
+        this.$log.debug("hello", this.$route.query.iconography);
         return this.$route.query.iconography
       } else {
         return null
@@ -161,7 +161,7 @@ export default {
       return TextSearchDepiction
     },
     caveFacets(){
-      console.log("aggregations caveFacetts: ", this.aggregations);
+      this.$log.debug("aggregations caveFacetts: ", this.aggregations);
       let aggregations = {}
       if (this.aggregations){
         if (this.aggregations["caveType"]){
@@ -184,7 +184,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["iconography"])
       }
-      console.log("aggregations icoFacetts: ", aggregations);
+      this.$log.debug("aggregations icoFacetts: ", aggregations);
       return aggregations
     },
     locationFacets(){
@@ -192,7 +192,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["location"])
       }
-      console.log("aggregations locationFacetts: ", aggregations);
+      this.$log.debug("aggregations locationFacetts: ", aggregations);
       return aggregations
     },
     textFacets(){
@@ -200,7 +200,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["text"])
       }
-      console.log("aggregations textFacetts: ", aggregations);
+      this.$log.debug("aggregations textFacetts: ", aggregations);
       return aggregations
     },
     wallLocationFacets(){
@@ -208,7 +208,7 @@ export default {
       if (this.aggregations){
         aggregations = getBuckets(this.aggregations["wallLocation"])
       }
-      console.log("aggregations wallLocationFacetts: ", aggregations);
+      this.$log.debug("aggregations wallLocationFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -225,13 +225,13 @@ export default {
   },
   methods: {
     changedSort(value){
-      console.log("new changed sort Value:", value);
+      this.$log.debug("new changed sort Value:", value);
       this.sort = value[0]
       this.direction = value[1]
       this.relatedDepictions = []
     },
     prepAggs(){
-      console.log("prepAggs started");
+      this.$log.debug("prepAggs started");
       let locationRes = this.$refs.locationSearch.prepSearch();
       this.locationSearchObjects = locationRes.search
       buildAgg(locationRes.aggs, "location", this.aggsObject)
@@ -266,32 +266,32 @@ export default {
     },
 
     changedCaveInput(value){
-      console.log("initiate facets over changedCaveInput");
-      console.log("new changed Cave Value:", value);
+      this.$log.debug("initiate facets over changedCaveInput");
+      this.$log.debug("new changed Cave Value:", value);
       this.caveSearchObjects = value.search
       this.buildCaveAggs(value.aggs)
       this.initiateFacets()
-      console.log("built aggs:", this.aggsObject);
+      this.$log.debug("built aggs:", this.aggsObject);
     },
     changedIcoInput(value){
-      console.log("initiate facets over changedIcoInput");
-      console.log("new changed Ico Value:", value);
+      this.$log.debug("initiate facets over changedIcoInput");
+      this.$log.debug("new changed Ico Value:", value);
       this.icoSearchObjects = value.search
       this.aggsObject["iconography"] = value.aggs
-      console.log("iconography:", value.ico);
+      this.$log.debug("iconography:", value.ico);
       this.iconography = value.ico
       this.initiateFacets()
     },
     changedLocationInput(value){
-      console.log("initiate facets over changedLicationInput");
-      console.log("new changed location Value:", value);
+      this.$log.debug("initiate facets over changedLicationInput");
+      this.$log.debug("new changed location Value:", value);
       this.locationSearchObjects = value.search
       buildAgg(value.aggs, "location", this.aggsObject)
       this.initiateFacets()
     },
     changedWallInput(value){
-      console.log("initiate facets over changedWallInput");
-      console.log("new changed wall Value:", value);
+      this.$log.debug("initiate facets over changedWallInput");
+      this.$log.debug("new changed wall Value:", value);
       this.wallSearchObjects = value.search
       this.aggsObject["wallLocation"] = value.aggs
       this.initiateFacets()
@@ -323,7 +323,7 @@ export default {
         }
         this.aggsObject[prop].agg[prop].terms["field"] = aggInfo[prop].field
       }
-      console.log("built aggsObject", this.aggsObject);
+      this.$log.debug("built aggsObject", this.aggsObject);
     },
     buildQueries(){
       let queries = {
@@ -403,7 +403,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
-          console.log("search results", res);
+          this.$log.debug("search results", res);
           var newDepictions = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
@@ -413,10 +413,10 @@ export default {
           this.relatedDepictions = newDepictions
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
           this.loading = false
         })
-      console.log("search initiated:", searchObject);
+      this.$log.debug("search initiated:", searchObject);
     },
     appendFilterToAgg(agg, filter, propertyName){
       for (let prop in filter){
@@ -435,11 +435,11 @@ export default {
     },
     initiateFacets(){
       if (!this.stoppAggs){
-        console.log("initiateFacets");
+        this.$log.debug("initiateFacets");
         this.relatedDepictions = []
         let aggregations = {"aggs" : {}}
         for (let aggProp in this.aggsObject){
-          console.log("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
+          this.$log.debug("aggsObject", aggProp, ":", this.aggsObject[aggProp]);
           let agg = JSON.parse(JSON.stringify( this.aggsObject[aggProp].agg))
           for (let filterProp in this.aggsObject){
             if (filterProp !== aggProp){
@@ -447,7 +447,7 @@ export default {
                 let filter = JSON.parse(JSON.stringify(this.aggsObject[filterProp].filter))
                 if (filterProp === "iconography" || filterProp === "wallLocation"){
                   agg = this.appendFilterToAgg(agg, filter, "reverse_nested")
-                  console.log("append filter to agg returned:", agg, "for: ", filterProp);
+                  this.$log.debug("append filter to agg returned:", agg, "for: ", filterProp);
                 } else {
                   agg = this.appendFilterToAgg(agg, filter, "filter")
                 }
@@ -491,27 +491,27 @@ export default {
         }
         postQuery(aggregations)
           .then( res => {
-            console.log("aggs results", res.data.aggregations);
+            this.$log.debug("aggs results", res.data.aggregations);
             this.aggregations = res.data.aggregations
             this.resAmount = res.data.hits.total.value
           })
           .catch((error) => {
-            console.log(error)
+            this.$log.debug(error)
           })
       }
     },
   },
   watch: {
     'panel': function(newVal, oldVal) {
-      console.log("updated caveTypes panel", newVal);
+      this.$log.debug("updated caveTypes panel", newVal);
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on should", newVal);
+      this.$log.debug("updated aggregations on should", newVal);
     },
 
   },
   mounted:function () {
-    console.log("started Depiction filter", this.$route);
+    this.$log.debug("started Depiction filter", this.$route);
     this.prepAggs();
   },
   beforeUpdate:function () {

@@ -46,10 +46,10 @@ export default {
     setRelatedDepictions(idealTypicalIDs){
       var params = {}
       params.iconographyID = idealTypicalIDs
-      console.log("params of getDepictions", params);
+      this.$log.debug("params of getDepictions", params);
       getDepictionByAnnotation(params)
         .then( res => {
-          console.log("anno.tags, git results");
+          this.$log.debug("anno.tags, git results");
           for (let typical of this.idealTypicalsWithoutDepictions){
             for ( var entry of res.data.hits.hits){
               if (this.getAnnos(entry._source).length > 0){
@@ -71,7 +71,7 @@ export default {
                   }
                   if (found) {
                     anno.tags = tagDummy
-                    console.log("anno.tags:", anno.tags);
+                    this.$log.debug("anno.tags:", anno.tags);
                     newAnnos.push(anno)
                   }
                 }
@@ -102,20 +102,20 @@ export default {
           }
           this.loading = false;
           this.idealTypicals = this.idealTypicalsWithoutDepictions.sort(compare)
-          console.log("Typicals", this.idealTypicals);
+          this.$log.debug("Typicals", this.idealTypicals);
           // Vue.set(this.relatedDepictions, idealTypical.iconographyID, newDepictions)
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
 
   },
   mounted:function () {
     this.loading = true
-    console.log("started Virtual Tour");
+    this.$log.debug("started Virtual Tour");
     getIdeals()
       .then( res => {
-        console.log("res", res);
+        this.$log.debug("res", res);
         let idealTypicals = []
         if (res.data.hits.hits.length > 0){
           for (let hit of res.data.hits.hits) {
@@ -139,7 +139,7 @@ export default {
             idealTypicalIDs.push(idealTypical.iconographyID)
           }
         }
-        console.log("idealTypicalsWithoutDepictions", this.idealTypicalsWithoutDepictions);
+        this.$log.debug("idealTypicalsWithoutDepictions", this.idealTypicalsWithoutDepictions);
         this.setRelatedDepictions(idealTypicalIDs)
       })
   },

@@ -42,13 +42,13 @@ export default {
   },
   methods: {
     getNewBibliography(){
-      console.log("cave in stored results not found, starting new search");
+      this.$log.debug("cave in stored results not found, starting new search");
       var params = {}
       params['type'] = "annotatedBibliographyID"
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
-          console.log("results", res)
+          this.$log.debug("results", res)
           if (res.data.hits.hits[0]){
             this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
@@ -57,17 +57,17 @@ export default {
             this.notFound = true
           }
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           this.notFound = true
         })
     },
     getBibliography(){
-      console.log("initiate getting bibEntry");
+      this.$log.debug("initiate getting bibEntry");
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.annotatedBibliographyID === parseInt(this.$route.params.id))
-        console.log("res after finding in results:", res);
+        this.$log.debug("res after finding in results:", res);
         if (res !== undefined){
-          console.log("reutrning stored result");
+          this.$log.debug("reutrning stored result");
           this.bibliography = res._source
         } else {
           this.getNewBibliography()
@@ -79,7 +79,7 @@ export default {
   },
   watch: {
     $route(to, from) {
-      console.log("route changed");
+      this.$log.debug("route changed");
       this.getBibliography()
     }
   },

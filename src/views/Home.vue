@@ -95,11 +95,11 @@ export default {
     searchRoot(params, this.$store.state.mapping)
       .then( res => {
         if (res.data.hits.total.value === 0){
-          console.log("res", res);
+          this.$log.debug("res", res);
           // this.alert = true;
         }
       }).catch(function (error) {
-        console.log(error)
+        this.$log.debug(error)
         return null
       })
   }

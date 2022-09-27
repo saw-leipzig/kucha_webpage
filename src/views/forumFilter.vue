@@ -287,7 +287,7 @@ export default {
       }
     },
     getTextSearchParams(){
-      console.log("TextSearchForum", TextSearchForum);
+      this.$log.debug("TextSearchForum", TextSearchForum);
       return TextSearchForum
     },
     getRadioGroupData(){
@@ -407,7 +407,7 @@ export default {
           this.discussions = newForums
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
           this.loading = false
         })
     },
@@ -444,7 +444,7 @@ export default {
           }, 2000);
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
     clearForm(){
@@ -516,12 +516,12 @@ export default {
           this.resAmount = res.data.hits.total.value
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
 
     onTextSearchInput(value) {
-      console.log("value", value);
+      this.$log.debug("value", value);
       this.textSearch = value.search
       // this.buildTextAggs(value.aggs)
       this.initiateFacets()
@@ -552,7 +552,7 @@ export default {
           this.discussions.sort(function(a, b){return b._source.latestUpdate - a._source.latestUpdate})
         })
         .catch((error) => {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
   },
@@ -596,7 +596,7 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error)
+        this.$log.debug(error)
       })
     getBiblioList()
       .then( res => {
@@ -610,7 +610,7 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error)
+        this.$log.debug(error)
       })
     getIcoList()
       .then( res => {
@@ -624,7 +624,7 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error)
+        this.$log.debug(error)
       })
     getCaveList()
       .then( res => {
@@ -638,7 +638,7 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error)
+        this.$log.debug(error)
       })
     getDiscussionKeywords()
       .then( res => {
@@ -647,7 +647,7 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error)
+        this.$log.debug(error)
       })
   },
 }

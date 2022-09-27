@@ -52,7 +52,7 @@ export default {
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
-          console.log("annotoriousID = ", params);
+          this.$log.debug("annotoriousID = ", params);
           this.$store.commit('setResults', res.data.hits.hits)
           if (res.data.hits.hits[0]){
             this.notFound = false
@@ -61,13 +61,13 @@ export default {
             this.notFound = true
           }
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
     getDepiction() {
       if (this.$route.params.annotoriousID) {
         this.annotations.push(this.$route.params.annotoriousID)
-        console.log("annotation:", this.annotations);
+        this.$log.debug("annotation:", this.annotations);
       }
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => item._source.depictionID === parseInt(this.$route.params.id))
@@ -84,17 +84,17 @@ export default {
 
   mounted:function() {
     this.getDepiction()
-    console.log("mounted");
+    this.$log.debug("mounted");
 
   },
   beforeUpdated:function() {
     this.getDepiction()
-    console.log("beforeUpdated");
+    this.$log.debug("beforeUpdated");
 
   },
   watch: {
     $route(to, from) {
-      console.log("route changed");
+      this.$log.debug("route changed");
       this.getDepiction()
     }
   }

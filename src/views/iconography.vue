@@ -44,19 +44,19 @@ export default {
   },
   methods: {
     getNewIconogrphy(){
-      console.log("cave in stored results not found, starting new search");
+      this.$log.debug("cave in stored results not found, starting new search");
       var params = {}
       params['type'] = "iconographyID"
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
-          console.log("results", res.data.hits.hits)
+          this.$log.debug("results", res.data.hits.hits)
           if (res.data.hits.hits[0]){
             this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
             for (let hit of res.data.hits.hits) {
               if (hit.typicalID){
-                console.log("found typical!", hit);
+                this.$log.debug("found typical!", hit);
                 this.idealTypical = hit._source
               } else {
                 this.iconography = hit._source
@@ -66,7 +66,7 @@ export default {
             this.notFound = true
           }
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           this.notFound = true
         })
       return null
@@ -74,13 +74,13 @@ export default {
     getIconography(){
       if (Object.keys(this.$store.state.results).length !== 0){
         var res = this.$store.state.results.find(item => ((item._source.iconographyID === parseInt(this.$route.params.id)) && (item._source.typicalID === undefined)))
-        console.log("res after finding in results:", res);
+        this.$log.debug("res after finding in results:", res);
         if (res !== undefined){
-          console.log("reutrning stored result");
+          this.$log.debug("reutrning stored result");
           this.iconography = res._source
           var resTypical = this.$store.state.results.find(item => ((item._source.iconographyID === parseInt(this.$route.params.id)) && (item._source.typicalID)))
           if (resTypical !== undefined){
-            console.log();
+            this.$log.debug();
             this.idealTypical = resTypical._source
           }
         } else {
@@ -93,17 +93,17 @@ export default {
   },
   watch: {
     $route(to, from) {
-      console.log("route changed");
+      this.$log.debug("route changed");
       this.getIconography()
     }
   },
   mounted:function () {
-    console.log("setting error false");
+    this.$log.debug("setting error false");
     this.error = false;
     this.getIconography();
   },
   updated() {
-    console.log("setting error false");
+    this.$log.debug("setting error false");
     this.error = false;
     this.getIconography();
   },

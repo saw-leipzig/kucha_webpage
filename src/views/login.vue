@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     login(){
-      console.log(this.pWord);
+      this.$log.debug(this.pWord);
       if (this.pWord === "kuchaTest"){
         this.$store.commit('setAuthenticated', true)
       }
@@ -52,7 +52,7 @@ export default {
     }
   },
   mounted:function () {
-    console.log("started login");
+    this.$log.debug("started login");
 
   },
 }
