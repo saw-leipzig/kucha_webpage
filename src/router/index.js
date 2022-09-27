@@ -20,13 +20,13 @@ const router =  new Router({
     },
     {
       path: '/pr/:id/annotation/:annotoriousID',
-      name: 'Depiction Entry',
+      name: 'Depiction',
       component: () => import('@/views/depiction'),
       props: true
     },
     {
       path: '/pr/:id',
-      name: 'Depiction Entry',
+      name: 'Depiction',
       component: () => import('@/views/depiction'),
       props: true
     },
@@ -43,7 +43,7 @@ const router =  new Router({
     },
     {
       path: '/iconography/:id',
-      name: 'Iconography Entry',
+      name: 'Iconography',
       component: () => import('@/views/iconography'),
       props: true
     },
@@ -54,7 +54,7 @@ const router =  new Router({
     },
     {
       path: '/bibliography/:id',
-      name: 'bibliography Entry',
+      name: 'Bibliography Entry',
       component: () => import('@/views/bibliography'),
       props: true
     },
@@ -66,7 +66,7 @@ const router =  new Router({
     },
     {
       path: '/cave/:id',
-      name: 'Cave Entry',
+      name: 'Cave',
       component: () => import('@/views/cave'),
       props: true
     },
@@ -113,13 +113,13 @@ router.beforeEach((to, from, next) => {
       {
         text: to.name,
         disabled: false,
-        href: to.fullPath,
+        href: to.fullPath.replace(to.params.id, ""),
       }
     )
     if (Object.keys(to.params).length > 0){
       breadcrumb.push(
         {
-          text: to.name + ' ' + to.params.id,
+          text: to.name + ' Entry ' + to.params.id,
           disabled: false,
           href: to.fullPath,
         }

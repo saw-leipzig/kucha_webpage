@@ -16,8 +16,8 @@
         </v-breadcrumbs-item>
       </template>
     </v-breadcrumbs>
-            <depictionInf v-if="Object.keys(depictionEntry).length>0" :annotations="annotations" :depiction="depictionEntry" v-bind:presentCave="true" :preSelected="[]"></depictionInf>
-            <pageNotFound v-if="notFound" ></pageNotFound>
+    <depictionInf v-if="Object.keys(depictionEntry).length>0" :annotations="annotations" :depiction="depictionEntry" v-bind:presentCave="true" :preSelected="[]"></depictionInf>
+    <pageNotFound v-if="notFound" ></pageNotFound>
   </v-card>
   </div>
 

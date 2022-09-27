@@ -361,9 +361,9 @@ export default {
 
     setHeight(){
       if (this.relativeHeight){
-        return this.$vuetify.breakpoint.smAndDown ? 'height:100%;display: flex;' : 'height:100%;flex:1;display: flex;'
+        return this.$vuetify.breakpoint.smAndDown ? 'height:100%;display: flex;' : 'flex:1;display: flex;'
       } else {
-        return this.$vuetify.breakpoint.smAndDown ? 'height:100%;display: flex;' : 'height:100%;flex:1;display: flex;'
+        return this.$vuetify.breakpoint.smAndDown ? 'height:100%;display: flex;' : 'flex:1;display: flex;'
       }
     },
     yTag(){
