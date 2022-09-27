@@ -231,7 +231,7 @@ export default {
       return this.regions
     },
     getAgg(item){
-      console.log(item);
+      this.$log.debug(item);
       return 10
     },
     getCaveProps(){
@@ -352,7 +352,7 @@ export default {
       }
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on caveSearch", this.aggregations);
+      this.$log.debug("updated aggregations on caveSearch", this.aggregations);
       this.getCaveProps()
     },
 

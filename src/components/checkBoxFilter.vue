@@ -103,16 +103,16 @@ export default {
   },
   watch: {
     'model': function(newVal, oldVal) {
-      console.log("new CheckBox Model:", newVal);
+      this.$log.debug("new CheckBox Model:", newVal);
       this.startSearch()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on CheckBoxes", this.aggregations);
+      this.$log.debug("updated aggregations on CheckBoxes", this.aggregations);
     },
 
   },
   mounted:function () {
-    console.log("checkBoxData:", this.checkBoxData);
+    this.$log.debug("checkBoxData:", this.checkBoxData);
   },
   beforeUpdate:function () {
   }

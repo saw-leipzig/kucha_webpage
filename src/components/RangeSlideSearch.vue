@@ -94,7 +94,7 @@ export default {
       this.keywochronologicalRangeSelectedrds = this.chronologicalDefault;
     },
     prepSearch(){
-      console.log("prepsearch", this.prefix);
+      this.$log.debug("prepsearch", this.prefix);
       let searchObjects = {
         must: [],
         should: []
@@ -125,7 +125,7 @@ export default {
       let result = {}
       result['search'] = searchObjects
       result['aggs'] = aggsObject
-      console.log("searchObject of keywords", result);
+      this.$log.debug("searchObject of keywords", result);
       return result
     },
     startSearch(){
@@ -138,12 +138,12 @@ export default {
       this.startSearch()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on bibKeyWord", this.aggregations);
+      this.$log.debug("updated aggregations on bibKeyWord", this.aggregations);
     },
 
   },
   mounted:function () {
-    console.log("rangeSlider stated", this.chronologicalDefault);
+    this.$log.debug("rangeSlider stated", this.chronologicalDefault);
     this.chronologicalRangeSelected = JSON.parse(JSON.stringify(this.chronologicalDefault))
   },
   beforeUpdate:function () {

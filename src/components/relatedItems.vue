@@ -88,7 +88,7 @@ export default {
     },
 
     getTitle(item){
-      // console.log(item);
+      // this.$log.debug(item);
       if (item.depictionID) {
         return getDepictionLabel(item)
       } else if (item.caveID) {
@@ -103,7 +103,7 @@ export default {
     }
   },
   mounted:function () {
-    console.log("iconography is:", this.iconography);
+    this.$log.debug("iconography is:", this.iconography);
   },
 }
 </script>

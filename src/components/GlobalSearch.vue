@@ -321,8 +321,8 @@ export default {
       return res
     },
     setRes(res){
-      console.log("setRes started")
-      console.log('Setting result to', res);
+      this.$log.debug("setRes started")
+      this.$log.debug('Setting result to', res);
       this.$store.commit('setResult', res)
     },
     checkClear() {
@@ -343,12 +343,12 @@ export default {
     },
 
     focusOnInput() {
-      console.log('call focus')
+      this.$log.debug('call focus')
       this.$nextTick(() => {
-        console.log("focusOnImput started.");
+        this.$log.debug("focusOnImput started.");
         this.$refs.globalSearchInput && this.$refs.globalSearchInput.focus()
-        console.log('ref: ', this.$refs.globalSearchInput.$el)
-        console.log('active: ', document.activeElement)
+        this.$log.debug('ref: ', this.$refs.globalSearchInput.$el)
+        this.$log.debug('active: ', document.activeElement)
       });
 
     },
@@ -377,13 +377,13 @@ export default {
       let i = 0
       let timeid = setInterval( () => {
         if (self.searchtext !== search) {
-          console.log('cancel', i)
+          this.$log.debug('cancel', i)
           cancel = true
           i = max - 1
           clearInterval(timeid)
         }
         if (i === max - 1 && !cancel) {
-          console.log('submit')
+          this.$log.debug('submit')
           clearInterval(timeid)
           self.formSubmit(0)
         }
@@ -404,19 +404,19 @@ export default {
         searchRoot(params, this.$store.state.mapping)
           .then( res => {
             this.totalres = res.data.hits.total.value;
-            console.log(this.totalres);
-            console.log("recieved result.", res.data.hits.total.value)
+            this.$log.debug(this.totalres);
+            this.$log.debug("recieved result.", res.data.hits.total.value)
             this.results = res.data.hits.hits
-            console.log(res);
+            this.$log.debug(res);
             this.totalResults = res.data.hits.total.value
             this.showResults = true
             this.loading = false
 
-            console.log("search finished.");
+            this.$log.debug("search finished.");
             this.$store.commit('setResults', res.data.hits.hits)
             this.$matomo && this.$matomo.trackSiteSearch(this.$store.state.searchtext, 'global', this.totalResults)
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }
@@ -454,7 +454,7 @@ export default {
         this.formSubmit(this.searchPack)
       }
     }
-    console.log("refs:", this.$refs.menu.calcTop);
+    this.$log.debug("refs:", this.$refs.menu.calcTop);
 
   },
   beforeDestroy() {

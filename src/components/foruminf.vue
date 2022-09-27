@@ -90,7 +90,7 @@ export default {
   },
   computed:{
     publishedDiscussions(){
-      console.log("all discussions", this.discussions, this.$store.state.user.accessLevel);
+      this.$log.debug("all discussions", this.discussions, this.$store.state.user.accessLevel);
       if (this.$store.state.user.accessLevel === 4){
 
         return this.discussions
@@ -109,7 +109,7 @@ export default {
   },
   methods: {
     publishDiscussion(value){
-      console.log("this.publishedDiscussion", value);
+      this.$log.debug("this.publishedDiscussion", value);
       let newComments = []
       for (let discussion of this.discussions){
         if (discussion._id === value){
@@ -118,30 +118,30 @@ export default {
           break
         }
       }
-      console.log(newComments);
+      this.$log.debug(newComments);
       this.$emit('clicked', newComments)
     },
 
     editDiscussion(value){
-      console.log("editDiscussion", value);
-      console.log("Discussions", this.discussions);
+      this.$log.debug("editDiscussion", value);
+      this.$log.debug("Discussions", this.discussions);
       let uuid = value.uuid
       delete value.uuid
-      console.log("this.$store.state.user.sessionID", this.$store.state.user.sessionID);
+      this.$log.debug("this.$store.state.user.sessionID", this.$store.state.user.sessionID);
       putComments(value, uuid, false, this.$store.state.user.sessionID)
       for (let discussion of this.discussions){
         if (discussion._id === uuid){
-          console.log("discussion", discussion);
+          this.$log.debug("discussion", discussion);
           discussion = value
         }
       }
     },
     subscribe(data){
-      console.log("subscribe initiated:", data);
+      this.$log.debug("subscribe initiated:", data);
       var filtered = []
       var parentDiscussion = this.discussions.find(element => element._id === data.uuid)
-      console.log("Discussion",  this.discussions);
-      console.log("parentDiscussion", parentDiscussion);
+      this.$log.debug("Discussion",  this.discussions);
+      this.$log.debug("parentDiscussion", parentDiscussion);
       var _self = this
       if (data.isSubscribed){
         filtered = parentDiscussion._source.unsubscribed.filter(function(value, index, arr){
@@ -164,24 +164,24 @@ export default {
         parentDiscussion._source.subscribed = filtered
         parentDiscussion._source.unsubscribed.push(this.$store.state.user.userID)
       }
-      console.log("discussions", this.discussions);
+      this.$log.debug("discussions", this.discussions);
       putComments(parentDiscussion._source, parentDiscussion._id, false, this.$store.state.user.sessionID)
     },
     getComments(){
       this.$emit("getComments", '')
     },
     postComments(comments){
-      console.log("post comment in forum:", comments);
+      this.$log.debug("post comment in forum:", comments);
       var parentDiscussion = this.discussions.find(element => element._id === comments.comment[0].parentUuid)
       parentDiscussion._source.comments = comments.comment
       parentDiscussion._source.latestUpdate = Date.now();
-      console.log("PrarenDiscussion", parentDiscussion);
+      this.$log.debug("PrarenDiscussion", parentDiscussion);
       if (!parentDiscussion._source.unsubscribed.includes(this.$store.state.user.userID)){
         if (!parentDiscussion._source.subscribed.includes(this.$store.state.user.userID)){
           parentDiscussion._source.subscribed.push(this.$store.state.user.userID)
         }
       }
-      console.log(parentDiscussion);
+      this.$log.debug(parentDiscussion);
       putComments(parentDiscussion._source, comments.comment[0].parentUuid, comments.sendMail, this.$store.state.user.sessionID, comments.text)
     }
   },
@@ -192,7 +192,7 @@ export default {
 
   },
   mounted:function () {
-    console.log("published discussions", this.publishedDiscussions);
+    this.$log.debug("published discussions", this.publishedDiscussions);
   },
 }
 

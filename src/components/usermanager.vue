@@ -152,8 +152,8 @@ export default {
       if (this.changePW){
         newPW = MD5(this.password).toString()
       }
-      console.log("new Password:", newPW);
-      console.log("old Password:", MD5(this.oldPassword).toString());
+      this.$log.debug("new Password:", newPW);
+      this.$log.debug("old Password:", MD5(this.oldPassword).toString());
 
       let updatedUser = {
         "firstname": this.firstName,

@@ -188,7 +188,7 @@ export default {
   computed: {
     bibInfo (){
       if (this.bibliography.annotatedBibliographyID){
-        console.log("bibentry: ", this.bibliography);
+        this.$log.debug("bibentry: ", this.bibliography);
         var bibInfo = {}
         var basciInf = {}
         var content = {}
@@ -281,10 +281,10 @@ export default {
     getComments(){
       getCommentsByItems([], [], [], [this.bibliography.annotatedBibliographyID])
         .then( res => {
-          console.log("recieved discussions.", res.data.hits.hits)
+          this.$log.debug("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
     },
@@ -304,9 +304,9 @@ export default {
             newDepictions.push(entry._source)
           }
           this.relatedDepictions = newDepictions
-          console.log("new Depictions:", newDepictions);
+          this.$log.debug("new Depictions:", newDepictions);
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
 
@@ -317,7 +317,7 @@ export default {
       this.showAnno = !this.showAnno
     },
     getBibTitle(bib){
-      console.log("bibentry: ", bib, getBibTitle(bib));
+      this.$log.debug("bibentry: ", bib, getBibTitle(bib));
       return getBibTitle(bib)
     }
   },
@@ -326,20 +326,20 @@ export default {
     this.getComments()
   },
   beforeMount:function () {
-    console.log("beforemount:", this.bibliographyDefault);
+    this.$log.debug("beforemount:", this.bibliographyDefault);
     this.bibliography = this.bibliographyDefault
     getVersionsOfEntry(this.bibliographyDefault)
       .then( res => {
-        console.log("recieved versions.", res.data.hits.hits)
+        this.$log.debug("recieved versions.", res.data.hits.hits)
         this.versions = res.data.hits.hits
         for (let v of this.versions){
           v.date = new Date(v._source.timestamp)
         }
         this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
         this.version = this.versions[this.versions.length - 1]
-        console.log("versions:", this.versions);
+        this.$log.debug("versions:", this.versions);
       }).catch(function (error) {
-        console.log(error)
+        this.$log.debug(error)
         return null
       })
   },
@@ -350,7 +350,7 @@ export default {
           .then( res => {
             this.bibliography = res.data._source.content
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }

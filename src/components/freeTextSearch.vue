@@ -200,7 +200,7 @@ export default {
           } else {
             let textSearchmust = {}
             let deepquery = buildNestedQueries(this.isForum ? this.$store.state.discussionMapping : this.$store.state.mapping, "", this.textSearch[field])
-            console.log("deepquery", deepquery);
+            this.$log.debug("deepquery", deepquery);
 
             textSearchmust["query_string"] = {
               "lenient": true,
@@ -215,7 +215,7 @@ export default {
       }
       result['search'] = searchObjects
       result['aggs'] = aggsObject
-      console.log("searchObject of location", result);
+      this.$log.debug("searchObject of location", result);
       return result
     },
     update(){

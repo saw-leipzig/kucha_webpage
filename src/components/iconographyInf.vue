@@ -215,7 +215,7 @@ export default {
       }
     },
     hasImages(){
-      console.log("hasImages:", this.iconographyShown.oe);
+      this.$log.debug("hasImages:", this.iconographyShown.oe);
       if (this.iconographyShown.oe){
         if (this.iconographyShown.oe.images){
           if (this.iconographyShown.oe.images.length > 0){
@@ -231,13 +231,13 @@ export default {
       }
     },
     hasAdditionalInfo(){
-      console.log("idealtypical:", this.idealTypical);
+      this.$log.debug("idealtypical:", this.idealTypical);
       if (this.discussions.length > 0) {
         return true
       } else if (this.iconographyShown.oe){
         if (Object.keys(this.iconographyShown.oe).length > 0){
           if (Object.keys(this.idealTypical.data).length > 0){
-            console.log("idealtypical returned true:", Object.keys(this.iconography.oe).length);
+            this.$log.debug("idealtypical returned true:", Object.keys(this.iconography.oe).length);
             return true
           } else {
             return false
@@ -259,7 +259,7 @@ export default {
           returnElement.push(result)
         }
       }
-      console.log("returnElement", returnElement );
+      this.$log.debug("returnElement", returnElement );
       return returnElement
     },
 
@@ -268,7 +268,7 @@ export default {
       let data = {}
       let basicInf = {}
       let desc = {}
-      console.log("iconography Entry", this.iconographyShown);
+      this.$log.debug("iconography Entry", this.iconographyShown);
       // if (this.iconography.search !== "" && this.iconography.search !== this.iconography.text){
       //   basicInf["Alternative Terms"] = this.iconography.search
       // }
@@ -276,9 +276,9 @@ export default {
       icoInf.annos = []
       icoInf.relatedAnnotationList = []
       if (idealTypical !== undefined){
-        console.log("idealTypical", idealTypical);
+        this.$log.debug("idealTypical", idealTypical);
         let res = fillPicsContainer(idealTypical.images, idealTypical.relatedAnnotationList)
-        console.log("idealTypical res", res);
+        this.$log.debug("idealTypical res", res);
         icoInf.relatedAnnotationList = idealTypical.relatedAnnotationList
         if (idealTypical.description){
           desc["Description"] = idealTypical.description
@@ -302,7 +302,7 @@ export default {
         data['dating'] = ''
       }
       icoInf['data'] = data
-      console.log("icoinf", icoInf);
+      this.$log.debug("icoinf", icoInf);
       return icoInf
     },
 
@@ -314,10 +314,10 @@ export default {
     getComments(){
       getCommentsByItems([], [], [this.iconographyShown.iconographyID], [])
         .then( res => {
-          console.log("recieved discussions.", res.data.hits.hits)
+          this.$log.debug("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
     },
@@ -345,7 +345,7 @@ export default {
       this.getRelatedDepictions()
       getVersionsOfEntry(this.iconographyShown)
         .then( res => {
-          console.log("recieved versions.", res.data.hits.hits)
+          this.$log.debug("recieved versions.", res.data.hits.hits)
           this.versions = res.data.hits.hits
           for (let v of this.versions){
             v.date = new Date(v._source.timestamp)
@@ -353,7 +353,7 @@ export default {
           this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
           this.version = this.versions[this.versions.length - 1]
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
       if (this.iconographyShown.oe){
@@ -380,15 +380,15 @@ export default {
     },
     getRelatedDepictions(){
       this.relatedDepictions = getRelatedDepictions(this.iconographyWithChildren)
-      console.log("this.relatedDepictions", this.relatedDepictions);
+      this.$log.debug("this.relatedDepictions", this.relatedDepictions);
     },
     initOSDimg(){
-      console.log("idealTypical.annos.length>0", this.idealTypical.annos);
+      this.$log.debug("idealTypical.annos.length>0", this.idealTypical.annos);
       let tilesImg = []
-      console.log("Initializing Images: ", this.iconographyShown.oe.images);
+      this.$log.debug("Initializing Images: ", this.iconographyShown.oe.images);
       if (this.iconographyShown.oe.images.length > 0){
         tilesImg = this.getOSDURL(this.iconographyShown.oe.images[0])
-        console.log("images available, initiate OSDIMG", tilesImg);
+        this.$log.debug("images available, initiate OSDIMG", tilesImg);
         this.image = this.iconographyShown.oe.images[0]
         this.viewerImg = OpenSeadragon({
           id: "openseadragonImgIconography" + this.iconography.iconographyID,
@@ -399,7 +399,7 @@ export default {
     },
     setOSDimages(image){
       this.image = image
-      console.log("change to ", this.getOSDURL(image));
+      this.$log.debug("change to ", this.getOSDURL(image));
       this.viewerImg.open(this.getOSDURL(image))
     },
     mouseOver: function(){
@@ -444,7 +444,7 @@ export default {
     },
   },
   mounted:function () {
-    console.log("new Iconography started", this.iconographyShown);
+    this.$log.debug("new Iconography started", this.iconographyShown);
     this.initNewIconography()
     this.getComments()
   },
@@ -458,7 +458,7 @@ export default {
           .then( res => {
             this.iconographyShown = res.data._source.content
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }

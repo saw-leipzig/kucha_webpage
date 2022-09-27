@@ -62,7 +62,7 @@ export default {
   computed:{
   },
   mounted:function () {
-    console.log("conography is:", this.iconography);
+    this.$log.debug("conography is:", this.iconography);
   },
 }
 </script>

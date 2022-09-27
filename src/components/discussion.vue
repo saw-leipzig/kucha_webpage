@@ -354,7 +354,7 @@ export default {
       return keywordText
     },
     isSubscribed(){
-      console.log("subscribed:", this.subscribed);
+      this.$log.debug("subscribed:", this.subscribed);
       if (this.unsubscribed.includes(this.$store.state.user.userID)){
         return false
       } else if (this.subscribed.includes(this.$store.state.user.userID)){
@@ -365,7 +365,7 @@ export default {
   },
   methods: {
     publishedComment(value){
-      console.log("publishing triggered", value);
+      this.$log.debug("publishing triggered", value);
       let newComments = []
       let messageText = ""
       for (let comment of this.item.comments){
@@ -377,7 +377,7 @@ export default {
           newComments.push(comment)
         }
       }
-      console.log(newComments);
+      this.$log.debug(newComments);
       let data = {
         "comment": newComments,
         "sendMail": true,
@@ -386,7 +386,7 @@ export default {
       this.$emit('clicked', data)
     },
     publish(){
-      console.log("item", this.uuid);
+      this.$log.debug("item", this.uuid);
       this.$emit('publish', this.uuid)
     },
     editingClicked(){
@@ -401,7 +401,7 @@ export default {
         this.chronologicalRangeSelectedModified = [this.item.chronologicalRangeMin, this.item.chronologicalRangeMax]
         this.keywordsSelectedModified = this.item.keywordList
       } else {
-        console.log("saving", this.item.components);
+        this.$log.debug("saving", this.item.components);
         this.editing = false
         let data = {
           "uuid": this.uuid,
@@ -430,8 +430,8 @@ export default {
       }
     },
     editComment(value){
-      console.log("editCommentTriggered", value);
-      console.log("former comments:", this.item.comments);
+      this.$log.debug("editCommentTriggered", value);
+      this.$log.debug("former comments:", this.item.comments);
       let newComments = []
       for (let comment of this.item.comments){
         if (comment.uuid === value.uuid){
@@ -491,10 +491,10 @@ export default {
           "published": false
         }
         var newComments = JSON.parse(JSON.stringify(this.item.comments))
-        console.log("THIS.ITEM", this.item);
-        console.log("newComments", newComments);
+        this.$log.debug("THIS.ITEM", this.item);
+        this.$log.debug("newComments", newComments);
         newComments.push(newComment)
-        console.log("post answer", newComments);
+        this.$log.debug("post answer", newComments);
         let data = {
           "comment": newComments,
           "sendMail": false,
@@ -507,21 +507,21 @@ export default {
       }
     },
     setComment(newComment){
-      console.log("setComment", newComment.comment);
-      console.log("oldComments", this.item.comments);
+      this.$log.debug("setComment", newComment.comment);
+      this.$log.debug("oldComments", this.item.comments);
       var newComments = []
       for (let comment of this.item.comments){
-        console.log("comment", comment);
+        this.$log.debug("comment", comment);
         if (comment.uuid === newComment.comment[0].parentUuid){
           var addedComment = Object.assign({}, comment)
           addedComment.comments = newComment.comment
-          console.log("addedComment", addedComment);
+          this.$log.debug("addedComment", addedComment);
           newComments.push(addedComment)
         } else {
           newComments.push(comment)
         }
       }
-      console.log("newComments", newComments);
+      this.$log.debug("newComments", newComments);
       let data = {
         "sendMail" : false,
         "comment": newComments,
@@ -532,7 +532,8 @@ export default {
     }
   },
   mounted:function () {
-    console.log("discussions called");
+    this.$log.debug("discussions called");
+    this.$log.debug("User:", this.$store.state.user);
     if (!this.item.published){
       this.unpublishedAlert = true
     }
@@ -543,13 +544,13 @@ export default {
   },
   watch: {
     'subscribed': function(newVal, oldVal) {
-      console.log("subscribed:", newVal);
+      this.$log.debug("subscribed:", newVal);
     },
     'unsubscribed': function(newVal, oldVal) {
-      console.log("unsubscribed:", newVal);
+      this.$log.debug("unsubscribed:", newVal);
     },
     'showAnswers': function(newVal, oldVal) {
-      console.log("showAnswers:", newVal);
+      this.$log.debug("showAnswers:", newVal);
     }
 
   },

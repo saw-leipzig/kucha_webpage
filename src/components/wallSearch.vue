@@ -53,11 +53,11 @@ export default {
       }
       let wallLocations = []
       let walls = this.$store.state.wallLocation
-      console.log("walls", walls)
+      this.$log.debug("walls", walls)
       for (let element of walls){
         let el = Object.assign({}, element)
         let res = this.setAggsInElement(el)
-        console.log("result of res count for:", element, ":", res)
+        this.$log.debug("result of res count for:", element, ":", res)
         if (res !== null){
           if (res.count.size > 0){
             wallLocations.push(res)
@@ -65,13 +65,13 @@ export default {
         }
       }
       // wallLocations = walls
-      // console.log("walls after filtering", this.wallLocations);
+      // this.$log.debug("walls after filtering", this.wallLocations);
       // this.setAggs(this.walls)
       return wallLocations
     },
     filter () {
       return  (item, search, textKey) => {
-        console.log("count of item: ", item, "returning:", ((item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1) && (this.getCount(item) > 0)))
+        this.$log.debug("count of item: ", item, "returning:", ((item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1) && (this.getCount(item) > 0)))
         return ((item["name"].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(search) > -1) && (this.getCount(item) > 0))
       }
     },
@@ -102,7 +102,7 @@ export default {
             for (let bucket of agg.depictionID.amount.buckets){
               element.count.add(bucket.key)
               // if (element.wallLocationID === 102){
-              //   console.log("wallLocationCount of wallLocation", element.wallLocationID, ":", bucket.key, ", count:", element.count);
+              //   this.$log.debug("wallLocationCount of wallLocation", element.wallLocationID, ":", bucket.key, ", count:", element.count);
               // }
             }
             break
@@ -115,7 +115,7 @@ export default {
               for (let depictionID of child.count){
                 element.count.add(depictionID)
                 // if (element.wallLocationID === 102){
-                //   console.log("wallLocationCount of wallLocation", element.wallLocationID, ":", depictionID, ", count:", element.count);
+                //   this.$log.debug("wallLocationCount of wallLocation", element.wallLocationID, ":", depictionID, ", count:", element.count);
                 // }
 
               }
@@ -225,7 +225,7 @@ export default {
       }
       wallLocationAggs.agg.WallIDs.aggs.wallLocationID.terms["field"] = wallLoactionPath
       wallLocationAggs.agg.WallIDs.aggs.wallLocationID.terms["size"] = 10000
-      console.log("searchObject", searchObjects);
+      this.$log.debug("searchObject", searchObjects);
       let result = {
         "search": searchObjects,
         "aggs":  wallLocationAggs
@@ -244,7 +244,7 @@ export default {
   watch: {
     'wallLocationSelected': function(newVal, oldVal) {
       if (this.update){
-        console.log("wallLocationSelected Updated", newVal);
+        this.$log.debug("wallLocationSelected Updated", newVal);
         this.selected = []
         for (let node of newVal){
           this.selected.push(node);
@@ -252,7 +252,7 @@ export default {
         for (let node of this.getWallLocations){
           this.getSelectedParents(node, this.selected)
         }
-        console.log("seletctedItems after adding parents: ", this.selected);
+        this.$log.debug("seletctedItems after adding parents: ", this.selected);
         this.startSearch()
       } else {
         this.update = true

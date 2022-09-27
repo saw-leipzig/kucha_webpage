@@ -308,7 +308,7 @@ export default {
         depictionInf['Main'] = mainInf
       }
       var wallLocation = {}
-      console.log("wallIDs", this.pr.wallIDs);
+      this.$log.debug("wallIDs", this.pr.wallIDs);
       if (this.pr.wallIDs){
         wallLocation["Wall Location"] = this.walls
       }
@@ -363,15 +363,15 @@ export default {
   },
   methods: {
     handleScroll(){
-      console.log("scrolling!");
+      this.$log.debug("scrolling!");
     },
     getComments(){
       getCommentsByItems(this.pr.cave ? [this.pr.cave.caveID] : [], [this.pr.depictionID], [], [])
         .then( res => {
-          console.log("recieved discussions.", res.data.hits.hits)
+          this.$log.debug("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
     },
@@ -410,9 +410,9 @@ export default {
     },
     initOSDimg(){
       let tilesImg = []
-      console.log("Initializing Images: ", this.image);
+      this.$log.debug("Initializing Images: ", this.image);
       if (this.images){
-        console.log("images available, initiate OSDIMG", this.$refs);
+        this.$log.debug("images available, initiate OSDIMG", this.$refs);
         tilesImg = getOSDURL(this.image)
         this.viewerImg = OpenSeadragon({
           id: "openseadragonImg",
@@ -446,7 +446,7 @@ export default {
 
         const canvas = document.getElementsByClassName('openseadragon-canvas')[0]
         canvas.style.touchAction = 'pan-y'
-        console.log("canvas.style", canvas.style);
+        this.$log.debug("canvas.style", canvas.style);
 
         // Handle desktop scroll
         this.viewerImg.addHandler("pre-full-page", function (data) {
@@ -470,7 +470,7 @@ export default {
           {tracker: 'viewer',
             handler: 'scrollHandler',
             hookHandler: function (event) {
-              console.log("scrollHandler", canvas);
+              this.$log.debug("scrollHandler", canvas);
               if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
                 event.preventDefaultAction = true;
                 event.stopHandlers = true;
@@ -492,7 +492,7 @@ export default {
             hookHandler: function (event) {
             // if mobile disable drag event
             // pinch event handles panning with 2 fingers
-              console.log("dragHandler", event);
+              this.$log.debug("dragHandler", event);
               if (!_self.isFullScreen && deviceType() === "mobile") {
                 event.preventDefaultAction = true;
                 event.stopHandlers = true;
@@ -511,7 +511,7 @@ export default {
           {tracker: 'viewer',
             handler: 'pinchHandler',
             hookHandler: function (event) {
-              console.log("pinchHandler", event);
+              this.$log.debug("pinchHandler", event);
               if (_self.$refs.mouseWheelOverlayIMG.className === 'visible') {
                 _self.$refs.mouseWheelOverlayIMG.className = 'hidden';
               }
@@ -523,11 +523,11 @@ export default {
     initNewDepiction(){
       if (this.pr){
         this.pr = this.depiction
-        console.log("started Depiction");
-        console.log("Depiction: ", this.pr);
+        this.$log.debug("started Depiction");
+        this.$log.debug("Depiction: ", this.pr);
         getVersionsOfEntry(this.pr)
           .then( res => {
-            console.log("recieved versions.", res)
+            this.$log.debug("recieved versions.", res)
             this.versions = res.data.hits.hits
             for (let v of this.versions){
               v.date = new Date(v._source.timestamp)
@@ -535,7 +535,7 @@ export default {
             this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
             this.version = this.versions[this.versions.length - 1]
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');
@@ -553,8 +553,8 @@ export default {
         OpenSeadragon.setString('Tool.rotate', 'Rotate');
         OpenSeadragon.setString('Tool.close', 'Close');
         this.fillPicsContainer()
-        console.log("Annos:", this.annos);
-        console.log("Images:", this.images);
+        this.$log.debug("Annos:", this.annos);
+        this.$log.debug("Images:", this.images);
         if (this.images.length > 0){
           this.image = this.images[0]
           if (this.image.imageTypeID === 5){
@@ -569,8 +569,8 @@ export default {
       }
     },
     test(item){
-      console.log("clicked: ", item);
-      console.log("annoSelected: ", this.annoSelected);
+      this.$log.debug("clicked: ", item);
+      this.$log.debug("annoSelected: ", this.annoSelected);
     },
     getThumbnail(image){
       return process.env.VUE_APP_IIIFAPI + "/iiif/2/kucha%2Fimages%2F" + image.filename + "/full/!80,80/0/default.jpg"
@@ -614,7 +614,7 @@ export default {
   },
   watch: {
     depiction(newVal, oldVal){
-      console.log("pr changed");
+      this.$log.debug("pr changed");
       this.initNewDepiction()
     },
     version(newVal, oldVal){
@@ -623,22 +623,22 @@ export default {
           .then( res => {
             this.pr = res.data._source.content
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }
       if (newVal.date.toString().includes('current')){
         this.wallTree = this.$store.state.wallLocation
-        console.log("this.wallTree", this.wallTree);
+        this.$log.debug("this.wallTree", this.wallTree);
         this.initWalls()
       } else {
         getWallTreeByTimestamp(this.version._source.timestamp)
           .then( res => {
-            console.log("recieved versions of wall.", res.data.hits.hits[0]._source.content.wallTree)
+            this.$log.debug("recieved versions of wall.", res.data.hits.hits[0]._source.content.wallTree)
             this.wallTree = res.data.hits.hits[0]._source.content.wallTree
             this.initWalls()
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }

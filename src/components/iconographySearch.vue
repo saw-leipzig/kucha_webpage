@@ -133,7 +133,7 @@ export default {
         this.getTreeGroups(root)
       }
       for (let group of this.selectedGroups){
-        console.log("getTreeGroups", group);
+        this.$log.debug("getTreeGroups", group);
       }
       this.startSearch()
 
@@ -168,7 +168,7 @@ export default {
           selected = selected.concat(this.getIcosByName(ico, name, false))
         }
       }
-      console.log("getPreSelectedByName found selected:", selected);
+      this.$log.debug("getPreSelectedByName found selected:", selected);
       this.iconographySelected = selected
     },
     getIcosByName(ico, name, found){
@@ -193,12 +193,12 @@ export default {
       if (this.iconographySelected.length > 0){
         this.selectedTriggered = true
       }
-      console.log("select triggered initiateICO")
-      console.log("iconographySelectedLocal before initiate Ico", this.iconographySelected.length);
+      this.$log.debug("select triggered initiateICO")
+      this.$log.debug("iconographySelectedLocal before initiate Ico", this.iconographySelected.length);
       // this.iconography = []
       // this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
       // this.iconographySelected = []
-      // console.log("Iconography", icos);
+      // this.$log.debug("Iconography", icos);
       let icoTree = []
       for (let element of this.iconography){
         if (this.mode === "depiction"){
@@ -211,7 +211,7 @@ export default {
         }
       }
       if (this.$refs.tree) {
-        console.log("iconographySelectedLocal refs.tree found");
+        this.$log.debug("iconographySelectedLocal refs.tree found");
         this.$refs.tree.updateAll(false)
       }
       this.iconography = icoTree
@@ -220,7 +220,7 @@ export default {
         this.$refs.tree.updateAll(true)
       }
       this.isReady  = true
-      console.log("iconographySelectedLocal", this.iconographySelected.length);
+      this.$log.debug("iconographySelectedLocal", this.iconographySelected.length);
       // this.setAggs(this.iconography)
     },
     setAggsInElement(element){
@@ -270,7 +270,7 @@ export default {
           } else {
             // let selectedItem = this.selected.find(el => el.iconographyID === element.iconographyID)
             // if (selectedItem) {
-            //   console.log("found idden selected item:", selectedItem);
+            //   this.$log.debug("found idden selected item:", selectedItem);
             //   const index = this.selected.indexOf(selectedItem);
             //   if (index > -1) {
             //     this.selected.splice(index, 1);
@@ -315,7 +315,7 @@ export default {
       }
     },
     buildAggs(aggs, icoIDs, icoPath){
-      console.log("icoAggs buildaggs", icoIDs);
+      this.$log.debug("icoAggs buildaggs", icoIDs);
       let newAggs = {}
       if (Object.keys(aggs).length === 0){
         if (!this.includeIco){
@@ -406,28 +406,28 @@ export default {
       return newAggs
     },
     select(){
-      console.log("select triggered");
+      this.$log.debug("select triggered");
       if (this.update){
-        console.log("iconographySelected Updated");
+        this.$log.debug("iconographySelected Updated");
         this.selected = []
         for (let node of this.iconographySelected){
           this.selected.push(node);
         }
-        console.log("this.selected", this.selected);
+        this.$log.debug("this.selected", this.selected);
         if (this.selectedSelectionType === "leaf"){
           if (this.isDepiction){
             for (let node of this.iconography){
               this.getSelectedParents(node, this.selected)
             }
           }
-          console.log(" getTreeGroups selected after adding parents: ", this.selected);
+          this.$log.debug(" getTreeGroups selected after adding parents: ", this.selected);
           this.checkedSelected = []
           this.selectedGroups = []
           for (let root of this.iconography) {
             this.getTreeGroups(root)
           }
           for (let group of this.selectedGroups){
-            console.log("getTreeGroups", group);
+            this.$log.debug("getTreeGroups", group);
           }
 
         }
@@ -460,7 +460,7 @@ export default {
 
     },
     prepSearch(){
-      console.log("prepsearch triggered", this.selected);
+      this.$log.debug("prepsearch triggered", this.selected);
       let searchObjects = []
       let icoAggs = {}
       let icoPath = ""
@@ -472,7 +472,7 @@ export default {
       if (this.isDepiction){
         if (this.selectedGroups.length > 0){
           for (let ico of this.selectedGroups){
-            console.log("preparing group for:", ico);
+            this.$log.debug("preparing group for:", ico);
             let icoSearch = {}
             if (!this.includeIco){
               icoSearch = {
@@ -571,8 +571,8 @@ export default {
           }
         }
 
-        console.log("icoAggs:", icoAggs);
-        console.log("searchObject", searchObjects)
+        this.$log.debug("icoAggs:", icoAggs);
+        this.$log.debug("searchObject", searchObjects)
       } else {
         let icoPath = this.prefix + "iconographyID"
         if (this.selected.length > 0){
@@ -604,20 +604,20 @@ export default {
         }
         icoAggs.agg.iconographyID.terms["field"] = icoPath
         icoAggs.agg.iconographyID.terms["size"] = 10000
-        console.log("searchObject", searchObjects);
+        this.$log.debug("searchObject", searchObjects);
       }
       let result = {
         "search": searchObjects,
         "aggs":  icoAggs,
         "ico": this.selected
       }
-      console.log("prepsearch ended");
+      this.$log.debug("prepsearch ended");
       return result
     },
     startSearch(){
       let result = this.prepSearch()
       this.$emit('clicked', result)
-      console.log("start search ended");
+      this.$log.debug("start search ended");
     },
   },
   watch: {
@@ -631,8 +631,8 @@ export default {
       this.initiateIco()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("select triggered updated aggregations on iconography");
-      // console.log("length of aggregations: ", this.aggregations.length);
+      this.$log.debug("select triggered updated aggregations on iconography");
+      // this.$log.debug("length of aggregations: ", this.aggregations.length);
       this.initiateIco()
     },
 

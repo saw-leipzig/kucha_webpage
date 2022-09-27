@@ -67,7 +67,7 @@ export default {
       this.keywords = [];
     },
     prepSearch(){
-      console.log("prepsearch", this.prefix);
+      this.$log.debug("prepsearch", this.prefix);
       let searchObjects = []
       let aggsObject = {}
       let keywordsPath = this.prefix
@@ -93,7 +93,7 @@ export default {
         }
         let bibKeywordIDs = []
         for (let keyword of this.keywords){
-          console.log("keyword", keyword);
+          this.$log.debug("keyword", keyword);
           bibKeywordIDs.push(keyword.key)
         }
         let bibKeywordSearch = {
@@ -107,7 +107,7 @@ export default {
       let result = {}
       result['search'] = searchObjects
       result['aggs'] = aggsObject
-      console.log("searchObject of keywords", result);
+      this.$log.debug("searchObject of keywords", result);
       return result
     },
     startSearch(){
@@ -120,12 +120,12 @@ export default {
       this.startSearch()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on bibKeyWord", this.aggregations);
+      this.$log.debug("updated aggregations on bibKeyWord", this.aggregations);
     },
 
   },
   mounted:function () {
-    console.log("combobox initiated", this.prefix);
+    this.$log.debug("combobox initiated", this.prefix);
   },
   beforeUpdate:function () {
   }

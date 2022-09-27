@@ -126,7 +126,7 @@ export default {
           this.registerDialog = false
         })
         .catch((err) => {
-          console.log("error!", err.response);
+          this.$log.debug("error!", err.response);
           this.errorText = err.response.data.message
           this.postError = true
         })

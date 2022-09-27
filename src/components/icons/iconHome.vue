@@ -1433,7 +1433,7 @@ export  default  {
   },
   watch: {
     'isHover': function(newVal, oldVal) {
-      // console.log("isHover:", this.isHover);
+      // this.$log.debug("isHover:", this.isHover);
     },
   }
 }

@@ -70,11 +70,11 @@ export default {
   },
   methods : {
     doRegister(){
-      console.log("blubb");
+      this.$log.debug("blubb");
       this.dialog = false
     },
     closeDialog: function(formComponent) {
-      console.log("form", formComponent);
+      this.$log.debug("form", formComponent);
       formComponent.reset();
       this.dialog = false;
     },
@@ -89,16 +89,16 @@ export default {
       let login = this.user;
       let password = this.password;
       let pwHash = MD5(password).toString();
-      console.log("password is:", password, pwHash);
+      this.$log.debug("password is:", password, pwHash);
       validateUser( login, pwHash)
         .then((erg) => {
-          console.log(erg.data);
+          this.$log.debug(erg.data);
           this.$store.commit("setUser", erg.data)
-          console.log("User logged in as:", this.$store.state.user.firstname);
+          this.$log.debug("User logged in as:", this.$store.state.user.firstname);
           this.dialog = false
         })
         .catch((err) => {
-          console.log("error at login", err);
+          this.$log.debug("error at login", err);
 
           this.loginerror = true;
         })
@@ -107,7 +107,7 @@ export default {
   },
   mounted: function(){
     EventBus.$on('doRegister', (message) => {
-      console.log("close login dialog");
+      this.$log.debug("close login dialog");
       this.dialog = false
     });
 

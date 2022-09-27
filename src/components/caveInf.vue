@@ -126,7 +126,7 @@ export default {
   computed: {
     paddingCaveCard(){
       const padding = this.cave.caveID === -1 ? 'pb-1' : ''
-      console.log(this.cave.caveID, "padding", padding);
+      this.$log.debug(this.cave.caveID, "padding", padding);
       return padding
     },
     caveInfo (){
@@ -276,14 +276,14 @@ export default {
           for (let result of res.data.hits.hits){
             results.push(result._source)
           }
-          console.log("relatedDepictions", results)
+          this.$log.debug("relatedDepictions", results)
           this.relatedDepictions = results
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
         })
     },
     getCaveWidth(){
-      console.log("window.innerWidth", window.innerWidth);
+      this.$log.debug("window.innerWidth", window.innerWidth);
       return parseInt((window.innerWidth / 2) - 70)
     },
     getCaveRes(){
@@ -296,16 +296,16 @@ export default {
       }
     },
     getCaveLabel(entry){
-      console.log("cave:", entry);
+      this.$log.debug("cave:", entry);
       return getCaveLabel(entry)
     },
     getComments(){
       getCommentsByItems([this.cave.caveID], [], [], [])
         .then( res => {
-          console.log("recieved discussions.", res.data.hits.hits)
+          this.$log.debug("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
     }
@@ -318,21 +318,21 @@ export default {
     this.getComments()
   },
   beforeMount:function () {
-    console.log("beforemount:", this.caveDefault);
+    this.$log.debug("beforemount:", this.caveDefault);
     this.cave = this.caveDefault
     if (this.loadVersions){
       getVersionsOfEntry(this.caveDefault)
         .then( res => {
-          console.log("recieved versions.", res.data.hits.hits)
+          this.$log.debug("recieved versions.", res.data.hits.hits)
           this.versions = res.data.hits.hits
           for (let v of this.versions){
             v.date = new Date(v._source.timestamp)
           }
           this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
           this.version = this.versions[this.versions.length - 1]
-          console.log("versions:", this.versions);
+          this.$log.debug("versions:", this.versions);
         }).catch(function (error) {
-          console.log(error)
+          this.$log.debug(error)
           return null
         })
     }
@@ -344,7 +344,7 @@ export default {
           .then( res => {
             this.cave = res.data._source.content
           }).catch(function (error) {
-            console.log(error)
+            this.$log.debug(error)
             return null
           })
       }

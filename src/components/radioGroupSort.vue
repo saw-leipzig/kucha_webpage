@@ -69,17 +69,17 @@ export default {
   },
   watch: {
     'model': function(newVal, oldVal) {
-      console.log("new sort Model:", newVal);
+      this.$log.debug("new sort Model:", newVal);
       this.$emit('clicked', [newVal, this.direction])
     },
     'direction': function(newVal, oldVal) {
-      console.log("new sort direction:", newVal);
+      this.$log.debug("new sort direction:", newVal);
       this.$emit('clicked', [this.model, newVal])
     },
   },
   mounted:function () {
     this.model = this.startValue
-    console.log("radioGroupData:", this.radioGroupData);
+    this.$log.debug("radioGroupData:", this.radioGroupData);
     this.$emit('clicked', [this.model, this.direction])
 
   },

@@ -53,7 +53,7 @@ export default {
   computed: {
     getkeywords(){
       if (this.$store.state.bibKeywords.length === 0){
-        console.log("bibKeyWords not initiated, getting bibKeyWords");
+        this.$log.debug("bibKeyWords not initiated, getting bibKeyWords");
         this.$store.dispatch('getBibKeyWords')
       }
       var keywords = []
@@ -135,7 +135,7 @@ export default {
       let result = {}
       result['search'] = searchObjects
       result['aggs'] = aggsObject
-      console.log("searchObject of keywords", result);
+      this.$log.debug("searchObject of keywords", result);
       return result
     },
     startSearch(){
@@ -148,7 +148,7 @@ export default {
       this.startSearch()
     },
     'aggregations': function(newVal, oldVal) {
-      console.log("updated aggregations on bibKeyWord", this.aggregations);
+      this.$log.debug("updated aggregations on bibKeyWord", this.aggregations);
     },
 
   },

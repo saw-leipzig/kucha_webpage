@@ -169,7 +169,7 @@ export default {
   },
   computed:{
     getPreselectedDepiction(){
-      console.log("getPreselectedDepiction called",  this.idealTypicals[this.currentIndexIdealTypical].iconographyID);
+      this.$log.debug("getPreselectedDepiction called",  this.idealTypicals[this.currentIndexIdealTypical].iconographyID);
       let icoIDs = [this.idealTypicals[this.currentIndexIdealTypical].iconographyID]
       const icos = getIconographyByAnnos(icoIDs)
       let icosFlat = []
@@ -329,7 +329,7 @@ export default {
     // this.nextDepiction()
     const _self = this
     setTimeout(function(){
-      console.log(_self.$refs.carousel);
+      this.$log.debug(_self.$refs.carousel);
       _self.$vuetify.goTo(_self.$refs.carousel)
     }, 2000);
   },

@@ -368,14 +368,14 @@ export default {
     },
     yTag(){
       if (this.dontShowTree){
-        // console.log("hoveredAnno triggered", this.$refs['osdDiv'].getBoundingClientRect());
+        // this.$log.debug("hoveredAnno triggered", this.$refs['osdDiv'].getBoundingClientRect());
         if (this.$refs['osdDiv']){
-          // console.log("hoveredAnno triggered", this.$refs['osdDiv'].getBoundingClientRect());
+          // this.$log.debug("hoveredAnno triggered", this.$refs['osdDiv'].getBoundingClientRect());
           return this.$refs['osdDiv'].getBoundingClientRect().y
         }
       } else {
         if (this.$refs['cardAnno' + this.itemId]){
-          // console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId].getBoundingClientRect());
+          // this.$log.debug("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId].getBoundingClientRect());
           return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().y - 10
         }
       }
@@ -384,12 +384,12 @@ export default {
     xTag(){
       if (this.dontShowTree){
         if (this.$refs['osdDiv']){
-          // console.log("hoveredAnno triggered", this.$refs['osdDiv']);
+          // this.$log.debug("hoveredAnno triggered", this.$refs['osdDiv']);
           return this.$refs['osdDiv'].getBoundingClientRect().x
         }
       } else {
         if (this.$refs['cardAnno' + this.itemId]){
-          // console.log("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId]);
+          // this.$log.debug("hoveredAnno triggered", this.$refs['cardAnno' + this.itemId]);
           return this.$refs['cardAnno' + this.itemId].getBoundingClientRect().x
         }
       }
@@ -450,9 +450,9 @@ export default {
       }
     },
     handleClick(event){
-      console.log("click!", event);
+      this.$log.debug("click!", event);
       if (event.pointerType === "touch"){
-        console.log("is touch");
+        this.$log.debug("is touch");
       }
     },
     handleTouchStart(event){
@@ -482,7 +482,7 @@ export default {
     },
     handleMove(event) {
       if (event.pointerType === "touch"){
-        console.log("touching");
+        this.$log.debug("touching");
         event.preventDefaultAction = true
         this.viewerAnnos.setControlsEnabled(false)
         this.viewerAnnos.setMouseNavEnabled(false)
@@ -490,7 +490,7 @@ export default {
         let _self = this
         setTimeout(function(){ _self.mouseWheelOverlay = false}, 2000);
       } else if (event.buttons > 0){
-        console.log("click-moving");
+        this.$log.debug("click-moving");
         if (event.originalEvent.ctrlKey){
           event.originalEvent.preventDefault()
           this.viewerAnnos.setControlsEnabled(true)
@@ -523,18 +523,18 @@ export default {
           this.copyToClipboard(window.location.origin  + "/iconography/" + this.item.ornamentID + "/annotation/" + this.selectedAnnotation.id.replace("#", ""))
         }
       } else {
-        // console.log("selection", evt);
+        // this.$log.debug("selection", evt);
         let found = false
         for (let anno of this.selectedAnnotation.body){
           const selectedIco = this.annoSelected.find(el => el.iconographyID === anno.id)
-          // console.log("selectedIco", selectedIco);
+          // this.$log.debug("selectedIco", selectedIco);
           if (selectedIco !== undefined){
             found = true
             const index = this.annoSelected.indexOf(selectedIco);
             if (index > -1) {
               this.annoSelected.splice(index, 1);
             }
-            // console.log("_self.annoSelected", _self.annoSelected);
+            // this.$log.debug("_self.annoSelected", _self.annoSelected);
           }
         }
         if (found){
@@ -563,7 +563,7 @@ export default {
             }
           }
           this.updateSelectedAnnos()
-          // console.log("annotation selected: ", _self.annoSelected)
+          // this.$log.debug("annotation selected: ", _self.annoSelected)
         }
       }
     },
@@ -602,7 +602,7 @@ export default {
       return this.getAccessLevel(item) === 1 ?  "Access to the picture is restricted due to copyright reasons." : "Picture is not avilable."
     },
     mouseEnterAnnotation(annotation, evt){
-      console.log("mouseenterannotation", event);
+      this.$log.debug("mouseenterannotation", event);
       if (!this.isTouchDevice || (this.isTouchDevice && this.actControl === "Navigate")){
         annotation.motivation = "highlight"
         this.annotoriousplugin.format(annotation)
@@ -613,7 +613,7 @@ export default {
               let res = this.getIco(ico, anno.id)
               if (res !== null){
                 annos.push(res)
-                // console.log("adding annos:", res);
+                // this.$log.debug("adding annos:", res);
                 break
               }
             }
@@ -721,7 +721,7 @@ export default {
       }
     },
     hoveredTags(hoveredAnno){
-      // console.log("hoveredTags", hoveredAnno);
+      // this.$log.debug("hoveredTags", hoveredAnno);
       let tags = ""
       if (hoveredAnno){
         if (hoveredAnno.body){
@@ -747,7 +747,7 @@ export default {
       if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
         return "tablet";
       } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-        console.log("mobile device");
+        this.$log.debug("mobile device");
         return "mobile";
       }
       return "desktop"
@@ -785,12 +785,12 @@ export default {
         const canvases = document.getElementsByClassName('openseadragon-canvas')
         for (const canvas of canvases)  {
           canvas.style.touchAction = 'pan-y'
-          console.log("canvas.style", canvas.style);
+          this.$log.debug("canvas.style", canvas.style);
           this.viewerAnnos.addViewerInputHook({ hooks: [
             {tracker: 'viewer',
               handler: 'scrollHandler',
               hookHandler: function (event) {
-                console.log("scrollHandler", canvas);
+                this.$log.debug("scrollHandler", canvas);
                 if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
                   event.preventDefaultAction = true;
                   event.stopHandlers = true;
@@ -816,9 +816,9 @@ export default {
               hookHandler: function (event) {
               // if mobile disable drag event
               // pinch event handles panning with 2 fingers
-                console.log("dragHandler", event);
+                this.$log.debug("dragHandler", event);
                 if (!_self.isFullScreen && deviceType() === "mobile" && _self.actControl === "Explore") {
-                  console.log("overlay true", event);
+                  this.$log.debug("overlay true", event);
                   _self.$refs.mouseWheelOverlay.className = 'visible'
                   _self.mouseWheelOverlay = true
                   event.stopPropagation = true
@@ -841,7 +841,7 @@ export default {
             {tracker: 'viewer',
               handler: 'pinchHandler',
               hookHandler: function (event) {
-                console.log("pinchHandler", event);
+                this.$log.debug("pinchHandler", event);
                 if (_self.$refs.mouseWheelOverlay.className === 'visible') {
                   _self.$refs.mouseWheelOverlay.className = 'hidden';
                   _self.mouseWheelOverlay = false
@@ -897,7 +897,7 @@ export default {
         //   // moveHandler: _self.handleMove,
         //   // clickHandler: _self.clickHandler
         //   scrollHandler: function (event) {
-        //     console.log("scrollHandler", event);
+        //     this.$log.debug("scrollHandler", event);
         //     if (!_self.viewerAnnos.isFullPage() && !event.originalEvent.ctrlKey) {
         //       event.preventDefaultAction = true;
         //       event.stopHandlers = true;
@@ -913,7 +913,7 @@ export default {
         //     // if mobile disable drag event
         //     // pinch event handles panning with 2 fingers
         //     if (!_self.viewerAnnos.isFullPage() && navigator.userAgentData.mobile) {
-        //       console.log("dragHandler", navigator.userAgentData.mobile);
+        //       this.$log.debug("dragHandler", navigator.userAgentData.mobile);
         //       event.preventDefaultAction = true;
         //       event.stopHandlers = true;
         //       // this.mouseWheelOverlay = true
@@ -926,10 +926,10 @@ export default {
         //   }
         // })
         // this.viewerAnnos.addHandler('open', function(target) {
-        //   console.log("blibb, tile drawn");
+        //   this.$log.debug("blibb, tile drawn");
         //   _self.viewerAnnos.getBounds()
         //   let annos = _self.annotoriousplugin.getAnnotations()
-        //   console.log("blibb annos are:", annos);
+        //   this.$log.debug("blibb annos are:", annos);
         //   if (annos.length > 0){
         //     _self.annotoriousplugin.fitBounds(annos)
         //   }
@@ -950,11 +950,11 @@ export default {
         });
 
         this.annotoriousplugin.on('cancelSelected', function(annotation, evt) {
-          // console.log("deselection", evt);
+          // this.$log.debug("deselection", evt);
         });
         this.annotoriousplugin.on('clickAnnotation', function(annotation, evt) {
           if (!_self.isTouchDevice || (_self.isTouchDevice && _self.actControl === "Navigate")){
-            console.log("is navigate!");
+            this.$log.debug("is navigate!");
             if (annotation.id !== _self.hoveredAnno.id){
               _self.mouseEnterAnnotation(annotation, evt)
             } else {
@@ -970,7 +970,7 @@ export default {
         this.viewerAnnos.addHandler("open", function (data) {
           if (_self.$refs.osdDiv !== undefined){
             if (_self.$refs.osdDiv.clientHeight > 0){
-              // console.log("osdDiv", _self.$refs.osdDiv);
+              // this.$log.debug("osdDiv", _self.$refs.osdDiv);
               _self.goHome(true)
             }
           }
@@ -1097,7 +1097,7 @@ export default {
       }
       // if (w3cAnno.target){
       //   if (w3cAnno.target.id === this.annoImage.filename){
-      //     console.log("this.annotoriousplugin", w3cAnno, this.annotoriousplugin.getAnnotationById(w3cAnno));
+      //     this.$log.debug("this.annotoriousplugin", w3cAnno, this.annotoriousplugin.getAnnotationById(w3cAnno));
       //     this.annotoriousplugin.getAnnotationById(w3cAnno)['motivation'] = "highlight"
       //   }
       // }
@@ -1130,7 +1130,7 @@ export default {
         return ico
       } else {
         for (let child of element.children){
-          // console.log("elementId:", element.iconographyID, "got to child:", child.iconographyID);
+          // this.$log.debug("elementId:", element.iconographyID, "got to child:", child.iconographyID);
           let res = this.getIco(child, id)
           if (res !== null){
             return res
@@ -1195,27 +1195,27 @@ export default {
         }
         if (this.isVersion){
           if (this.isVersion.date.toString().includes('current')){
-            console.log("1. possibility");
+            this.$log.debug("1. possibility");
             this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
           } else {
             getIconogrpaphyByTimestamp(this.isVersion._source.timestamp)
               .then( res => {
-                console.log("recieved versions of iconography.", res.data.hits.hits[0]._source.content.iconography)
-                console.log("2. possibility");
+                this.$log.debug("recieved versions of iconography.", res.data.hits.hits[0]._source.content.iconography)
+                this.$log.debug("2. possibility");
                 this.icoAnnos = getIconographyByAnnosInGivenTree(allAnnotationEntries, res.data.hits.hits[0]._source.content.iconography)
               }).catch(function (error) {
-                console.log(error)
+                this.$log.debug(error)
                 return null
               })
-            console.log("3. possibility");
+            this.$log.debug("3. possibility");
             this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
 
           }
         } else {
-          console.log("4. possibility");
+          this.$log.debug("4. possibility");
           this.icoAnnos = getIconographyByAnnos(allAnnotationEntries)
         }
-        console.log("icoannos:", this.icoAnnos);
+        this.$log.debug("icoannos:", this.icoAnnos);
         for (let w3cAnno of this.w3cAnnos){
           this.putW3cInAnnos(w3cAnno)
         }
@@ -1271,10 +1271,10 @@ export default {
       this.showTag = false
     },
     goHome(direct){
-      console.log("start goHome", direct);
+      this.$log.debug("start goHome", direct);
       const _self = this
       if (direct){
-        console.log("direct goHome");
+        this.$log.debug("direct goHome");
         setTimeout(function(){ _self.viewerAnnos.viewport.goHome() }, 50);
       }
       if (this.isZoom){
@@ -1310,7 +1310,7 @@ export default {
         if (annosInPic.length === 0){
           if (anno.length > 0){
             let relevantFreePics = freepics.filter(img => annoImages.includes(img.filename))[0]
-            console.log("relevantFreePics", relevantFreePics);
+            this.$log.debug("relevantFreePics", relevantFreePics);
             if (relevantFreePics) {
               this.setOSDannos(relevantFreePics)
             } else {
@@ -1413,7 +1413,7 @@ export default {
       //     for (let ico of newVal){
       //       icos.push(ico.iconographyID)
       //     }
-      //     console.log("preSelected changed,", this.item.depictionID);
+      //     this.$log.debug("preSelected changed,", this.item.depictionID);
       //   }
       // }
     },
@@ -1426,7 +1426,7 @@ export default {
     }
   },
   mounted:function () {
-    console.log("istouchdevice: ", this.isTouchDevice);
+    this.$log.debug("istouchdevice: ", this.isTouchDevice);
     this.isMounted = true
     if (this.treeShowOption){
       this.dontShowTree = true
