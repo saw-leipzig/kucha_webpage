@@ -1,5 +1,8 @@
 module.exports = {
   configureWebpack: {
+    plugins: [
+
+    ],
     devtool: 'source-map'
   },
   //lintOnSave: false,
@@ -13,6 +16,5 @@ module.exports = {
           'Access-Control-Allow-Origin': '*'            
         }
       }
-    }
-    
+    }    
   }

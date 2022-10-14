@@ -329,7 +329,7 @@ export default {
     // this.nextDepiction()
     const _self = this
     setTimeout(function(){
-      this.$log.debug(_self.$refs.carousel);
+      _self.$log.debug(_self.$refs.carousel);
       _self.$vuetify.goTo(_self.$refs.carousel)
     }, 2000);
   },

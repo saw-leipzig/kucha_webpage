@@ -210,7 +210,7 @@ export default {
     logout: function() {
       this.$store.commit("setUser", {})
       this.userManagerDialog = false
-
+      this.$router.push({name: "login"})
     }
 
   },

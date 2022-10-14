@@ -173,7 +173,7 @@ import iconImpressum from '@/components/icons/iconImpressum'
 import iconFilter from '@/components/icons/iconFilter'
 import iconTour from '@/components/icons/iconTour'
 import iconDiscussion from '@/components/icons/iconDiscussion'
-import LoginComponent from '@/components/Login'
+import LoginComponent from '@/components/LoginDialog'
 import usermanager from '@/components/usermanager'
 import {isLoggedIn} from '@/services/repository'
 export default {
@@ -232,8 +232,6 @@ export default {
     }
   },
   beforeMount:function () {
-    console.log("Initialize Dictionaries");
-    console.log("User Infos:", this.$store.state.user);
     if (this.$store.state.user.sessionID){
       if (this.$store.state.user.sessionID !== "") {
         isLoggedIn(this.$store.state.user.sessionID)
@@ -256,7 +254,6 @@ export default {
     this.$store.dispatch('getDiscussionMapping')
   },
   mounted:function(){
-    console.log("breadcrumb is: ", this.breadcrumb);
     if (this.$vuetify.breakpoint.smAndDown){
       this.navigation = false
       this.mini = false

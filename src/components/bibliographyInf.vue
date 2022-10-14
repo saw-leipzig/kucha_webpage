@@ -66,8 +66,6 @@
                       </v-tab-item>
                     </v-tabs-items>
                   </v-card>
-
-
               </v-card>
         </div>
       </v-expand-transition>

@@ -37,6 +37,7 @@ export default new Vuex.Store({
     imgURL: "",
     URL: "",
     user: {},
+    prevVisited: "",
   },
   mutations: {
     setBreadcrumb(state, payload){
@@ -101,6 +102,9 @@ export default new Vuex.Store({
     },
     setDisableSearch (state, payload){
       state.disableSearch = payload
+    },
+    setPrevVisited(state, payload){
+      state.prevVisited = payload
     }
   },
   getters:{
@@ -166,6 +170,9 @@ export default new Vuex.Store({
     },
     getDisableSearch : state => {
       return state.disableSearch
+    },
+    getPrevVisited : state => {
+      return state.prevVisited
     }
   },
   actions: {

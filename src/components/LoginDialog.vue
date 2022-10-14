@@ -3,7 +3,7 @@
       <template v-slot:activator="{ on }">
          <slot name="activator" v-bind:on="on">
             <v-btn icon v-on="on" >
-             <v-icon :color="$store.state.user.sessionID ? 'green': 'white'">account_circle</v-icon>
+             <v-icon :color="$store.state.user.sessionID ? 'green': 'grey'">account_circle</v-icon>
             </v-btn>
         </slot>
 
@@ -12,7 +12,7 @@
       <v-card >
         <v-form  @submit.prevent="validate" ref="form">
           <v-card-title>
-            <span class="headline">  User Login </span>
+            <span class="headline">User Login</span>
           </v-card-title>
           <v-card-text>
             <v-container grid-list-md>
@@ -33,7 +33,7 @@
                 </v-flex>
                 <!--   <small>* {{ $t('login-field-explanation') }} </small> -->
                 <v-flex xs12 class="error--text"  v-if="loginerror">
-                 'Email or Password is wrong.'
+                 'You have either used a wrong password or email, or your account has not yet been authorised.'
                </v-flex>
              </v-layout>
            </v-container>
@@ -92,9 +92,11 @@ export default {
       this.$log.debug("password is:", password, pwHash);
       validateUser( login, pwHash)
         .then((erg) => {
-          this.$log.debug(erg.data);
           this.$store.commit("setUser", erg.data)
           this.$log.debug("User logged in as:", this.$store.state.user.firstname);
+          if (this.$store.state.user.granted){
+            this.$router.push({name: this.$store.state.prevVisited === 'login' ? '' : this.$store.state.prevVisited})
+          }
           this.dialog = false
         })
         .catch((err) => {

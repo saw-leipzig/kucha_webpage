@@ -131,17 +131,18 @@ router.beforeEach((to, from, next) => {
   store.commit("setBreadcrumb", breadcrumb)
   console.log("new url", store.state.breadcrumb);
 
-  // if (store.getters.getAuthenticated){
-  //   next()
-  // } else {
-  //   if (to.name !== 'login') {
-  //     next({
-  //       name: "login"
-  //     })
-  //   } else {
-  //     next()
-  //   }
-  // }
-  next()
+  if (store.getters.getUser.granted){
+    next()
+  } else {
+    if (to.name !== 'login') {
+      store.commit("setPrevVisited", to.name)
+      next({
+        name: "login"
+      })
+    } else {
+      next()
+    }
+  }
+  // next()
 })
 export default router

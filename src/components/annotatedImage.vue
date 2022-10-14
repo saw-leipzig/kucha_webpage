@@ -599,7 +599,7 @@ export default {
       }
     },
     getAnnoTitle(item){
-      return this.getAccessLevel(item) === 1 ?  "Access to the picture is restricted due to copyright reasons." : "Picture is not avilable."
+      return this.getAccessLevel(item) === 1 ?  "Access to the picture is restricted due to copyright reasons." : "Picture is not available."
     },
     mouseEnterAnnotation(annotation, evt){
       this.$log.debug("mouseenterannotation", event);
