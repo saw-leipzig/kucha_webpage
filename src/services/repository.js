@@ -66,6 +66,9 @@ export function putComments(data, uuid, sendMail, sessionID, text){
   return axios({
     url: process.env.VUE_APP_USERREG + 'resource?putComment&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID + '&message=' + text,
     method: 'PUT',
+    headers: {
+      "Content-Type": "application/json; utf-8"
+    },
     auth: auth,
     data: data
   })
@@ -191,38 +194,70 @@ export function getDiscussionKeywords(){
   })
 }
 export function getCommentsByItems(caveIDs, prIDs, icoIDs, biblioIDs){
+  let data = {
+    "query": {
+      "bool": {
+        "must": [
+          {
+            "exists": {
+              "field": "isInfo"
+            }
+          }
+        ],
+        "should": [
+        ]
+      }
+    }
+  }
+  let should = {
+    "bool": {
+      "should": [
+      ]
+    }
+  }
+
+  if (caveIDs.length > 0){
+    should.bool.should.push(
+      {
+        "terms": {
+          "caves.value": caveIDs
+        }
+      }
+    )
+  }
+  if (prIDs.length > 0){
+    should.bool.should.push(
+      {
+        "terms": {
+          "prs.value": prIDs
+        }
+      }
+    )
+  }
+  if (icoIDs.length > 0){
+    should.bool.should.push(
+      {
+        "terms": {
+          "iconography.value": icoIDs
+        }
+      },
+    )
+  }
+  if (biblioIDs.length > 0){
+    should.bool.should.push(
+      {
+        "terms": {
+          "bibliography.value": biblioIDs
+        }
+      }
+    )
+  }
+  data.query.bool.must.push(should)
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
     method: 'post',
     auth: auth,
-    data:  {
-      "query": {
-        "bool": {
-          "should": [
-            {
-              "terms": {
-                "caves.value": caveIDs
-              }
-            },
-            {
-              "terms": {
-                "prs.value": prIDs
-              }
-            },
-            {
-              "terms": {
-                "iconography.value": icoIDs
-              }
-            },
-            {
-              "terms": {
-                "bibliography.value": biblioIDs
-              }
-            }
-          ]
-        }
-      }
-    }
+    data: data
   })
 }
 export function getComments(){
@@ -231,7 +266,12 @@ export function getComments(){
     method: 'post',
     auth: auth,
     data: {
-      "size": 4000
+      "size": 4000,
+      "query": {
+        "exists": {
+          "field": "isInfo"
+        }
+      }
     }
   })
 }
@@ -304,6 +344,14 @@ export function getKuchaMapping() {
     auth: auth,
     data: {
     }
+  })
+}
+
+export function getIntro(){
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_doc/introduction',
+    method: 'get',
+    auth: auth
   })
 }
 

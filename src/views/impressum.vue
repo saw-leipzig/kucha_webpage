@@ -74,7 +74,7 @@ This research project is part of the Academies' Programme, a research funding pr
 
 <script>
 export default {
-  name: 'Login',
+  name: 'Impressum',
   props: {
     source: String,
   },

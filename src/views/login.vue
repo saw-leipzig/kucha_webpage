@@ -1,39 +1,32 @@
 <template>
    <v-app id="inspire">
          <v-container fluid fill-height>
-            <v-layout align-center justify-center>
-               <v-flex xs12 sm8 md4>
+            <v-row class="align-center justify-center">
+               <v-col  sm="12" md="10" lg="8">
                   <v-card class="elevation-10">
                      <v-toolbar dark color="primary">
                         <v-toolbar-title>Kucha Information System (Test Version)</v-toolbar-title>
                      </v-toolbar>
                      <v-card-text>
-                        <v-form>
-                           <v-text-field
-                              id="password"
-                              prepend-icon="lock"
-                              name="password"
-                              label="Password"
-                              type="password"
-                              @keydown.enter="login"
-                              v-model="pWord"
-                           ></v-text-field>
-                        </v-form>
+                        This page is in test phase and is thus only accessible to a limited audience. You can register here. <Register @click.stop="doRegister()"></Register> Or login here.<LoginComponent/>
                      </v-card-text>
-                     <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="primary" @click="login">Login</v-btn>
-                     </v-card-actions>
                   </v-card>
-               </v-flex>
-            </v-layout>
+               </v-col>
+            </v-row>
          </v-container>
    </v-app>
 </template>
 
 <script>
+import Register from '@/components/Register'
+import LoginComponent from '@/components/LoginDialog'
+
 export default {
   name: 'Login',
+  components:{
+    Register,
+    LoginComponent
+  },
   props: {
     source: String,
   },
@@ -44,8 +37,8 @@ export default {
   },
   methods: {
     login(){
-      this.$log.debug(this.pWord);
-      if (this.pWord === "kuchaTest"){
+      this.$log.debug('blubb', process.env.VUE_APP_PW);
+      if (this.pWord === process.env.VUE_APP_PW){
         this.$store.commit('setAuthenticated', true)
       }
       this.$router.push({name: 'Home'})

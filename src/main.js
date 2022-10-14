@@ -11,6 +11,11 @@ import store from './store'
 import '../static/annotorious.min.css'
 import lineClamp from 'vue-line-clamp'
 import VueLogger from 'vuejs-logger';
+import VueHead from 'vue-head'
+
+
+window.$ = require("jquery");
+window.jQuery = require("jquery");
 const isProduction = process.env.NODE_ENV === 'production';
 const options = {
   isEnabled: true,
@@ -21,11 +26,14 @@ const options = {
   separator: '|',
   showConsoleColors: true
 };
+
+Vue.use(VueHead)
 Vue.use(VueLogger, options);
 Vue.config.productionTip = false
 Vue.use(lineClamp, {
   // plugin options
 })
+
 Vue.component("hideRelatedItems", hideRelatedItems)
 new Vue({
   axios,

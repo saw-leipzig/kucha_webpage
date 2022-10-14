@@ -27,13 +27,11 @@
 </template>
 
 <script>
-import { VueEditor } from "vue2-editor";
 import {putComments} from '@/services/repository'
 import discussion from '@/components/discussion'
 
 export default {
   components: {
-    VueEditor,
     discussion
   },
   name: 'foruminf',
@@ -123,7 +121,7 @@ export default {
     },
 
     editDiscussion(value){
-      this.$log.debug("editDiscussion", value);
+      console.log("editDiscussion", value);
       this.$log.debug("Discussions", this.discussions);
       let uuid = value.uuid
       delete value.uuid

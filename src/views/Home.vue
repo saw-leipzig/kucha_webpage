@@ -22,7 +22,7 @@
           dark
           dismissible
         >
-          You encountered Problems while loading the Database. Please reload. If this alert is still shown, pleas contact: kuchaadmin@saw-leipzig.de
+          You encountered Problems while loading the Database. Please reload. If this alert is still shown, please contact: kuchaadmin@saw-leipzig.de
         </v-alert>
             <va-global-search v-if="!alert" :xlarge="true"></va-global-search>
         </v-row>

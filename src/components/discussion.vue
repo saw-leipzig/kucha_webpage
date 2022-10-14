@@ -13,7 +13,7 @@
         no-data-text>
       </v-combobox>
       <v-divider dense></v-divider>
-      <div v-if="editing && isFirst">
+      <div id="1" v-if="editing && isFirst">
         <v-card-title class="text-5" raised width="98%" style="margin: auto;padding-bottom: 15px;">Connected Elements <v-btn x-small icon color="green"  @click="helpElements=!helpElements"><v-icon>mdi-help</v-icon></v-btn></v-card-title>
         <v-alert v-model="helpElements" dismissible color="green">Please select at least one element of cave, iconography or painted representations. Multiple selections are allowed.</v-alert>
         <v-row class="mx-5">
@@ -22,7 +22,28 @@
               v-model="cavesEdited"
               :items="cavesList"
               label="Cave"
+              chips
+              deletable-chips
               multiple>
+                <template v-slot:prepend-item>
+                  <v-list-item
+                    ripple
+                    @mousedown.prevent
+                    @click="selectAllCaves()"
+                  >
+                    <v-list-item-action>
+                      <v-icon >
+                        {{ cavesEdited.length === cavesList.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                      </v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        Select All
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider class="mt-2"></v-divider>
+                </template>
             </v-combobox>
             </v-col>
             <v-col>
@@ -30,7 +51,28 @@
                 v-model="icosEdited"
                 :items="iconographyList"
                 label="Iconography"
+                chips
+                deletable-chips
                 multiple>
+                  <template v-slot:prepend-item>
+                    <v-list-item
+                      ripple
+                      @mousedown.prevent
+                      @click="selectAllIcos()"
+                    >
+                    <v-list-item-action>
+                      <v-icon >
+                        {{ icosEdited.length === iconographyList.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                      </v-icon>
+                    </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider class="mt-2"></v-divider>
+                  </template>
               </v-combobox>
             </v-col>
             <v-col>
@@ -38,7 +80,28 @@
                 v-model="prsEdited"
                 :items="prsList"
                 label="Painted Representation"
+                chips
+                deletable-chips
                 multiple>
+                  <template v-slot:prepend-item>
+                    <v-list-item
+                      ripple
+                      @mousedown.prevent
+                      @click="selectAllPrs()"
+                    >
+                    <v-list-item-action>
+                      <v-icon >
+                        {{ prsEdited.length === prsList.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                      </v-icon>
+                    </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider class="mt-2"></v-divider>
+                  </template>
               </v-combobox>
             </v-col>
             <v-col>
@@ -46,12 +109,44 @@
                 v-model="bibliosEdited"
                 :items="biblios"
                 label="Annotated Bibliography"
+                chips
+                deletable-chips
+                small-chips
                 multiple>
+                  <template v-slot:prepend-item>
+                    <v-list-item
+                      ripple
+                      @mousedown.prevent
+                      @click="selectAllBiblios()"
+                    >
+                    <v-list-item-action>
+                      <v-icon >
+                        {{ bibliosEdited.length === biblios.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                      </v-icon>
+                    </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider class="mt-2"></v-divider>
+                  </template>
+                  <template v-slot:item="{ index, item }">
+                    <v-text-field
+                      style="display: flow-root!important"
+                      v-html="item.text"
+                      autofocus
+                      flat
+                      background-color="transparent"
+                      hide-details
+                    ></v-text-field>
+                  </template>
               </v-combobox>
             </v-col>
         </v-row>
       </div>
-      <div v-if="!editing && isFirst">
+      <div id="2" v-if="!editing && isFirst">
         <v-card-actions dense>
           <v-btn
             @click="existRelated = !existRelated"
@@ -101,7 +196,7 @@
           </div>
         </v-expand-transition>
       </div>
-      <v-divider v-if="(item.iconography && item.iconography.length>0)||(item.caves && item.caves.length>0)||(item.prs && item.prs.length>0)"></v-divider>
+      <v-divider id="3" v-if="(item.iconography && item.iconography.length>0)||(item.caves && item.caves.length>0)||(item.prs && item.prs.length>0)"></v-divider>
       <v-range-slider
         v-if="isFirst && item.chronologicalRangeMin && !editing"
         v-model="chronologicalRangeComputed"
@@ -138,9 +233,27 @@
       </template>
       </v-range-slider>
       <v-divider v-if="isFirst && item.chronologicalRangeMin"></v-divider>
+      <v-divider v-if="$store.state.user.accessLevel === 4 && editing"/>
+      <v-subheader v-if="$store.state.user.accessLevel === 4 && editing">
+        Info-Section
+      </v-subheader>
+      <v-row v-if="$store.state.user.accessLevel === 4 && editing">
+        <v-col>
+          <v-checkbox
+            class="mx-5"
+            label="Publish in Info-Section"
+            v-model="isInfoEdited"
+          >
+          </v-checkbox>
+        </v-col>
+      </v-row>
       <v-alert type="warning" dense v-model="unpublishedAlert" border="left">Post is not published yet, waiting for authorisation by Admins.</v-alert>
       <v-card-text v-if="!editing" v-html="item.body"></v-card-text>
-      <VueEditor v-if="editing" class="mx-5" v-model="editedText" />
+      <div v-if="editing">
+      <trumbowyg
+        ref="editorEditedText"  class="mx-5" :modelValue="editedText" @update="textChangedEditedText"
+      />
+      </div>
       <v-card-text v-if="!isFirst" class="font-weight-bold text-right">{{"(by: " + item.user + ", on: " + new Date(item.date).toGMTString()+")"}}</v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -186,7 +299,9 @@
       </v-card-actions>
       <v-expand-transition>
         <div v-show="showEditor">
-          <VueEditor class="mx-5" v-model=replyBody />
+          <trumbowyg
+            ref="editorReply"  class="mx-5" :modelValue="replyBody" @update="textChangedAnswer"
+          />
           <v-col>
             <v-btn @click="postAnswer" dense block color="success">Submit</v-btn>
             <v-spacer ></v-spacer>
@@ -224,14 +339,14 @@
 
 <script>
 import discussion from '@/components/discussion'
-import { VueEditor } from "vue2-editor";
 import { v4 as uuidv4 } from 'uuid';
+import trumbowyg from '@/components/trumbowyg.vue'
 
 
 export default {
   components: {
     discussion,
-    VueEditor
+    trumbowyg
   },
   name: 'discussion',
   props: {
@@ -364,6 +479,44 @@ export default {
     },
   },
   methods: {
+    textChangedEditedText(body){
+      this.editedText = body
+    },
+    textChangedAnswer(body){
+      this.replyBody = body
+    },
+    publishAsInfo(){
+      this.$log.debug("before", this.isInfoEdited)
+      this.isInfoEdited = !this.isInfoEdited
+    },
+    selectAllBiblios(){
+      if (this.bibliosEdited.length === this.biblios.length){
+        this.bibliosEdited = []
+      } else {
+        this.bibliosEdited = this.biblios
+      }
+    },
+    selectAllPrs(){
+      if (this.prsEdited.length === this.prsList.length){
+        this.prsEdited = []
+      } else {
+        this.prsEdited = this.prsList
+      }
+    },
+    selectAllIcos(){
+      if (this.icosEdited.length === this.iconographyList.length){
+        this.icosEdited = []
+      } else {
+        this.icosEdited = this.iconographyList
+      }
+    },
+    selectAllCaves(){
+      if (this.cavesEdited.length === this.cavesList.length){
+        this.cavesEdited = []
+      } else {
+        this.cavesEdited = this.cavesList
+      }
+    },
     publishedComment(value){
       this.$log.debug("publishing triggered", value);
       let newComments = []
@@ -391,7 +544,7 @@ export default {
     },
     editingClicked(){
       if (!this.editing){
-        this.editing = true
+        this.isInfoEdited = this.item.isInfo
         this.icosEdited = this.item.iconography
         this.cavesEdited = this.item.caves
         this.prsEdited = this.item.prs
@@ -400,20 +553,22 @@ export default {
         this.topicTitleEdited = this.item.title
         this.chronologicalRangeSelectedModified = [this.item.chronologicalRangeMin, this.item.chronologicalRangeMax]
         this.keywordsSelectedModified = this.item.keywordList
+        this.editing = true
       } else {
-        this.$log.debug("saving", this.item.components);
+        this.$log.debug("saving", this.isFirst);
         this.editing = false
         let data = {
           "uuid": this.uuid,
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
-          "body": this.editedText,
+          "body": this.$refs.editorEditedText.getContent(),
           "comments": this.item.comments,
           "date" : this.item.date,
           "latestUpdate": Date.now(),
           "published": this.item.published
         }
         if (this.isFirst){
+          data["isInfo"] = this.isInfoEdited
           data["title"] = this.topicTitleEdited
           data["prs"] = this.prsEdited
           data["caves"] = this.cavesEdited
@@ -425,6 +580,7 @@ export default {
           data["chronologicalRangeMin"] = this.chronologicalRangeSelectedModified[0]
           data["chronologicalRangeMax"] = this.chronologicalRangeSelectedModified[1]
         }
+        console.log("saving", data, this.isInfoEdited)
         this.$emit('editComment', data)
 
       }
@@ -477,14 +633,14 @@ export default {
       return ""
     },
     postAnswer(){
-      if (this.replyBody !== ""){
+      if (this.$refs.editorReply.getContent() !== ""){
         const now = Date.now();
         var newComment = {
           "parentUuid": this.uuid,
           "uuid": uuidv4(),
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
-          "body": this.replyBody,
+          "body": this.$refs.editorReply.getContent(),
           "comments": [],
           "date" : now,
           "latestUpdate": now,
@@ -533,7 +689,6 @@ export default {
   },
   mounted:function () {
     this.$log.debug("discussions called");
-    this.$log.debug("User:", this.$store.state.user);
     if (!this.item.published){
       this.unpublishedAlert = true
     }

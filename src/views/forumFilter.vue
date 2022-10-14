@@ -18,18 +18,56 @@
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
         <v-expansion-panels class="mx-5 pr-10 pt-5"  v-model="introPanel">
-          <v-expansion-panel>
+          <v-expansion-panel v-if="introTopicTitle!=='' || $store.state.user.accessLevel===4">
             <v-expansion-panel-header>
               Introduction
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-card>
-                <v-card-title>
-                  Overview of the Different Approaches to Establish a Relative and Absolute Chronology of the Buddhist Murals of Kucha
+                <v-card-title class="font-weight-bold h3" v-if="!editIntro">
+                  {{introTopicTitle}}
                 </v-card-title>
-                <v-card-subtitle>Ines Konczak-Nagel</v-card-subtitle>
-                <v-card-text>
+                <v-card-title v-if="editIntro">Introduction Title</v-card-title>
+                <v-text-field v-if="editIntro" v-model="introTopicTitle" class="mx-5"></v-text-field>
+                <v-card-subtitle v-if="!editIntro">{{introTopicSubtitle}}</v-card-subtitle>
+                <v-card-subtitle v-if="editIntro">Introduction Subtitle</v-card-subtitle>
+                <v-text-field v-if="editIntro" v-model="introTopicSubtitle" class="mx-5"></v-text-field>
+                <v-card-text v-html="introBody" v-if="!editIntro">
                 </v-card-text>
+                <v-card-title v-if="editIntro">Introduction Body</v-card-title>
+                <div v-if="editIntro" >
+                <trumbowyg
+                  ref="editor"  class="mx-5" :modelValue="introBody" @update="textChanged"
+                />
+                </div>
+                <v-list>
+                <draggable v-if="$store.state.user.accessLevel===4" v-model="introDiscussions" @end="postIntro()">
+                  <v-list-item v-for="introDiscussion in introDiscussions" :key="introDiscussion._id" >
+                    <template >
+                      <v-list-item-content>
+                        <showIntroDiscussion :introDiscussion="introDiscussion" />
+                      </v-list-item-content>
+                    </template>
+                  </v-list-item>
+                </draggable>
+                <div v-if="$store.state.user.accessLevel!==4" >
+                  <v-list-item v-for="introDiscussion in introDiscussions" :key="introDiscussion._id" >
+                    <template >
+                      <v-list-item-content>
+                        <showIntroDiscussion :introDiscussion="introDiscussion" />
+                      </v-list-item-content>
+                    </template>
+                  </v-list-item>
+                </div>
+                </v-list>
+                <v-row class="mt-3" v-if="$store.state.user.accessLevel===4">
+                  <v-col class="d-flex justify-center">
+                    <v-btn @click="clickEditSave()" dense color="success">{{editIntro ? "Save" : "Edit"}}</v-btn>
+                  </v-col>
+                  <v-col class="d-flex justify-center" v-if="editIntro===true">
+                    <v-btn @click="editIntro = false" dense color="success">{{"Cancel"}}</v-btn>
+                  </v-col>
+                </v-row>
               </v-card>
             </v-expansion-panel-content>
           </v-expansion-panel>
@@ -54,20 +92,20 @@
                     </v-col>
               </v-row>
               <v-row no-gutters>
-                    <v-col class="mx-2">
-                      <RangeSlideSearch
-                        label="Chronological Range"
-                        ref="RangeSlideSearch"
-                        @clicked="changedChronologicalRangeInput"
-                        prefix="chronologicalRange"
-                        :aggregations="rangeSlideFacets"
-                        rangeMin = "-425"
-                        rangeMax = "2025"
-                        rangeStep = "25"
-                        :chronologicalDefault = "[-425, 2025]"
-                        :chronologicalRange = "chronologicalRange"
-                      ></RangeSlideSearch>
-                    </v-col>
+                <v-col class="mx-2">
+                  <RangeSlideSearch
+                    label="Chronological Range"
+                    ref="RangeSlideSearch"
+                    @clicked="changedChronologicalRangeInput"
+                    prefix="chronologicalRange"
+                    :aggregations="rangeSlideFacets"
+                    rangeMin = "-425"
+                    rangeMax = "2025"
+                    rangeStep = "25"
+                    :chronologicalDefault = "[-425, 2025]"
+                    :chronologicalRange = "chronologicalRange"
+                  ></RangeSlideSearch>
+                </v-col>
               </v-row>
               <v-row>
                 <v-col>
@@ -81,7 +119,7 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
-        <v-alert border="top" class="mt-5 mx-5" v-model="loggedOut" color="amber"> You need to have an aproved Account for creating a new thread and commenting. You can register here. <Register @click.stop="doRegister()"></Register></v-alert>
+        <v-alert border="top" class="mt-5 mx-5" v-model="loggedOut" color="amber"> You need to have an aproved Account for creating a new thread and commenting. You can register here. <Register @click.stop="doRegister()"></Register> Or login here. <LoginComponent/></v-alert>
         <v-expansion-panels class="mx-5 pr-10 pt-5" v-model="panel" v-if="$store.state.user.granted&&newPosts">
           <v-expansion-panel  >
             <v-expansion-panel-header>
@@ -97,7 +135,28 @@
                       v-model="selectedCaves"
                       :items="caves"
                       label="Cave"
+                      chips
+                      deletable-chips
                       multiple>
+                      <template v-slot:prepend-item>
+                        <v-list-item
+                          ripple
+                          @mousedown.prevent
+                          @click="selectAllCaves()"
+                        >
+                          <v-list-item-action>
+                            <v-icon >
+                              {{ selectedCaves.length === caves.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                            </v-icon>
+                          </v-list-item-action>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              Select All
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                        <v-divider class="mt-2"></v-divider>
+                      </template>
                     </v-combobox>
                     </v-col>
                     <v-col>
@@ -105,7 +164,28 @@
                         v-model="selectedIconography"
                         :items="iconography"
                         label="Iconography"
+                        chips
+                        deletable-chips
                         multiple>
+                        <template v-slot:prepend-item>
+                          <v-list-item
+                            ripple
+                            @mousedown.prevent
+                            @click="selectAllIcos()"
+                          >
+                          <v-list-item-action>
+                            <v-icon >
+                              {{ selectedIconography.length === iconography.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                            </v-icon>
+                          </v-list-item-action>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                Select All
+                              </v-list-item-title>
+                            </v-list-item-content>
+                          </v-list-item>
+                          <v-divider class="mt-2"></v-divider>
+                        </template>
                       </v-combobox>
                     </v-col>
                     <v-col>
@@ -113,7 +193,28 @@
                         v-model="selectedPR"
                         :items="prs"
                         label="Painted Representation"
+                        chips
+                        deletable-chips
                         multiple>
+                        <template v-slot:prepend-item>
+                          <v-list-item
+                            ripple
+                            @mousedown.prevent
+                            @click="selectAllPrs()"
+                          >
+                          <v-list-item-action>
+                            <v-icon >
+                              {{ selectedPR.length === prs.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                            </v-icon>
+                          </v-list-item-action>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                Select All
+                              </v-list-item-title>
+                            </v-list-item-content>
+                          </v-list-item>
+                          <v-divider class="mt-2"></v-divider>
+                        </template>
                       </v-combobox>
                     </v-col>
                     <v-col>
@@ -121,7 +222,38 @@
                         v-model="selectedBiblios"
                         :items="biblios"
                         label="Annotated Bibliography"
+                        chips
+                        deletable-chips
                         multiple>
+                        <template v-slot:prepend-item>
+                          <v-list-item
+                            ripple
+                            @mousedown.prevent
+                            @click="selectAllBiblios()"
+                          >
+                          <v-list-item-action>
+                            <v-icon >
+                              {{ selectedBiblios.length === biblios.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+                            </v-icon>
+                          </v-list-item-action>
+                            <v-list-item-content>
+                              <v-list-item-title>
+                                Select All
+                              </v-list-item-title>
+                            </v-list-item-content>
+                          </v-list-item>
+                          <v-divider class="mt-2"></v-divider>
+                        </template>
+                        <template v-slot:item="{ index, item }">
+                          <v-text-field
+                          style="display: flow-root!important"
+                            v-html="item.text"
+                            autofocus
+                            flat
+                            background-color="transparent"
+                            hide-details
+                          ></v-text-field>
+                        </template>
                       </v-combobox>
                     </v-col>
                 </v-row>
@@ -157,10 +289,39 @@
                     </v-range-slider>
                   </v-col>
                 </v-row>
+                <v-divider v-if="$store.state.user.accessLevel === 4"/>
+                <v-subheader v-if="$store.state.user.accessLevel === 4">
+                  Info-Section
+                </v-subheader>
+                <v-row v-if="$store.state.user.accessLevel === 4">
+                  <v-col>
+                    <v-checkbox
+                      @click="publishAsInfo()"
+                      class="mx-5"
+                      label="Publish in Info-Section"
+                      v-model="isInfo"
+                    >
+                    </v-checkbox>
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-if="isInfo"
+                      v-model="infoRank"
+                      hide-details
+                      single-line
+                      class="mx-5"
+                      type="number"
+                      title="Info-Section Rank"
+                    />
+                  </v-col>
+                </v-row>
                 <v-card-title>Topic Title</v-card-title>
                 <v-text-field v-model="topicTitle" class="mx-5"></v-text-field>
                 <v-card-title>Topic Body</v-card-title>
-                <VueEditor class="mx-5" v-model="topicBody" />
+                <trumbowyg
+                  ref="editorForum"  class="mx-5" :modelValue="topicBody" @update="textChangedForum"
+                />
+
                 <v-col>
                   <v-btn @click="postNewthread" :loading="posting" dense block color="success">Submit</v-btn>
                 </v-col>
@@ -185,27 +346,35 @@
 </template>
 
 <script>
+
 import Foruminf from '../components/foruminf.vue';
 import {TextSearchForum} from '@/utils/constants.js'
 import freeTextSearch from '@/components/freeTextSearch.vue'
+import showIntroDiscussion from '@/components/showIntroDiscussion.vue'
 import { v4 as uuidv4 } from 'uuid'
 import {getBuckets, getDepictionLabelShort, getCaveShortLabel, getBibTitle, prepareSortItem, appendFilterToAgg} from  "@/utils/helpers"
-import {getComments, postQuery, putComments, getPRList, getBiblioList, getIcoList, getCaveList, getDiscussionKeywords} from '@/services/repository'
-import { VueEditor } from "vue2-editor";
+import {getIntro, getComments, postQuery, putComments, getPRList, getBiblioList, getIcoList, getCaveList, getDiscussionKeywords} from '@/services/repository'
+
+import draggable from 'vuedraggable'
 import radioGroupSort from '@/components/radioGroupSort.vue'
 import Register from '@/components/Register'
+import LoginComponent from '@/components/LoginDialog'
 import comboboxSearch from '@/components/comboboxSearch.vue'
 import RangeSlideSearch from '@/components/RangeSlideSearch.vue'
+import trumbowyg from '@/components/trumbowyg.vue'
 
 export default {
   components: {
     Foruminf,
     freeTextSearch,
-    VueEditor,
     radioGroupSort,
     Register,
+    LoginComponent,
     comboboxSearch,
-    RangeSlideSearch
+    RangeSlideSearch,
+    showIntroDiscussion,
+    draggable,
+    trumbowyg
   },
   name: 'forumFilter',
   props: {
@@ -217,7 +386,14 @@ export default {
 
   data () {
     return {
+      introDiscussions: [],
+      introTopicTitle:"",
+      introTopicSubtitle:"",
+      introBody:"",
+      editIntro:false,
+      infoRank:0,
       resAmount:0,
+      isInfo:false,
       loading: false,
       discussions: [],
       filterPanel: 0,
@@ -247,6 +423,7 @@ export default {
       userSearchObjects: [],
       rangeSearch: {},
       textSearch: {},
+      sortRanking:{}
 
     }
   },
@@ -305,7 +482,55 @@ export default {
 
   },
   methods: {
-
+    textChangedForum(body){
+      this.topicBody = body
+    },
+    textChanged(body){
+      this.introBody = body
+    },
+    changeFootNotes(node, delta) {
+      this.$log.debug("quill node", node)
+      this.$log.debug("quill delta", delta)
+      return delta
+    },
+    selectAllBiblios(){
+      if (this.selectedBiblios.length === this.biblios.length){
+        this.selectedBiblios = []
+      } else {
+        this.selectedBiblios = this.biblios
+      }
+    },
+    selectAllPrs(){
+      if (this.selectedPR.length === this.prs.length){
+        this.selectedPR = []
+      } else {
+        this.selectedPR = this.prs
+      }
+    },
+    selectAllIcos(){
+      if (this.selectedIconography.length === this.iconography.length){
+        this.selectedIconography = []
+      } else {
+        this.selectedIconography = this.iconography
+      }
+    },
+    selectAllCaves(){
+      if (this.selectedCaves.length === this.caves.length){
+        this.selectedCaves = []
+      } else {
+        this.selectedCaves = this.caves
+      }
+    },
+    clickEditSave(){
+      if (this.editIntro === false){
+        this.editIntro = true
+      } else {
+        this.postIntro()
+      }
+    },
+    publishAsInfo(){
+      this.isInfo = !this.isInfo
+    },
     changedChronologicalRangeInput(value){
       this.rangeSearch = value.search
       this.initiateFacets()
@@ -321,10 +546,49 @@ export default {
       this.aggsObject["user"] = value.aggs
       this.initiateFacets()
     },
+    getIntroDiscussions(){
+      let queries = {
+        "query":{
+          "bool": {
+            "must": [
+              {
+                "match": {
+                  "isInfo" :{
+                    "query": true
+                  }
+                }
+              },
+              {
+                "match": {
+                  "published" :{
+                    "query": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+      postQuery(queries, process.env.VUE_APP_ESAPI + 'kucha_discussion/_search')
+        .then( res => {
+          this.$log.debug("IntroDiscussions", res.data.hits.hits)
+          this.introDiscussions = res.data.hits.hits
+          this.sortIntroDiscussions()
+        })
+        .catch((error) => {
+          this.$log.debug(error)
+        })
 
+    },
     buildQueries(){
       let queries = {
-        "must": [],
+        "must": [
+          {
+            "exists": {
+              "field": "isInfo"
+            }
+          }
+        ],
         "should": []}
       if (this.textSearch.should){
         if ((this.textSearch.should.length > 0) || (this.textSearch.must.length > 0)){
@@ -359,6 +623,16 @@ export default {
             queries.must.push(bibKeywordsSearchObject)
           }
         }
+      }
+      if (this.$store.state.user.accessLevel < 4){
+        queries.must.push(
+          {
+            "multi_match": {
+              "query": "true",
+              "fields": "published"
+            }
+          }
+        )
       }
       return queries
     },
@@ -411,7 +685,37 @@ export default {
           this.loading = false
         })
     },
-
+    postIntro(){
+      let newSortDic = {}
+      let sort = 0
+      for (let entry of this.introDiscussions){
+        newSortDic[entry._id] = sort
+        sort += 1
+      }
+      this.sortRanking = newSortDic
+      this.$log.debug("start postintro")
+      this.posting = true
+      var data = {
+        "introTopicTitle": this.introTopicTitle,
+        "introTopicSubtitle": this.introTopicSubtitle,
+        "introBody": this.editIntro ? this.$refs.editor.getContent() : this.introBody,
+        "sortRanking": this.sortRanking
+      }
+      this.introBody = data.introBody
+      this.$log.debug("start postintro", data)
+      putComments(data, "introduction", false, this.$store.state.user.sessionID)
+        .then( res => {
+          const _self = this
+          console.log("blubb");
+          setTimeout(function () {
+            _self.posting = false
+            _self.editIntro = false
+          }, 2000);
+        })
+        .catch((error) => {
+          this.$log.debug(error)
+        })
+    },
     postNewthread(){
       this.posting = true
       const now = Date.now();
@@ -419,8 +723,9 @@ export default {
         "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
         "userID": this.$store.state.user.userID,
         "title": this.topicTitle,
-        "body": this.topicBody,
+        "body": this.$refs.editorForum.getContent(),
         "comments": [],
+        "isInfo": this.isInfo,
         "date": now,
         "latestUpdate": now,
         "prs": this.selectedPR,
@@ -456,6 +761,7 @@ export default {
       this.chronologicalRangeSelected = [-200, 1700]
       this.topicTitle = ""
       this.topicBody = ""
+      this.$refs.editorForum.setContent("")
       this.panel = false
 
     },
@@ -544,7 +850,36 @@ export default {
       this.direction = value[1]
       this.relatedBibliography = []
     },
-
+    sortIntroDiscussions(){
+      this.$log.debug("this.sortRanking", this.sortRanking)
+      this.introDiscussions.sort(this.sortIntro)
+    },
+    findMax(dic){
+      let maxKey = 0
+      let maxValue = 0
+      for (const [key, value] of Object.entries(dic)) {
+        if (value > maxValue) {
+          maxValue = value;
+          maxKey = key;
+          this.$log.debug("maxKeay", maxKey)
+        }
+      }
+      return maxValue
+    },
+    sortIntro(a, b){
+      if (!this.sortRanking){
+        this.$log.debug("blubb")
+        return 0
+      }
+      this.$log.debug("noBlubb")
+      if (!this.sortRanking[a._id]){
+        this.sortRanking[a._id] = this.findMax(this.sortRanking) + 1
+      }
+      if (!this.sortRanking[b._id]){
+        this.sortRanking[b._id] = this.findMax(this.sortRanking) + 1
+      }
+      return this.sortRanking[b._id] - this.sortRanking[a._id]
+    },
     getComments(){
       getComments()
         .then( res => {
@@ -572,7 +907,7 @@ export default {
           }
         }
       }
-    }
+    },
 
   },
   mounted:function () {
@@ -649,9 +984,32 @@ export default {
       .catch((error) => {
         this.$log.debug(error)
       })
+    getIntro()
+      .then( res => {
+        this.$log.debug("Intro", res.data._source)
+        this.introTopicTitle = res.data._source.introTopicTitle
+        this.introTopicSubtitle = res.data._source.introTopicSubtitle
+        this.introBody = res.data._source.introBody
+        this.sortRanking = res.data._source.sortRanking
+        this.sortIntroDiscussions()
+      })
+      .catch((error) => {
+        this.$log.debug(error)
+      })
+    this.getIntroDiscussions()
+    this.sortIntroDiscussions()
   },
 }
 
 </script>
 
-<style></style>
+<style>
+.v-select__selections {
+  overflow: scroll;
+  flex-wrap: nowrap;
+}
+.v-chip {
+  overflow: initial;
+}
+
+</style>
