@@ -18,6 +18,7 @@
           :cavesList="cavesList"
           :prsList="prsList"
           :isFirst="true"
+          :intro="intro"
           :biblios="biblios"
         ></discussion>
         </v-card>
@@ -36,6 +37,12 @@ export default {
   },
   name: 'foruminf',
   props: {
+    intro:{
+      type: Object,
+      default: function(){
+        return {}
+      }
+    },
     discussions: null,
     newPosts: {
       type: Boolean,

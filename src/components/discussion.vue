@@ -189,8 +189,7 @@
             </v-card-text>
             <v-card-subtitle v-if="item.prs.length>0">Related Annotated Biliography:</v-card-subtitle>
             <v-card-text class="ml-5" v-for="(item_biblio, index_biblio) in item.bibliography" :key="'biblio-'+index_biblio">
-              <a :href="getBiblioURL(item_biblio.value)">
-                {{"Annotated Bibliography " + item_biblio.value + " (" + item_biblio.text + ")"}}
+              <a :href="getBiblioURL(item_biblio.value)" v-html="'Annotated Bibliography ' + item_biblio.value + ' (' + item_biblio.text + ')'">
               </a>
             </v-card-text>
           </div>
@@ -246,12 +245,46 @@
           >
           </v-checkbox>
         </v-col>
+        <v-col>
+          <v-combobox
+            v-if="isInfoEdited"
+            :items="intro.introSections"
+            v-model="infoRank"
+            hide-details
+            single-line
+            class="mx-5"
+            title="Info-Section Rank"
+            style="z-index: 10;"
+          >
+            <template v-slot:item="{ index, item }">
+              <v-text-field
+              style="display: flow-root!important"
+                v-html="getSpliceOfText(item.introBody)"
+                autofocus
+                flat
+                background-color="transparent"
+                hide-details
+              ></v-text-field>
+            </template>
+            <template v-slot:selection="{ attrs, item, parent, selected }">
+              <v-text-field
+              style="display: flow-root!important"
+                v-html="getSpliceOfText(item.introBody)"
+                autofocus
+                flat
+                background-color="transparent"
+                hide-details
+              ></v-text-field>
+            </template>
+
+          </v-combobox>
+        </v-col>
       </v-row>
       <v-alert type="warning" dense v-model="unpublishedAlert" border="left">Post is not published yet, waiting for authorisation by Admins.</v-alert>
       <v-card-text v-if="!editing" v-html="item.body"></v-card-text>
       <div v-if="editing">
       <trumbowyg
-        ref="editorEditedText"  class="mx-5" :modelValue="editedText" @update="textChangedEditedText"
+        ref="editorEditedText"  class="mx-5" v-model="editedText"
       />
       </div>
       <v-card-text v-if="!isFirst" class="font-weight-bold text-right">{{"(by: " + item.user + ", on: " + new Date(item.date).toGMTString()+")"}}</v-card-text>
@@ -300,7 +333,7 @@
       <v-expand-transition>
         <div v-show="showEditor">
           <trumbowyg
-            ref="editorReply"  class="mx-5" :modelValue="replyBody" @update="textChangedAnswer"
+            ref="editorReply"  class="mx-5" v-model="replyBody" @update="textChangedAnswer"
           />
           <v-col>
             <v-btn @click="postAnswer" dense block color="success">Submit</v-btn>
@@ -341,6 +374,7 @@
 import discussion from '@/components/discussion'
 import { v4 as uuidv4 } from 'uuid';
 import trumbowyg from '@/components/trumbowyg.vue'
+import {getSpliceOfText} from  "@/utils/helpers"
 
 
 export default {
@@ -369,6 +403,12 @@ export default {
       }
     },
     item:{
+      type: Object,
+      default: function(){
+        return {}
+      }
+    },
+    intro:{
       type: Object,
       default: function(){
         return {}
@@ -419,6 +459,8 @@ export default {
   },
   data () {
     return {
+      isInfoEdited:false,
+      infoRank:null,
       showEditor: false,
       replyBody: "",
       postError: false,
@@ -479,15 +521,14 @@ export default {
     },
   },
   methods: {
+    getSpliceOfText(text){
+      return getSpliceOfText(text)
+    },
     textChangedEditedText(body){
       this.editedText = body
     },
     textChangedAnswer(body){
       this.replyBody = body
-    },
-    publishAsInfo(){
-      this.$log.debug("before", this.isInfoEdited)
-      this.isInfoEdited = !this.isInfoEdited
     },
     selectAllBiblios(){
       if (this.bibliosEdited.length === this.biblios.length){
@@ -542,9 +583,20 @@ export default {
       this.$log.debug("item", this.uuid);
       this.$emit('publish', this.uuid)
     },
+    getIntroSection(id){
+      this.$log.debug("intro", this.intro, id)
+      for (let introSection of this.intro.introSections){
+        this.$log.debug("introSectionid", introSection.id, id)
+        if (introSection.id === id){
+          this.$log.debug("found introSection!", introSection)
+          return introSection
+        }
+      }
+    },
     editingClicked(){
       if (!this.editing){
         this.isInfoEdited = this.item.isInfo
+        this.infoRank = this.getIntroSection(this.item.introSection)
         this.icosEdited = this.item.iconography
         this.cavesEdited = this.item.caves
         this.prsEdited = this.item.prs
@@ -561,7 +613,7 @@ export default {
           "uuid": this.uuid,
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
-          "body": this.$refs.editorEditedText.getContent(),
+          "body": this.editedText,
           "comments": this.item.comments,
           "date" : this.item.date,
           "latestUpdate": Date.now(),
@@ -579,6 +631,11 @@ export default {
           data["keywordList"] = this.keywordsSelectedModified
           data["chronologicalRangeMin"] = this.chronologicalRangeSelectedModified[0]
           data["chronologicalRangeMax"] = this.chronologicalRangeSelectedModified[1]
+          if (this.isInfoEdited){
+            if (this.infoRank){
+              data["introSection"] = this.infoRank.id
+            }
+          }
         }
         console.log("saving", data, this.isInfoEdited)
         this.$emit('editComment', data)
@@ -633,14 +690,14 @@ export default {
       return ""
     },
     postAnswer(){
-      if (this.$refs.editorReply.getContent() !== ""){
+      if (this.replyBody !== ""){
         const now = Date.now();
         var newComment = {
           "parentUuid": this.uuid,
           "uuid": uuidv4(),
           "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
           "userID": this.$store.state.user.userID,
-          "body": this.$refs.editorReply.getContent(),
+          "body": this.replyBody,
           "comments": [],
           "date" : now,
           "latestUpdate": now,

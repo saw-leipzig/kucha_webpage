@@ -354,6 +354,44 @@ export function getIntro(){
     auth: auth
   })
 }
+export function getIntroDiscussions(id){
+  let query = {
+    "query":{
+      "bool": {
+        "must": [
+          {
+            "match": {
+              "isInfo" :{
+                "query": true
+              }
+            }
+          },
+          {
+            "match": {
+              "introSection" :{
+                "query": id
+              }
+            }
+          },
+          {
+            "match": {
+              "published" :{
+                "query": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
+    method: 'post',
+    auth: auth,
+    data: query
+  })
+
+}
 
 export function getKuchaDiscussionMapping() {
   return axios({

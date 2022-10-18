@@ -1,5 +1,5 @@
 <template>
-    <div :id="getUniqueID()" v-on:input="handleInput()"></div>
+    <div :id="getUniqueID()" ></div>
 </template>
 
 <script>
@@ -14,9 +14,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default {
   props: {
-    'modelValue': String
+    value: {
+      default: null,
+      validator(value) {
+        return value === null || typeof value === 'string' || value instanceof String
+      }
+    }
   },
-  emits: ['update'],
+  emits: ['input'],
   data(){
     return {
       uniqueID: null
@@ -27,7 +32,7 @@ export default {
     this.destroy()
   },
   mounted() {
-    this.$log.debug("mounted editor", this.modelValue)
+    this.$log.debug("mounted editor", this.value)
     require('trumbowyg')
     require('trumbowyg/dist/plugins/base64/trumbowyg.base64.min.js')
     require('trumbowyg/dist/plugins/emoji/trumbowyg.emoji.min.js')
@@ -71,7 +76,7 @@ export default {
         _self.handleInput()
       });
     $.trumbowyg.svgPath = '/static/icons.svg';
-    $('#' + this.getUniqueID()).trumbowyg('html', this.modelValue);
+    $('#' + this.getUniqueID()).trumbowyg('html', this.value);
   },
   computet:{
   },
@@ -83,14 +88,14 @@ export default {
       return this.uniqueID
     },
     handleInput () {
-      this.$log.debug("changed text input")
-      this.$emit('update', this.modelValue)
+      this.$log.debug("changed text input here")
+      this.$emit('input', this.getContent())
     },
     getContent(){
       return $('#' + this.getUniqueID()).trumbowyg('html')
     },
     setContent(){
-      $('#' + this.getUniqueID()).trumbowyg('html', this.modelValue);
+      $('#' + this.getUniqueID()).trumbowyg('html', this.value);
     },
     destroy(){
       this.$log.debug("editor destroyed")
@@ -99,7 +104,9 @@ export default {
   },
   watch:{
     value(newVal, oldVal){
-      this.setContent()
+      if (newVal === $('#' + this.getUniqueID()).trumbowyg('html')) return;
+      // Set new value
+      $('#' + this.getUniqueID()).trumbowyg('html', newVal)
     }
 
   },

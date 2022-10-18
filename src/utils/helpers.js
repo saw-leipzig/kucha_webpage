@@ -61,6 +61,17 @@ function getTitleTRFull(bibliography) {
   var result = bibliography.subtitleTR === "" ? bibliography.titleTR : bibliography.titleTR + ": " + bibliography.subtitleTR;
   return result;
 }
+export function getSpliceOfText(text){
+  if (text === undefined){
+    return "undefined"
+  }
+  let splice = text.split("</p>")
+  if (splice[0]){
+    return splice[0] + "</p>"
+  } else {
+    return text
+  }
+}
 export function getIcosWithChildren(iconography){
   let returnElement = []
   for (var rootElement of store.state.iconography){

@@ -25,47 +25,52 @@
             <v-expansion-panel-content>
               <v-card>
                 <v-card-title class="font-weight-bold h3" v-if="!editIntro">
-                  {{introTopicTitle}}
+                  {{intro.introTopicTitle}}
                 </v-card-title>
                 <v-card-title v-if="editIntro">Introduction Title</v-card-title>
-                <v-text-field v-if="editIntro" v-model="introTopicTitle" class="mx-5"></v-text-field>
-                <v-card-subtitle v-if="!editIntro">{{introTopicSubtitle}}</v-card-subtitle>
+                <v-text-field v-if="editIntro" v-model="intro.introTopicTitle" class="mx-5"></v-text-field>
+                <v-card-subtitle v-if="!editIntro">{{intro.introTopicSubtitle}}</v-card-subtitle>
                 <v-card-subtitle v-if="editIntro">Introduction Subtitle</v-card-subtitle>
-                <v-text-field v-if="editIntro" v-model="introTopicSubtitle" class="mx-5"></v-text-field>
-                <v-card-text v-html="introBody" v-if="!editIntro">
-                </v-card-text>
-                <v-card-title v-if="editIntro">Introduction Body</v-card-title>
-                <div v-if="editIntro" >
-                <trumbowyg
-                  ref="editor"  class="mx-5" :modelValue="introBody" @update="textChanged"
-                />
+                <v-text-field v-if="editIntro" v-model="intro.introTopicSubtitle" class="mx-5"></v-text-field>
+                <div v-for="introSection of intro.introSections" :key="introSection.id">
+                  <v-card-text v-html="introSection.introBody" v-if="!editIntro">
+                  </v-card-text>
+                  <v-card-title v-if="editIntro">Introduction Body</v-card-title>
+                  <div v-if="editIntro" >
+                  <trumbowyg
+                    ref="editor"  class="mx-5" v-model="introSection.introBody" @input="textChanged"
+                  />
+                  </div>
+                  <v-list class="pt-0 mt-0">
+                  <draggable v-if="$store.state.user.accessLevel===4" v-model="introSection.discussions" @end="postIntro()">
+                    <v-list-item  v-for="introDiscussion in introSection.discussions" :key="introDiscussion._id" >
+                      <template >
+                        <v-list-item-content class="pt-0 mt-0">
+                          <showIntroDiscussion :introDiscussion="introDiscussion" />
+                        </v-list-item-content>
+                      </template>
+                    </v-list-item>
+                  </draggable>
+                  <div v-if="$store.state.user.accessLevel!==4" >
+                    <v-list-item v-for="introDiscussion in introSection.discussions" :key="introDiscussion._id" >
+                      <template >
+                        <v-list-item-content>
+                          <showIntroDiscussion :introDiscussion="introDiscussion" />
+                        </v-list-item-content>
+                      </template>
+                    </v-list-item>
+                  </div>
+                  </v-list>
                 </div>
-                <v-list>
-                <draggable v-if="$store.state.user.accessLevel===4" v-model="introDiscussions" @end="postIntro()">
-                  <v-list-item v-for="introDiscussion in introDiscussions" :key="introDiscussion._id" >
-                    <template >
-                      <v-list-item-content>
-                        <showIntroDiscussion :introDiscussion="introDiscussion" />
-                      </v-list-item-content>
-                    </template>
-                  </v-list-item>
-                </draggable>
-                <div v-if="$store.state.user.accessLevel!==4" >
-                  <v-list-item v-for="introDiscussion in introDiscussions" :key="introDiscussion._id" >
-                    <template >
-                      <v-list-item-content>
-                        <showIntroDiscussion :introDiscussion="introDiscussion" />
-                      </v-list-item-content>
-                    </template>
-                  </v-list-item>
-                </div>
-                </v-list>
                 <v-row class="mt-3" v-if="$store.state.user.accessLevel===4">
                   <v-col class="d-flex justify-center">
                     <v-btn @click="clickEditSave()" dense color="success">{{editIntro ? "Save" : "Edit"}}</v-btn>
                   </v-col>
                   <v-col class="d-flex justify-center" v-if="editIntro===true">
                     <v-btn @click="editIntro = false" dense color="success">{{"Cancel"}}</v-btn>
+                  </v-col>
+                  <v-col class="d-flex justify-center" v-if="editIntro===true">
+                    <v-btn @click="addIntro()" dense color="success">{{"Add new Intro Section"}}</v-btn>
                   </v-col>
                 </v-row>
               </v-card>
@@ -296,7 +301,6 @@
                 <v-row v-if="$store.state.user.accessLevel === 4">
                   <v-col>
                     <v-checkbox
-                      @click="publishAsInfo()"
                       class="mx-5"
                       label="Publish in Info-Section"
                       v-model="isInfo"
@@ -304,22 +308,44 @@
                     </v-checkbox>
                   </v-col>
                   <v-col>
-                    <v-text-field
+                    <v-combobox
                       v-if="isInfo"
+                      :items="intro.introSections"
                       v-model="infoRank"
                       hide-details
                       single-line
                       class="mx-5"
-                      type="number"
                       title="Info-Section Rank"
-                    />
+                    >
+                      <template v-slot:item="{ index, item }">
+                        <v-text-field
+                        style="display: flow-root!important"
+                          v-html="item.introBody.substring(0,20)"
+                          autofocus
+                          flat
+                          background-color="transparent"
+                          hide-details
+                        ></v-text-field>
+                      </template>
+                      <template v-slot:selection="{ attrs, item, parent, selected }">
+                        <v-text-field
+                        style="display: flow-root!important"
+                          v-html="item.introBody.substring(0,50)"
+                          autofocus
+                          flat
+                          background-color="transparent"
+                          hide-details
+                        ></v-text-field>
+                      </template>
+
+                    </v-combobox>
                   </v-col>
                 </v-row>
                 <v-card-title>Topic Title</v-card-title>
                 <v-text-field v-model="topicTitle" class="mx-5"></v-text-field>
                 <v-card-title>Topic Body</v-card-title>
                 <trumbowyg
-                  ref="editorForum"  class="mx-5" :modelValue="topicBody" @update="textChangedForum"
+                  ref="editorForum"  class="mx-5" v-model="topicBody" @update="textChangedForum"
                 />
 
                 <v-col>
@@ -338,6 +364,7 @@
           :prsList="prs"
           :biblios="biblios"
           :keywords="keywords"
+          :intro="intro"
         >
         </Foruminf>
       </v-card>
@@ -353,7 +380,7 @@ import freeTextSearch from '@/components/freeTextSearch.vue'
 import showIntroDiscussion from '@/components/showIntroDiscussion.vue'
 import { v4 as uuidv4 } from 'uuid'
 import {getBuckets, getDepictionLabelShort, getCaveShortLabel, getBibTitle, prepareSortItem, appendFilterToAgg} from  "@/utils/helpers"
-import {getIntro, getComments, postQuery, putComments, getPRList, getBiblioList, getIcoList, getCaveList, getDiscussionKeywords} from '@/services/repository'
+import {getIntroDiscussions, getIntro, getComments, postQuery, putComments, getPRList, getBiblioList, getIcoList, getCaveList, getDiscussionKeywords} from '@/services/repository'
 
 import draggable from 'vuedraggable'
 import radioGroupSort from '@/components/radioGroupSort.vue'
@@ -386,12 +413,17 @@ export default {
 
   data () {
     return {
+      intro:{
+        introTopicTitle: "",
+        introTopicSubtitle: "",
+        introSections:[]
+      },
       introDiscussions: [],
       introTopicTitle:"",
       introTopicSubtitle:"",
       introBody:"",
       editIntro:false,
-      infoRank:0,
+      infoRank:null,
       resAmount:0,
       isInfo:false,
       loading: false,
@@ -482,11 +514,21 @@ export default {
 
   },
   methods: {
+    addIntro(){
+      if (!this.intro.introSections){
+        this.intro["introSections"] = []
+      }
+      let newIntroSection = {
+        "id": uuidv4(),
+        "introBody":"blubb"
+      }
+      this.intro.introSections.push(newIntroSection)
+    },
     textChangedForum(body){
       this.topicBody = body
     },
     textChanged(body){
-      this.introBody = body
+      this.$log.debug("text changed:", body, this.intro)
     },
     changeFootNotes(node, delta) {
       this.$log.debug("quill node", node)
@@ -528,9 +570,6 @@ export default {
         this.postIntro()
       }
     },
-    publishAsInfo(){
-      this.isInfo = !this.isInfo
-    },
     changedChronologicalRangeInput(value){
       this.rangeSearch = value.search
       this.initiateFacets()
@@ -545,40 +584,6 @@ export default {
       this.userSearchObjects = value.search
       this.aggsObject["user"] = value.aggs
       this.initiateFacets()
-    },
-    getIntroDiscussions(){
-      let queries = {
-        "query":{
-          "bool": {
-            "must": [
-              {
-                "match": {
-                  "isInfo" :{
-                    "query": true
-                  }
-                }
-              },
-              {
-                "match": {
-                  "published" :{
-                    "query": true
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-      postQuery(queries, process.env.VUE_APP_ESAPI + 'kucha_discussion/_search')
-        .then( res => {
-          this.$log.debug("IntroDiscussions", res.data.hits.hits)
-          this.introDiscussions = res.data.hits.hits
-          this.sortIntroDiscussions()
-        })
-        .catch((error) => {
-          this.$log.debug(error)
-        })
-
     },
     buildQueries(){
       let queries = {
@@ -686,31 +691,31 @@ export default {
         })
     },
     postIntro(){
-      let newSortDic = {}
-      let sort = 0
-      for (let entry of this.introDiscussions){
-        newSortDic[entry._id] = sort
-        sort += 1
+      let copyIntro = JSON.parse(JSON.stringify(this.intro))
+      for (let introSection of copyIntro.introSections){
+        let newSortDic = {}
+        let sort = 0
+        if (!introSection.discussions){
+          introSection["discussions"] = []
+        }
+        for (let entry of introSection.discussions){
+          newSortDic[entry._id] = sort
+          sort += 1
+        }
+        introSection.discussionSort = newSortDic
+        delete introSection.discussions
       }
-      this.sortRanking = newSortDic
-      this.$log.debug("start postintro")
+      copyIntro["title"] = ""
+      this.$log.debug("start postintro", copyIntro)
       this.posting = true
-      var data = {
-        "introTopicTitle": this.introTopicTitle,
-        "introTopicSubtitle": this.introTopicSubtitle,
-        "introBody": this.editIntro ? this.$refs.editor.getContent() : this.introBody,
-        "sortRanking": this.sortRanking
-      }
-      this.introBody = data.introBody
-      this.$log.debug("start postintro", data)
-      putComments(data, "introduction", false, this.$store.state.user.sessionID)
+      putComments(copyIntro, "introduction", false, this.$store.state.user.sessionID)
         .then( res => {
           const _self = this
           console.log("blubb");
           setTimeout(function () {
             _self.posting = false
             _self.editIntro = false
-          }, 2000);
+          }, 1000);
         })
         .catch((error) => {
           this.$log.debug(error)
@@ -723,7 +728,7 @@ export default {
         "user": this.$store.state.user.lastname + ", " + this.$store.state.user.firstname,
         "userID": this.$store.state.user.userID,
         "title": this.topicTitle,
-        "body": this.$refs.editorForum.getContent(),
+        "body": this.topicBody,
         "comments": [],
         "isInfo": this.isInfo,
         "date": now,
@@ -738,6 +743,9 @@ export default {
         "published": false,
         "chronologicalRangeMin": this.chronologicalRangeSelected[0],
         "chronologicalRangeMax": this.chronologicalRangeSelected[1]
+      }
+      if (this.isInfo){
+        data["introSection"] = this.infoRank.id
       }
       putComments(data, uuidv4(), false, this.$store.state.user.sessionID)
         .then( res => {
@@ -761,7 +769,6 @@ export default {
       this.chronologicalRangeSelected = [-200, 1700]
       this.topicTitle = ""
       this.topicBody = ""
-      this.$refs.editorForum.setContent("")
       this.panel = false
 
     },
@@ -852,7 +859,10 @@ export default {
     },
     sortIntroDiscussions(){
       this.$log.debug("this.sortRanking", this.sortRanking)
-      this.introDiscussions.sort(this.sortIntro)
+      for (let introSection of this.intro.introSections){
+        this.$log.debug("introsection", introSection.discussions, introSection)
+        introSection.discussions.sort(this.sortIntro)
+      }
     },
     findMax(dic){
       let maxKey = 0
@@ -867,18 +877,34 @@ export default {
       return maxValue
     },
     sortIntro(a, b){
-      if (!this.sortRanking){
-        this.$log.debug("blubb")
-        return 0
+      this.$log.debug("a", a.sortRanking)
+      this.$log.debug("b", b.sortRanking)
+      if (a.sortRanking === null || a.sortRanking === undefined){
+        console.log("sortintro, a not found", a._id, a.sortRanking);
+        a.sortRanking = this.findmax(a._id)
       }
-      this.$log.debug("noBlubb")
-      if (!this.sortRanking[a._id]){
-        this.sortRanking[a._id] = this.findMax(this.sortRanking) + 1
+      if (b.sortRanking === null || b.sortRanking === undefined){
+        console.log("sortintro, b not found", b._id, b.sortRanking);
+        b.sortRanking = this.findmax(b._id)
       }
-      if (!this.sortRanking[b._id]){
-        this.sortRanking[b._id] = this.findMax(this.sortRanking) + 1
+      return a.sortRanking - b.sortRanking
+    },
+    findmax(id){
+      console.log("sortintro findmax started", id);
+      if (!this.intro){
+        return 99999
       }
-      return this.sortRanking[b._id] - this.sortRanking[a._id]
+      if (!this.intro.discussions){
+        return 99999
+      }
+      for (let introSection of this.intro.introSections){
+        for (let discussion of introSection.discussions){
+          if (discussion._id === id){
+            return (introSection.discussions.length)
+          }
+        }
+      }
+      return 9999
     },
     getComments(){
       getComments()
@@ -986,18 +1012,26 @@ export default {
       })
     getIntro()
       .then( res => {
-        this.$log.debug("Intro", res.data._source)
-        this.introTopicTitle = res.data._source.introTopicTitle
-        this.introTopicSubtitle = res.data._source.introTopicSubtitle
-        this.introBody = res.data._source.introBody
-        this.sortRanking = res.data._source.sortRanking
-        this.sortIntroDiscussions()
+        this.$log.debug("Intro", res)
+        this.intro = res.data._source
+        for (let infoSection of this.intro.introSections){
+          this.$log.debug("introdiscussions", self)
+          getIntroDiscussions(infoSection.id)
+            .then( result => {
+              let discussions =  result.data.hits.hits
+              for (let discussion of discussions){
+                discussion.sortRanking = infoSection.discussionSort[discussion._id]
+              }
+              discussions.sort(this.sortIntro)
+              this.$log.debug("sortedDiscussions", discussions)
+              infoSection.discussions = discussions
+            })
+        }
+        // this.sortIntroDiscussions()
       })
       .catch((error) => {
         this.$log.debug(error)
       })
-    this.getIntroDiscussions()
-    this.sortIntroDiscussions()
   },
 }
 
