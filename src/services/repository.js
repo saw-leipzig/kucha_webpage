@@ -513,8 +513,20 @@ export function getIdeals(){
     data: {
       "size": 4000,
       "query": {
-        "exists": {
-          "field": "oe.typicalID"
+        "bool": {
+          "must": [
+            {
+              "exists": {
+                "field": "oe.typicalID"
+              }
+            },
+            {
+              "multi_match": {
+                "query": true,
+                "fields": "oe.isVirtualTour"
+              }
+            }
+          ]
         }
       }
     }
@@ -588,8 +600,6 @@ export function searchRoot(params, source) {
     {"annotatedBibliographyID" : "asc"},
     "_score"
   ]
-  console.log("searchQuery", searchQuery);
-  console.log("searchQuery params", params);
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
     method: 'post',
@@ -672,7 +682,6 @@ export function getDepictionByAnnotation(params) {
 export function getVersionsOfEntry(entry){
   var field
   var ID
-  console.log("getversions", entry);
   if (entry.depictionID){
     field = "content.depictionID"
     ID = entry.depictionID

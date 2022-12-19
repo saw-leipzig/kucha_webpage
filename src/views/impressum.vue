@@ -17,11 +17,11 @@
     <v-card width="98%" style="margin:auto">
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Impressum</v-card-title>
       <v-card-text></v-card-text>
-      <v-card-title class="text-h5">Anbieter</v-card-title>
+      <v-card-title class="text-h5">Legal Notice</v-card-title>
       <v-card-text>
-        Anbieterkennzeichnung gemäß §5 Telemediengesetz
+        The following information contains the legally prescribed declarations regarding provider identification, as well as legal advice regarding the internet presence of the Saxon Academy of Sciences and Humanities in Leipzig.
       </v-card-text>
-      <v-card-title class="text-h5">Anschrift</v-card-title>
+      <v-card-title class="text-h5">Content Provider</v-card-title>
       <v-card-text v-html="address">
       </v-card-text>
       <v-card-title class="text-h5">Rechtsform</v-card-title>
@@ -32,21 +32,21 @@
       <v-card-text>
         Sächsisches Staatsministerium für Wissenschaft, Kultur und Tourismus, Wigardstraße 17, 01097 Dresden
       </v-card-text>
-      <v-card-title class="text-h4">Urheber</v-card-title>
-      <v-card-title class="text-h5">Für den Inhalt</v-card-title>
+      <v-card-title class="text-h4">Conception of the Website</v-card-title>
+      <v-card-title class="text-h5">Editorial Staff</v-card-title>
       <v-card-text>
         Die Inhalte des Portals werden im Rahmen des Akademieprojekts "Wissenschaftliche Bearbeitung der buddhistischen Höhlenmalereien in der Kuča-Region der nördlichen Seidenstraße" erstellt von Monika Zin, Ines Konczak-Nagel, Luca De Fabritiis, Fang Wang, Astrid Klein, Ulf Jäger und Ji Ho Yi.
       </v-card-text>
-      <v-card-title class="text-h5">Für die Website</v-card-title>
+      <v-card-title class="text-h5">Design and Programming</v-card-title>
       <v-card-text v-html="website">
       </v-card-text>
-      <v-card-title class="text-h4">Rechtliche Hinweise</v-card-title>
-      <v-card-title class="text-h5">Texte</v-card-title>
+      <v-card-title class="text-h4">Copyright and Rights of Use</v-card-title>
+      <v-card-title class="text-h5">Texts</v-card-title>
       <v-card-text>
-        <v-img class="mx-15" max-width="150px" src="/static/cc.png" ></v-img>
-        Die Texte dieses Portals stehen unter der Creative Commons Lizenz CC BY-NC-ND. Erlaubt sind Download und Weiterverteilung der Texte unter Nennung des Namens, jedoch keinerlei Bearbeitung oder kommerzielle Nutzung.
+        <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/de/deed.en"><v-img class="mx-15" max-width="150px" src="/static/cc.png" ></v-img></a>
+        All text contained on this website is covered by a <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/de/deed.en">CC BY-NC-ND 3.0 DE licence </a>.  Erlaubt sind Download und Weiterverteilung der Texte unter Nennung des Namens, jedoch keinerlei Bearbeitung oder kommerzielle Nutzung.
       </v-card-text>
-      <v-card-title class="text-h5">Abbildungen</v-card-title>
+      <v-card-title class="text-h5">Images</v-card-title>
       <v-card-text v-html="images">
       </v-card-text>
       <v-card-title class="text-h5">Weiteres</v-card-title>
@@ -85,13 +85,13 @@ export default {
   },
   computed:{
     address(){
-      return "Sächsische Akademie der Wissenschaften zu Leipzig (SAW)<br>Karl-Tauchnitz-Straße 1<br>04107 Leipzig<p>Tel.: +49 341 69764213<br>Fax: +49 341 69764244</p><p>E-Mail: sekretariat (at) saw-leipzig.de</p>"
+      return "The legally constituted content provider of this internet presence is the Saxon Academy of Sciences and Humanities in Leipzig:<br><br>Sächsische Akademie der Wissenschaften zu Leipzig (SAW)<br>Karl-Tauchnitz-Straße 1<br>04107 Leipzig<p>Tel.: +49 341 69764213<br>Fax: +49 341 69764244</p><p>E-Mail: sekretariat (at) saw-leipzig.de</p>"
     },
     website(){
-      return "Programmierung: Erik Radisch <p> Design: Kati Ruscher</p>"
+      return "Programming: Erik Radisch <p> Design: Kati Ruscher</p>"
     },
     images(){
-      return "Für die Weiterverwendung der Abbildungen ist die Genehmigung der in den Bildbeischriften (unter dem Button „I“ einsehbar) aufgeführten Rechteinhaber erforderlich.<p>Sofern bei Abbildungen nichts anders angegeben ist, liegen die Verwertungsrechte bei der SAW.</p>"
+      return "The licencing for images is outlined in the respective copyright notice under the Button „I“. <p>Sofern bei Abbildungen nichts anders angegeben ist, liegen die Verwertungsrechte bei der SAW.</p>"
     },
     further(){
       return "Für die Inhalte der von den wissenschaftlichen Projekten unterbreiteten Angebote liegt die Verantwortung bei den Projektleitern. Die SAW, ihre Mitglieder und Mitarbeiter bemühen sich um korrekte Informationen, können aber keinerlei rechtliche Haftung irgendwelcher Art dafür übernehmen. Die Akademie respektiert das Urheberrecht. Sollten Sie der Ansicht sein, dass Ihre Rechte verletzt wurden, bitten wir um Mitteilung.<p>Die Verwendung von Gestaltungselementen der Internetseiten der Sächsischen Akademie der Wissenschaften ist nur mit ausdrücklicher Genehmigung der Verwaltung der Akademie zulässig.</p>"

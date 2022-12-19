@@ -61,7 +61,7 @@ export default {
             this.notFound = true
           }
         }).catch(function (error) {
-          this.$log.debug(error)
+          console.log(error)
         })
     },
     getDepiction() {

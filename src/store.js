@@ -245,10 +245,8 @@ export default new Vuex.Store({
         })
     },
     getIconography(context){
-      console.log("initiated getIconography");
       getDictionary('iconographyTree')
         .then(res=> {
-          console.log("getIconography", res);
           function setChecked(item) {
             item['checked'] = false
             for (let child of item.children){

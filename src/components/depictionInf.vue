@@ -524,7 +524,7 @@ export default {
       if (this.pr){
         this.pr = this.depiction
         this.$log.debug("started Depiction");
-        this.$log.debug("Depiction: ", this.pr);
+        console.log("Depiction: ", this.pr);
         getVersionsOfEntry(this.pr)
           .then( res => {
             this.$log.debug("recieved versions.", res)

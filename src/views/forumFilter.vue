@@ -429,7 +429,7 @@ export default {
       loading: false,
       discussions: [],
       filterPanel: 0,
-      introPanel: false,
+      introPanel: true,
       sort: ["yearORG.keyword"],
       direction:"asc",
       aggregations:{},

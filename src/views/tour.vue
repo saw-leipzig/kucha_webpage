@@ -131,7 +131,7 @@ export default {
             }
           }
           if (idealTypical.root === 3 ){
-            free = false
+            free = true
           }
           if (free){
             idealTypical['relatedDepictions'] = []

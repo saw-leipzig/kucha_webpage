@@ -171,6 +171,19 @@
           >
             Drawing not to scale; the proportions of the original may not be reproduced accurately.
         </v-alert>
+        <v-alert
+            class="mx-1"
+            :value="isExpiring"
+            color="yellow"
+            dense
+            border="top"
+            icon="mdi-alert"
+            transition="scale-transition"
+            dismissible
+            style="font-size:10px;line-height:1;"
+          >
+            Warning: The publication rights for this picture are to be revoked on: {{new Date(annoImage.expiresAt).toDateString()}}
+        </v-alert>
         </v-card>
         <v-card height="100%" class="d-flex flex-column align-stretch" :style="getAccessLevel(annoImage) === 2 ? 'display: none!important' : ''">
           <v-card-title class="justify-center pt-15 font-weight-bold text-h5" style="word-break: break-word;">
@@ -325,6 +338,7 @@ export default {
       selectOrCopy: "copy",
       selectOrCopyDialog: false,
       isDrawing: false,
+      isExpiring: false,
       dontShowTree: true,
       showTag:false,
       viewerAnnos: null,
@@ -590,6 +604,18 @@ export default {
     getAccessLevel(item){
       if (item){
         if (item.accessLevel){
+          if (item.accessLevel === 2){
+            if (item.isExpiring){
+              if (item.expiresAt <= Date.now()){
+                console.log("expired");
+                return 1
+              } else {
+                return item.accessLevel
+              }
+            } else {
+              return item.accessLevel
+            }
+          }
           return item.accessLevel
         } else {
           return 0
@@ -790,7 +816,7 @@ export default {
             {tracker: 'viewer',
               handler: 'scrollHandler',
               hookHandler: function (event) {
-                this.$log.debug("scrollHandler", canvas);
+                _self.$log.debug("scrollHandler", canvas);
                 if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
                   event.preventDefaultAction = true;
                   event.stopHandlers = true;
@@ -954,7 +980,7 @@ export default {
         });
         this.annotoriousplugin.on('clickAnnotation', function(annotation, evt) {
           if (!_self.isTouchDevice || (_self.isTouchDevice && _self.actControl === "Navigate")){
-            this.$log.debug("is navigate!");
+            _self.$log.debug("is navigate!");
             if (annotation.id !== _self.hoveredAnno.id){
               _self.mouseEnterAnnotation(annotation, evt)
             } else {
@@ -1117,6 +1143,11 @@ export default {
         }
       } else {
         this.isDrawing = false
+      }
+      if (this.annoImage.isExpiring && this.annoImage.expiresAt > Date.now()){
+        this.isExpiring = true
+      } else {
+        this.isExpiring = false
       }
       this.viewerAnnos.open(getOSDURL(image))
       this.viewerAnnos.viewport.goHome(true)

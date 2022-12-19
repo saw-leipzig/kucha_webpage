@@ -7,5 +7,10 @@ module.exports = merge(prodEnv, {
   VUE_APP_IIIFAPI: '"http://127.0.0.1:8182"',
 //  VUE_APP_ESAPI: '"https://es.saw-leipzig.de/"',
   VUE_APP_ESAPI: '"http://127.0.0.1:9200/"',
-  VUE_APP_USERREG: '"http://127.0.0.1:8888/"'
+  VUE_APP_USERREG: '"http://127.0.0.1:8888/"',
+  VUE_APP_PW: '"kuchaTest"'
 })
+
+
+
+

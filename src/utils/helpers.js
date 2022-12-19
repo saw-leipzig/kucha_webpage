@@ -216,13 +216,12 @@ export function deviceType() {
   if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
     return "tablet";
   } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-    console.log("mobile device");
     return "mobile";
   }
   return "desktop"
 }
 export function getIconographyByAnnos(ids){
-  console.log("getIconographyByAnnos:", ids);
+
   var returnElement = []
   for (var rootElement of store.state.iconography){
     var dummy = Object.assign({}, rootElement)
@@ -258,7 +257,6 @@ export function getIconographyByID(id){
   return returnElement
 }
 function addDirection(sortItem, direction){
-  console.log("getting ", sortItem);
   if (typeof sortItem === 'object'){
     for (const key in sortItem) {
       sortItem[key]['order'] = direction
@@ -267,15 +265,12 @@ function addDirection(sortItem, direction){
   } else {
     let newSort = {}
     newSort[sortItem] = direction
-    console.log("returning", newSort);
     return newSort
   }
 }
 export function prepareSortItem(sort, direction){
-  console.log("sort is", sort);
   let sortInfo = []
   for (const sortItem of sort){
-    console.log("processing", sortItem);
     if (Array.isArray(sortItem)){
       for (let item of sortItem){
         sortInfo.push(addDirection(item, direction))
@@ -284,7 +279,6 @@ export function prepareSortItem(sort, direction){
       sortInfo.push(addDirection(sortItem, direction))
     }
   }
-  console.log("returning", sortInfo);
   return sortInfo
 }
 export function checkImgPermitted(item){
@@ -292,7 +286,15 @@ export function checkImgPermitted(item){
   if (item){
     if (item.filename){
       if (item.accessLevel > 1){
-        isPermit = true
+        if (item.isExpiring){
+          if (item.expiresAt <= Date.now()){
+            return false
+          } else {
+            return true
+          }
+        } else {
+          return true
+        }
       } else {
         isPermit = false
       }

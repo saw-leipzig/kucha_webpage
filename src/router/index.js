@@ -100,42 +100,41 @@ const router =  new Router({
   ]
 })
 router.beforeEach((to, from, next) => {
-  console.log("url", to);
-  let breadcrumb = [
-    {
-      text: 'Home',
-      disabled: false,
-      href: '/',
-    },
-  ]
-  if (to.path !== "/"){
-    breadcrumb.push(
-      {
-        text: to.name,
-        disabled: false,
-        href: to.fullPath.replace(to.params.id, ""),
-      }
-    )
-    if (Object.keys(to.params).length > 0){
-      breadcrumb.push(
-        {
-          text: to.name + ' Entry ' + to.params.id,
-          disabled: false,
-          href: to.fullPath,
-        }
-      )
-    }
-  } else {
-    breadcrumb = []
-  }
-  store.commit("setBreadcrumb", breadcrumb)
-  console.log("new url", store.state.breadcrumb);
-
   if (store.getters.getUser.granted){
     next()
   } else {
+    console.log("url", to);
+    let breadcrumb = [
+      {
+        text: 'Home',
+        disabled: false,
+        href: '/',
+      },
+    ]
+    if (to.path !== "/"){
+      breadcrumb.push(
+        {
+          text: to.name,
+          disabled: false,
+          href: to.fullPath.replace(to.params.id, ""),
+        }
+      )
+      if (Object.keys(to.params).length > 0){
+        breadcrumb.push(
+          {
+            text: to.name + ' Entry ' + to.params.id,
+            disabled: false,
+            href: to.fullPath,
+          }
+        )
+      }
+    } else {
+      breadcrumb = []
+    }
+    store.commit("setBreadcrumb", breadcrumb)
+    console.log("new url", store.state.breadcrumb);
     if (to.name !== 'login') {
-      store.commit("setPrevVisited", to.name)
+      store.commit("setPrevVisited", to)
       next({
         name: "login"
       })

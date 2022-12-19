@@ -93,9 +93,13 @@ export default {
       validateUser( login, pwHash)
         .then((erg) => {
           this.$store.commit("setUser", erg.data)
-          this.$log.debug("User logged in as:", this.$store.state.user.firstname);
+          this.$log.debug("User logged in as:", this.$store.state.user.firstname, this.$store.state.prevVisited);
           if (this.$store.state.user.granted){
-            this.$router.push({name: this.$store.state.prevVisited === 'login' ? '' : this.$store.state.prevVisited})
+            if (this.$store.state.prevVisited.name === 'login'){
+              this.$router.push({name:""})
+            } else {
+              this.$router.push(this.$store.state.prevVisited)
+            }
           }
           this.dialog = false
         })
