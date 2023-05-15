@@ -149,8 +149,8 @@
                     :active="annoActivated"
                   >
                     <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
-                      <a v-on:click="clickAnno(item)" v-on:mouseover="mouseOverNode(item)"
-                      v-on:mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a> <a :href="getIconographyLink(item)">[go to]</a>
+                      <a  @click="clickAnno(item)" @mouseover="mouseOverNode(item)"
+                      @mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a> <a :href="getIconographyLink(item)">[go to]</a>
                     </template>
                   </v-treeview>
                 </v-lazy>
@@ -242,8 +242,8 @@
               dense>
               <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div style="display: flex;">
-                <div class="v-treeview-node__label"> <span v-on:mouseover="mouseOverNode(item)" v-on:click="clickAnno(item)"
-                  v-on:mouseleave="mouseLeaveNode(item)">{{ item.name }}</span> <a style="min-width: 54px;" :href="getIconographyLink(item)">[go to]</a> </div>
+                <div class="v-treeview-node__label"> <span @mouseover="mouseOverNode(item)" @click="clickAnno(item)"
+                  @mouseleave="mouseLeaveNode(item)">{{ item.name }}</span> <a style="min-width: 54px;" :href="getIconographyLink(item)">[go to]</a> </div>
                 </div>
               </template>
             </v-treeview>
@@ -254,7 +254,7 @@
     </div>
 </template>
 <script>
-import {getOSDURL, getIconographyByAnnos, setOSDImgOverlayImg, getIconographyByAnnosInGivenTree, deviceType} from  "@/utils/helpers"
+import {getOSDURL, getIconographyByAnnos, setOSDImgOverlayImg, getIconographyByAnnosInGivenTree} from  "@/utils/helpers"
 import {getIconogrpaphyByTimestamp} from '@/services/repository'
 import * as d3 from "d3";
 import OpenSeadragon from 'openseadragon'
@@ -842,9 +842,9 @@ export default {
               hookHandler: function (event) {
               // if mobile disable drag event
               // pinch event handles panning with 2 fingers
-                this.$log.debug("dragHandler", event);
-                if (!_self.isFullScreen && deviceType() === "mobile" && _self.actControl === "Explore") {
-                  this.$log.debug("overlay true", event);
+                _self.$log.debug("dragHandler", event);
+                if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
+                  _self.$log.debug("overlay true", event);
                   _self.$refs.mouseWheelOverlay.className = 'visible'
                   _self.mouseWheelOverlay = true
                   event.stopPropagation = true
@@ -867,7 +867,7 @@ export default {
             {tracker: 'viewer',
               handler: 'pinchHandler',
               hookHandler: function (event) {
-                this.$log.debug("pinchHandler", event);
+                _self.$log.debug("pinchHandler", event);
                 if (_self.$refs.mouseWheelOverlay.className === 'visible') {
                   _self.$refs.mouseWheelOverlay.className = 'hidden';
                   _self.mouseWheelOverlay = false
@@ -1191,38 +1191,48 @@ export default {
         this.w3cAnnos = []
         var geoGenerator = d3.geoPath()
         for (var ae of this.relatedAnnotations) {
-          var bodies = []
-          for (var ie of ae.tags) {
-            if (!allAnnotationEntries.includes(ie)) {
-              allAnnotationEntries.push(ie.iconographyID);
-              var body = {};
-              body["type"] = "TextualBody";
-              if (ie.name){
-                body["value"] = ie.name;
-              } else {
-                body["value"] = ie.text;
+          if (ae.w3c){
+            this.w3cAnnos.push(ae.w3c)
+          } else {
+            var bodies = []
+            for (var ie of ae.tags) {
+              if (!allAnnotationEntries.includes(ie)) {
+                allAnnotationEntries.push(ie.iconographyID);
+                var body = {};
+                body["type"] = "TextualBody";
+                if (ie.name){
+                  body["value"] = ie.name;
+                } else {
+                  body["value"] = ie.text;
+                }
+                body["id"] = ie.iconographyID;
+                body["image"] = ae.image;
+                bodies.push(body);
               }
-              body["id"] = ie.iconographyID;
-              body["image"] = ae.image;
-              bodies.push(body);
             }
+            var anno = {};
+            anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
+            anno["id"] = ae.annotoriousID;
+            anno["type"] = "Annotation";
+            anno["motivation"] = "highlight"
+            anno["body"] = bodies;
+            var target = {};
+            var selector = {};
+            selector["type"] = "SvgSelector";
+            selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
+            var root
+            if (ae.polygon){
+              root = JSON.parse(ae.polygon);
+            } else {
+              root = JSON.parse(ae.geoJson);
+            }
+            selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
+            target["selector"] = selector;
+            target["id"] = ae.image
+            anno["target"] = target;
+            this.w3cAnnos.push(anno);
+
           }
-          var anno = {};
-          anno["@context"] = "http://www.w3.org/ns/anno.jsonld";
-          anno["id"] = ae.annotoriousID;
-          anno["type"] = "Annotation";
-          anno["motivation"] = "highlight"
-          anno["body"] = bodies;
-          var target = {};
-          var selector = {};
-          selector["type"] = "SvgSelector";
-          selector["conformsTo"] = "http://www.w3.org/TR/media-frags/";
-          var root = JSON.parse(ae.polygon);
-          selector["value"] = "<svg><path d=\"" + geoGenerator(root) + "\"></path></svg>";
-          target["selector"] = selector;
-          target["id"] = ae.image
-          anno["target"] = target;
-          this.w3cAnnos.push(anno);
         }
         if (this.isVersion){
           if (this.isVersion.date.toString().includes('current')){

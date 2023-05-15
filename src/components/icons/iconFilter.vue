@@ -154,7 +154,7 @@
     <title
       :id="iconName"
       lang="en"
-    >Filter</title>
+    >General Search</title>
   </svg>
 </template>
 

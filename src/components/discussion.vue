@@ -124,11 +124,9 @@
                         {{ bibliosEdited.length === biblios.length ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
                       </v-icon>
                     </v-list-item-action>
-                      <v-list-item-content>
                         <v-list-item-title>
                           Select All
                         </v-list-item-title>
-                      </v-list-item-content>
                     </v-list-item>
                     <v-divider class="mt-2"></v-divider>
                   </template>

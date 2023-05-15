@@ -223,7 +223,6 @@
 </template>
 
 <script>
-import image from '@/views/image'
 import caveInf from '@/components/caveInf'
 import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel, deviceType} from  "@/utils/helpers"
 import {getVersionsOfEntry, getVersionOfEntry, getWallTreeByTimestamp, getCommentsByItems} from '@/services/repository'
@@ -236,7 +235,6 @@ export default {
   name: 'depictionInf',
   components: {
     caveInf,
-    image,
     annotatedImage,
     Foruminf
   },
@@ -492,7 +490,7 @@ export default {
             hookHandler: function (event) {
             // if mobile disable drag event
             // pinch event handles panning with 2 fingers
-              this.$log.debug("dragHandler", event);
+              _self.$log.debug("dragHandler", event);
               if (!_self.isFullScreen && deviceType() === "mobile") {
                 event.preventDefaultAction = true;
                 event.stopHandlers = true;
@@ -511,7 +509,7 @@ export default {
           {tracker: 'viewer',
             handler: 'pinchHandler',
             hookHandler: function (event) {
-              this.$log.debug("pinchHandler", event);
+              _self.$log.debug("pinchHandler", event);
               if (_self.$refs.mouseWheelOverlayIMG.className === 'visible') {
                 _self.$refs.mouseWheelOverlayIMG.className = 'hidden';
               }

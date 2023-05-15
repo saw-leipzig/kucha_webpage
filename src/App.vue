@@ -12,7 +12,7 @@
         <div style="flex:1">
       <template style="display:flex;flex-direction:column;flex:1">
         <v-btn
-        v-if="$vuetify.breakpoint.smAndDown && !navigation"
+          v-if="showMenuButton"
           class="mx-2 mb-5"
           fab
           dark
@@ -20,17 +20,18 @@
           top
           fixed
           color="primary"
-          @click.stop="navigation = !navigation"
+            @click.stop="ChangeShowMenu()"
         >
           <v-icon dark>
             mdi-menu
           </v-icon>
         </v-btn>
         <v-navigation-drawer
-          v-model="navigation"
+          v-model="showMenu"
+          :hide-overlay = true
+          :permanent = "(!$vuetify.breakpoint.smAndDown && showMenu)"
           :mini-variant="mini"
           app
-          :permanent="$vuetify.breakpoint.smAndDown?false:true"
           :ripple="false" class="mb-10"
           :width="mini ? '56': '100'"
           :style="mini ? 'background-color: rgba(255, 255, 255, 0.7) !important;' : 'background-color: rgba(255, 255, 255, 0.9) !important'"
@@ -48,7 +49,7 @@
               <v-btn v-if="$vuetify.breakpoint.smAndDown"
                 icon
                 absolute
-                @click.stop="navigation = !navigation"
+                @click.stop="ChangeShowMenu()"
               >
                 <v-icon >mdi-chevron-left</v-icon>
               </v-btn>
@@ -74,13 +75,10 @@
               </v-list-item>
 
               </v-list-item>
-            <v-list-group
-                :value="true"
-                :style="mini ? 'padding: 0px!important;min-width: 55px;': 'padding: 0px!important;min-width: 100px;'"
-              >
-                <v-list-item-icon slot="prependIcon" :style="mini ? 'margin:0!important;padding: 0px!important;min-width: 55px;': 'margin:0!important;padding: 0px!important;min-width: 100px;'" :ripple="false">
-                  <iconFilter :width="mini ? '55px' : 100" :height="mini ? '55px' : 100"></iconFilter>
-                </v-list-item-icon>
+
+              <v-list-item to="/search" style="padding:0 0px" :ripple="false">
+                <iconFilter :width="mini ? '55px' : 100" :height="mini ? '55px' : 100"></iconFilter>
+              </v-list-item>
             <v-list-item to="/cave" style="padding:0 0px" :ripple="false">
                 <v-list-item-icon :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconCave :width="mini ? '55px' : 100" :height="mini ? '55px' : 100"></iconCave>
@@ -101,8 +99,6 @@
                   <iconIconography :width="mini ? '55px' : 100" :height="mini ? '55px' : 100" ></iconIconography>
                 </v-list-item-icon>
               </v-list-item>
-            </v-list-group>
-
             <v-list-item to="/about" style="padding:0 0px!important" :ripple="false">
                 <v-list-item-icon title="About"  :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
@@ -130,8 +126,8 @@
         </v-navigation-drawer>
       </template>
     <v-main >
-      <v-row justify="center" style="flex:1 mx-0" >
-        <v-col no-gutters class="d-flex mt-1 mx-1 flex-column">
+      <v-row no-gutters justify="center" style="flex:1 mx-0" >
+        <v-col no-gutters class="d-flex mt-1 mx-0 flex-column">
           <router-view></router-view>
         </v-col>
       </v-row>
@@ -141,14 +137,14 @@
       :app="$vuetify.breakpoint.mdAndUp"
       color="black"
       height="80px"
-      style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box;"
+      style="border-top:10px solid rgba(60, 179, 113,0.55) !important;background-clip: padding-box!important;"
     >
-      <v-row>
+      <v-row no-gutters style="height:100%">
         <v-col cols="8">
           <div content style="color:white;position: absolute;left: 20px; text-align: left;" v-html="getFooter"> </div>
         </v-col>
         <v-col cols="4" class="text-right">
-          <v-layout warp justify-end>
+          <v-layout warp class="justify-end">
             <div class="logo text-right" v-html="logo" style="color:white;"></div>
             <LoginComponent v-if="!$store.state.user.sessionID" />
             <usermanager v-if="$store.state.user.sessionID" />
@@ -176,6 +172,7 @@ import iconDiscussion from '@/components/icons/iconDiscussion'
 import LoginComponent from '@/components/LoginDialog'
 import usermanager from '@/components/usermanager'
 import {isLoggedIn} from '@/services/repository'
+
 export default {
   name: 'App',
   data () {
@@ -187,7 +184,8 @@ export default {
       mini: true,
       query: '',
       logo: logo,
-      logoSmwk: logoSmwk
+      logoSmwk: logoSmwk,
+      showMenuButton: false
     }
   },
   created() {
@@ -207,6 +205,26 @@ export default {
     iconDiscussion
   },
   computed:{
+    breakpoint(){
+      return this.$vuetify.breakpoint.smAndDown;
+    },
+    isTopPage(){
+      console.log();
+      if (location.href.toLowerCase().includes("news") || location.href.toLowerCase().includes("home") || location.href.toLowerCase().includes("login")){
+        console.log("istoppage");
+        return false
+      } else {
+        return true
+      }
+    },
+    showMenu:{
+      get: function(){
+        return this.$store.state.showMenu
+      },
+      set: function(newValue){
+        this.$store.commit("setShowMenu", newValue)
+      }
+    },
     breadcrumb:{
       get: function(){
         return this.$store.state.breadcrumb;
@@ -224,12 +242,33 @@ export default {
     }
   },
   methods: {
+    hideOverlay(){
+      console.log("hideOerlay", this.$vuetify.breakpoint.smAndDown);
+      return !this.$vuetify.breakpoint.smAndDown
+    },
     setChecked(item){
       item['checked'] = false
       for (let child of item.children){
         this.setChecked(child)
       }
+    },
+    ChangeShowMenu(){
+      this.showMenu = !this.showMenu
+    },
+    breakpointChanched(){
+      if (!this.$vuetify.breakpoint.smAndDown){
+        this.showMenuButton = false
+      } else {
+        if (location.pathname.toLowerCase().includes("news") || location.pathname.toLowerCase() === "/"){
+          this.showMenuButton = false
+        } else {
+          console.log("breakpoint changed, no starting page, changing showMenuButton from", this.showMenuButton, " to:", !this.showMenu);
+          this.showMenuButton = !this.showMenu
+        }
+      }
+
     }
+
   },
   beforeMount:function () {
     if (this.$store.state.user.sessionID){
@@ -244,7 +283,6 @@ export default {
             this.$store.commit("setUser", {})
           })
       }
-
     }
     this.$store.dispatch('getIconography')
     if (this.$store.state.wallLocation.length === 0){
@@ -252,6 +290,19 @@ export default {
     }
     this.$store.dispatch('getMapping')
     this.$store.dispatch('getDiscussionMapping')
+  },
+  watch: {
+    showMenu(newVal, oldVal){
+      console.log("showmenu changed from:", newVal, " to: ", oldVal);
+      this.breakpointChanched();
+    },
+    breakpoint(newVal, oldVal){
+      console.log("this.$vuetify.breakpoint.smAndDown", this.$vuetify.breakpoint.smAndDown);
+      if (newVal){
+        this.showMenu = false;
+      }
+      this.breakpointChanched();
+    }
   },
   mounted:function(){
     if (this.$vuetify.breakpoint.smAndDown){
@@ -261,7 +312,7 @@ export default {
       this.mini = true
       this.navigation = true
     }
-  }
+  },
 }
 </script>
 

@@ -1,15 +1,17 @@
 <template>
   <div>
     <div v-for="n in textSearchFields" v-bind:key="n">
-      <v-card outlined>
-      <v-row dense no-gutters class="mx-2" >
+      <v-card outlined class="py-0">
+      <v-row dense no-gutters class="mx-2 mt-2" >
         <v-col>
           <v-text-field
+            outlined
             :prepend-icon="advancedSearch ? 'mdi-plus' : undefined"
             :append-icon="(advancedSearch && (textSearchFields.length > 1)) ? 'mdi-minus' : undefined"
             id="global-search-input-field"
             ref="globalSearchInput"
             label="Free Textsearch"
+            class="mx-1"
             @click:append="removeTextSearch(n)"
             @click:prepend="addTextSearch(n)"
             clearable
@@ -20,8 +22,8 @@
             @mousedown.prevent
             return-object
             @click:clear.prevent="checkClear(n)"
-            v-on:keyup.enter="startSearch(false)"
-            v-on:keyup.escape="checkClear(n)"
+            @keyup.enter="startSearch(false)"
+            @keyup.escape="checkClear(n)"
             autocomplete="off"
             accesskey="f"
           >

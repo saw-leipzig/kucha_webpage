@@ -416,7 +416,7 @@ export default {
             this.$store.commit('setResults', res.data.hits.hits)
             this.$matomo && this.$matomo.trackSiteSearch(this.$store.state.searchtext, 'global', this.totalResults)
           }).catch(function (error) {
-            this.$log.debug(error)
+            console.log(error);
             return null
           })
       }
@@ -448,6 +448,7 @@ export default {
   },
 
   mounted() {
+    this.results = []
     window.addEventListener("keydown", this.keyHandler );
     if (this.searchtext){
       if (this.searchtext.length > 2){
