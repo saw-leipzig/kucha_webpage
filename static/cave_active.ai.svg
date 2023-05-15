@@ -2,6 +2,22 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="11.016584"
+     inkscape:cx="36.535826"
+     inkscape:cy="36.626598"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     inkscape:window-x="72"
+     inkscape:window-y="294"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g2863"
    version="1.1"
    id="svg2857"
    xml:space="preserve"
@@ -18,24 +34,8 @@
        clipPathUnits="userSpaceOnUse"
        id="clipPath2871"><path
          d="M 0,54.94 H 54.761 V 0 H 0 Z"
-         id="path2869" /></clipPath></defs><sodipodi:namedview
-     id="namedview2859"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:zoom="11.016584"
-     inkscape:cx="36.535826"
-     inkscape:cy="36.626598"
-     inkscape:window-width="1848"
-     inkscape:window-height="1016"
-     inkscape:window-x="72"
-     inkscape:window-y="294"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="g2863" /><g
+         id="path2869" /></clipPath></defs>
+    <g
      id="g2863"
      inkscape:groupmode="layer"
      inkscape:label="cave_active"
