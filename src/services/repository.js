@@ -73,6 +73,26 @@ export function putComments(data, uuid, sendMail, sessionID, text){
     data: data
   })
 }
+export function putNews(data, uuid, sendMail, sessionID, text){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?putNews&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID + '&message=' + text,
+    method: 'PUT',
+    headers: {
+      "Content-Type": "application/json; utf-8"
+    },
+    auth: auth,
+    data: data
+  })
+}
+export function getGames(){
+  return axios({
+    url: process.env.VUE_APP_USERREG + 'resource?getGames',
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json; utf-8"
+    },
+  })
+}
 export function getPRList(){
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
@@ -255,6 +275,60 @@ export function getCommentsByItems(caveIDs, prIDs, icoIDs, biblioIDs){
   data.query.bool.must.push(should)
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_discussion/_search',
+    method: 'post',
+    auth: auth,
+    data: data
+  })
+}
+export function getNews(expiresAt, isExpiring, isAdmin){
+
+  let data = {}
+  if (isAdmin){
+    data = {
+      "query": {
+        "bool": {
+          "should": [
+          ],
+          "must": [
+          ]
+        }
+      }
+    }
+  } else {
+    data = {
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "range": {
+                      "price": {
+                        "gte": expiresAt
+                      }
+                    }
+                  },
+                  {
+                    "term": {
+                      "isExpiring": isExpiring
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "term": {
+                "isUnpublished": false
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+  return axios({
+    url: process.env.VUE_APP_ESAPI + 'kucha_news/_search',
     method: 'post',
     auth: auth,
     data: data

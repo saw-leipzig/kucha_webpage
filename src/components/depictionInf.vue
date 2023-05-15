@@ -468,7 +468,22 @@ export default {
           {tracker: 'viewer',
             handler: 'scrollHandler',
             hookHandler: function (event) {
-              this.$log.debug("scrollHandler", canvas);
+              _self.$log.debug("scrollHandler", canvas);
+              if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
+                event.preventDefaultAction = true;
+                event.stopHandlers = true;
+                // display meta key warning
+                _self.$refs.mouseWheelOverlayIMG.className = 'visible'
+                setTimeout(function(){ _self.$refs.mouseWheelOverlayIMG.className = 'hidden'}, 2000);
+              } else {
+                _self.$refs.mouseWheelOverlayIMG.className = 'hidden'
+              }
+              return true;
+            }},
+          {tracker: 'viewer',
+            handler: 'moveHandler',
+            hookHandler: function (event) {
+              _self.$log.debug("moveHandler", canvas);
               if (!_self.isFullScreen && !event.originalEvent.ctrlKey) {
                 event.preventDefaultAction = true;
                 event.stopHandlers = true;

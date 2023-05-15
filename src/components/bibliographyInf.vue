@@ -96,11 +96,46 @@
                   Annotation for Annotated Bibliography {{bibliography.annotatedBibliographyID}}
                   </a>
                 </v-card-title>
-                <div>
-                  <vue-pdf-app
-                  style="height: 80vh;"
-                    :pdf="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'"
-                  ></vue-pdf-app>
+                <div id="app" class="app mx-3">
+                  <div class="app-header">
+                    <template v-if="isLoading">
+                      Loading...
+                    </template>
+
+                    <template v-else>
+                      <span v-if="showAllPages">
+                        {{ pageCount }} page(s)
+                      </span>
+
+                      <span v-else>
+                        <button :disabled="page <= 1" @click="page--">❮</button>
+
+                        {{ page }} / {{ pageCount }}
+
+                        <button :disabled="page >= pageCount" @click="page++">❯</button>
+                      </span>
+                      <a :href="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'" :download="'AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'" target="_blank">
+                        <v-icon color="#ddd">
+                          mdi-content-save-outline
+                        </v-icon>
+                      </a>
+                      <label class="right">
+                        <input v-model="showAllPages" type="checkbox">
+
+                        Show all pages
+                      </label>
+                    </template>
+                  </div>
+
+                  <div class="app-content">
+                    <VuePdfEmbed
+                      style="height: 80vh;"
+                      ref="pdfRef"
+                      :source="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'"
+                      @rendered="handleDocumentRender"
+                      :page="page"
+                    ></VuePdfEmbed>
+                  </div>
                 </div>
 
               </v-card>
@@ -152,7 +187,7 @@
 
 import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
 import {getBibTitle} from  "@/utils/helpers"
-import VuePdfApp from "vue-pdf-app";
+import VuePdfEmbed from 'vue-pdf-embed/dist/vue2-pdf-embed'
 import "vue-pdf-app/dist/icons/main.css";
 import Foruminf from '../components/foruminf.vue'
 
@@ -163,12 +198,16 @@ export default {
   },
 
   components: {
-    VuePdfApp,
+    VuePdfEmbed,
     Foruminf
   },
 
   data () {
     return {
+      isLoading: true,
+      page: null,
+      pageCount: 1,
+      showAllPages: true,
       relatedDepictions:[],
       showAddInf: false,
       showAnno: true,
@@ -176,7 +215,6 @@ export default {
       bibliography:{},
       viewerImg:{},
       currentPage: 0,
-      pageCount: 0,
       version:null,
       versions:['current'],
       showVersions: false,
@@ -289,6 +327,10 @@ export default {
     getAllPages(){
 
     },
+    handleDocumentRender() {
+      this.isLoading = false
+      this.pageCount = this.$refs.pdfRef.pageCount
+    },
     getBibURL(){
       return "/bibliography/" + this.bibliography.annotatedBibliographyID
     },
@@ -337,11 +379,14 @@ export default {
         this.version = this.versions[this.versions.length - 1]
         this.$log.debug("versions:", this.versions);
       }).catch(function (error) {
-        this.$log.debug(error)
+        console.log(error);
         return null
       })
   },
   watch: {
+    showAllPages() {
+      this.page = this.showAllPages ? null : 1
+    },
     version(newVal, oldVal){
       if (newVal != null){
         getVersionOfEntry(newVal._id)
@@ -366,4 +411,30 @@ export default {
   padding: 8px;
   min-width: 20px;
 }
+.vue-pdf-embed >>> div {
+  margin-bottom: 8px;
+  box-shadow: none;
+}
+.vue-pdf-embed >>> canvas {
+  box-shadow: 0 2px 8px 4px rgba(0, 0, 0, 0.1);
+}
+.app {
+  box-shadow: 0 2px 8px 4px rgba(0, 0, 0, 0.1);
+}
+.app-header {
+  padding: 16px;
+  background-color: #555;
+  color: #ddd;
+}
+
+.app-content {
+  padding: 24px 16px;
+  overflow-y: scroll;
+  background-color: #ddd;
+}
+
+.right {
+  float: right;
+}
+
 </style>

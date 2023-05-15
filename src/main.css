@@ -1,0 +1,101 @@
+.v-list-item__icon {
+  margin: 1px 0!important;
+}
+.v-list-item {
+  padding: 0px!important;
+}
+.v-list-item {
+  padding: 0 0px;
+}
+.v-tab {
+  padding: 8px;
+  min-width: 20px;
+}
+.v-card.v-theme--light {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  padding-bottom: 25px;
+}
+.v-expansion-panel {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+.v-main {
+  height: 100%;
+  word-break: break-word!important;
+
+}
+p {
+  word-break: break-word!important;
+}
+element {
+  word-break: break-word!important;
+}
+.v-theme--light {
+    background: transparent!important;;
+}
+.v-list-group__header__prepend-icon{
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.v-treeview-node__content, .v-treeview-node__label {
+  flex-shrink: 1;
+  word-break: break-word;
+  min-height: 10px;
+  text-align: left !important;
+  white-space: break-spaces;
+
+}
+.v-navigation-drawer__content {
+  height: 100%;
+  scrollbar-width: thin;
+  overflow-x: hidden!important;
+  overflow-y: auto!important;
+}
+::-webkit-scrollbar {
+    width: 2px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background: rgb(173, 173, 173);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}.v-treeview-node__root {
+  height: auto; min-height: 10px;
+}
+.v-treeview-node {
+  min-height: 10px;
+}
+.v-card__title{
+      word-break: break-word!important;
+}
+.v-treeview--dense .v-treeview-node__root
+{
+  min-height: 10px;
+}
+.v-application--is-ltr .v-list-group--sub-group .v-list-group__header
+{
+  padding-left: 16px;
+}
+.v-expansion-panel-content__wrap{
+  padding: 34px 16px;
+}
+.container{
+  max-width: 80%;
+}
+
+body {
+    background: url( '../static/backgroundKIS.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: Roboto,sans-serif;
+    line-height: 1.5;
+  }
+.v-main {
+    display: flex;
+    flex-direction: column;
+}

@@ -128,7 +128,7 @@
         <v-expansion-panels class="mx-5 pr-10 pt-5" v-model="panel" v-if="$store.state.user.granted&&newPosts">
           <v-expansion-panel  >
             <v-expansion-panel-header>
-              Crate new Topic
+              Create new Topic
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-card class raised width="98%" style="margin: auto;padding-bottom: 15px;">

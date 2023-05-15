@@ -38,6 +38,7 @@ export default new Vuex.Store({
     URL: "",
     user: {},
     prevVisited: "",
+    showMenu: false,
   },
   mutations: {
     setBreadcrumb(state, payload){
@@ -105,6 +106,9 @@ export default new Vuex.Store({
     },
     setPrevVisited(state, payload){
       state.prevVisited = payload
+    },
+    setShowMenu(state, payload){
+      state.showMenu = payload
     }
   },
   getters:{
@@ -173,6 +177,9 @@ export default new Vuex.Store({
     },
     getPrevVisited : state => {
       return state.prevVisited
+    },
+    getShowMenu : state => {
+      return state.showMenu
     }
   },
   actions: {

@@ -65,6 +65,12 @@ const router =  new Router({
       props: true
     },
     {
+      path: '/search/',
+      name: 'Search',
+      component: Home,
+      props: { isSearch: true }
+    },
+    {
       path: '/cave/:id',
       name: 'Cave',
       component: () => import('@/views/cave'),
@@ -83,6 +89,12 @@ const router =  new Router({
       props: true
     },
     {
+      path: '/news/',
+      name: 'News',
+      component: () => import('@/views/news'),
+      props: true
+    },
+    {
       path: '/forum/',
       name: 'Forum for Dating Questions',
       component: () => import('@/views/forumFilter'),
@@ -94,12 +106,35 @@ const router =  new Router({
       component: () => import('@/views/about'),
       props: true
     },
-    { path: "*",
+    { path: "/404",
       component:  () => import('@/views/pageNotFound'),
+    },
+    {
+      // This is a hack to use :to tag for absolute paths.
+      path: "/http*",
+      beforeEnter: to => {
+        window.open(to.fullPath.substring(1), '_blank');
+      }
+    },
+    {
+      path: "/:catchAll(.*)", // Unrecognized path automatically matches 404
+      redirect: '/404',
     }
   ]
 })
 router.beforeEach((to, from, next) => {
+  console.log("to.name", to.name);
+  if (to.name === 'Home' || to.name === 'News' || to.name === 'Login' || to.name === undefined){
+    if (store.state.showMenu){
+      console.log("to.name = ", to.name, "setting setShowMenu: false")
+      store.commit("setShowMenu", false)
+    }
+  } else {
+    if (!store.state.showMenu){
+      console.log("to.name = ", to.name, "setting setShowMenu: true")
+      store.commit("setShowMenu", true)
+    }
+  }
   if (store.getters.getUser.granted){
     next()
   } else {
@@ -133,7 +168,14 @@ router.beforeEach((to, from, next) => {
     }
     store.commit("setBreadcrumb", breadcrumb)
     console.log("new url", store.state.breadcrumb);
-    if (to.name !== 'login') {
+    console.log("to", to.name);
+    if (to.name === 'Home' || to.name === 'News'){
+      store.commit("setShowMenu", false)
+      next()
+    } else if (to.path.includes('http')){
+      next()
+    } else if (to.name !== 'login') {
+      store.commit("setShowMenu", false)
       store.commit("setPrevVisited", to)
       next({
         name: "login"
