@@ -1,6 +1,7 @@
 import axios from 'axios'
+import store from '../store'
 // helpers
-
+import {getWordSplit} from  "@/utils/helpers"
 
 
 // api calls
@@ -85,12 +86,23 @@ export function putNews(data, uuid, sendMail, sessionID, text){
   })
 }
 export function getGames(){
+  store.commit("setGameLoaded", 0)
   return axios({
     url: process.env.VUE_APP_USERREG + 'resource?getGames',
     method: 'GET',
     headers: {
       "Content-Type": "application/json; utf-8"
     },
+    onDownloadProgress: (progressEvent) => {
+      let progressData
+      const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.srcElement.getResponseHeader('content-length') || progressEvent.originalTarget.getResponseHeader('x-decompressed-content-length');
+      if (totalLength !== null) {
+        progressData =  (100 * progressEvent.loaded) / totalLength;
+      }
+      store.commit("setGameLoaded", progressData)
+    },
+    onUploadProgress: function (evt) {
+    }
   })
 }
 export function getPRList(){
@@ -327,6 +339,7 @@ export function getNews(expiresAt, isExpiring, isAdmin){
       }
     }
   }
+  data["sort"] = {"date" : {"order" : "desc"}}
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_news/_search',
     method: 'post',
@@ -522,20 +535,32 @@ export function getBibStats() {
     method: 'post',
     auth: auth,
     data: {
-      "size":0,
+      "size": 0,
       "aggs": {
         "bibliography": {
-          "filter":
-          {
+          "filter": {
             "exists": {
               "field": "annotatedBibliographyID"
             }
-          },
-          "aggs":{
-            "Annotated":{
-              "terms": { "field": "annotation" }
-            }
           }
+        }
+      },
+      "post_filter": {
+        "bool": {
+          "must": [
+            {
+              "exists": {
+                "field": "annotatedBibliographyID"
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "wildcard": {
+                "annotationHTML": "*"
+              }
+            }
+          ]
         }
       }
     }
@@ -623,6 +648,7 @@ export function buildNestedQueries(mapping, path, queryWord){
           "query":{
             "query_string": {
               "lenient": true,
+              "type": "cross_fields",
               "query": queryWord,
               "default_operator": "AND"
             }
@@ -646,32 +672,49 @@ export function buildNestedQueries(mapping, path, queryWord){
   }
   return results
 }
-
 export function searchRoot(params, source) {
-  var nestedQueries = buildNestedQueries(source, "", params.searchtext)
   var searchQuery = {
     "from" : params.batchStart,
     "query": {
       "bool": {
-        "should" : [
-          {
-            "query_string": {
-              "default_operator": "AND",
-              "query" : params.searchtext.trim()
-            }
-          }
+        "must" : [
         ]
       }
     },
   }
-  for (var nestedQuery of nestedQueries){
-    searchQuery.query.bool.should.push(nestedQuery)
+  for (let searchedText of getWordSplit(params.searchtext)){
+    var nestedQueries = buildNestedQueries(source, "", searchedText)
+    let shouldQuery = {
+      "bool": {
+        "should": [
+        ]
+      }
+    }
+    const rootSearch = {
+      "query_string": {
+        "default_operator": "AND",
+        "type": "cross_fields",
+        "query" : searchedText
+      }
+    }
+    shouldQuery.bool.should.push(rootSearch)
+    for (var nestedQuery of nestedQueries){
+      shouldQuery.bool.should.push(nestedQuery)
+    }
+    searchQuery.query.bool.must.push(shouldQuery)
   }
+
   searchQuery["sort"] = [
-    {"iconographyID" : "asc"},
-    {"shortName.keyword" : "asc"},
-    {"caveID" : "asc"},
-    {"annotatedBibliographyID" : "asc"},
+    {
+      "_script": {
+        "type": "string",
+        "script": {
+          "lang": "painless",
+          "source": "return doc['_id'].value.substring(0,1)"
+        },
+        "order": "desc"
+      }
+    },
     "_score"
   ]
   return axios({
@@ -697,7 +740,7 @@ export function getItemById(params) {
   })
 }
 export function getDepictionByAnnotation(params) {
-  // console.log("params", params);
+  console.log("params", params);
   return axios({
     url: process.env.VUE_APP_ESAPI + 'kucha_deep/_search',
     method: 'post',

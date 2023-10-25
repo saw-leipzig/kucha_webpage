@@ -48,7 +48,7 @@ export default {
       params['id'] = this.$route.params.id
       getItemById(params)
         .then( res => {
-          this.$log.debug("results", res)
+          console.log("results", res)
           if (res.data.hits.hits[0]){
             this.notFound = false
             this.$store.commit('setResults', res.data.hits.hits)
@@ -57,7 +57,7 @@ export default {
             this.notFound = true
           }
         }).catch(function (error) {
-          this.$log.debug(error)
+          console.log(error)
           this.notFound = true
         })
     },

@@ -17,6 +17,7 @@ export default new Vuex.Store({
       },
     ],
     authenticated: false,
+    gameLoaded:0,
     result: 0,
     results: {},
     iconography: {},
@@ -39,10 +40,18 @@ export default new Vuex.Store({
     user: {},
     prevVisited: "",
     showMenu: false,
+    statistics: {},
   },
   mutations: {
+    setStatistics(state, payload){
+      console.log("Hello");
+      state.statistics = payload
+    },
     setBreadcrumb(state, payload){
       state.breadcrumb = payload
+    },
+    setGameLoaded(state, payload){
+      state.gameLoaded = payload
     },
     setUser(state, payload){
       state.user = payload
@@ -112,8 +121,14 @@ export default new Vuex.Store({
     }
   },
   getters:{
+    getStatistics: (state) => {
+      return state.statistics
+    },
     getBreadcrumb: (state) => {
       return state.breadcrumb
+    },
+    getGameLoaded: (state) => {
+      return state.gameLoaded
     },
     getUser: (state) => {
       return state.user

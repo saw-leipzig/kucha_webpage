@@ -15,7 +15,7 @@
       </template>
     </v-breadcrumbs>
     <v-card width="98%" style="margin:auto">
-     <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">About the Project</v-card-title>
+     <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">About the Database</v-card-title>
       <v-card-text></v-card-text>
       <v-card-title class="text-h5">Video Tutorials</v-card-title>
       <v-row class="px-10">
@@ -52,57 +52,7 @@
             </v-card-text>
         </v-col>
       </v-row>
-      <v-card-title class="text-h5">About the project</v-card-title>
-      <v-card-text>
-  The Buddhist cave complexes in the region of Kucha, located on the northern Silk Road (in the Xinjiang Uyghur Autonomous Region, People’s Republic of China) house impressive wall paintings dating approximately from the 5th to 10th centuries. These are currently, for the first time ever, being fully made accessible, documented, and scientifically evaluated. In a project of the Saxon Academy of Sciences in Leipzig, research associates are engaged in recording and scientifically annotating all the paintings of this region in a database information system. As such, fragments preserved in museums and collections from around the world, as well as paintings which are only preserved in the form of photographs, drawings, or descriptions, are also consulted. The goal is to document and evaluate the iconographic programme as well as the image content of the paintings in an historico-cultural manner, including their literary basis, and where applicable, their affiliation to Buddhist schools. In the process, influences of pictorial traditions from India, Iran, classical antiquity, and China are also examined.
-  This project will create the world’s largest centre for research on the Kucha paintings at the Academy in Leipzig, in cooperation with scholars in various European countries, China, Japan, and the USA. For the first time, Buddhist cave paintings can be made fully accessible for research on religious, aesthetic, and cultural aspects of Buddhism and its spread to East Asia.
-      </v-card-text>
-      <v-card-title class="text-h5">Buddhism in the region of Kucha</v-card-title>
-      <v-card-text>
-  Kucha was a Tocharian kingdom in eastern Central Asia, named after its capital city, which had been an important trade centre between the 2nd century BC and the 11th century AD, owing to its location on the northern branch of the ancient Silk Road that passed along the Taklamakan Desert. At this important junction of the ancient caravan routes between the Mediterranean region and the Far East, not only was there an exchange of goods from the East and the West, but it was also here that various peoples and religions encountered each other.
-
-  Originating in India, Buddhism became the dominant religion in the Kucha region in the 3rd century AD at the latest. In the following period, Buddhist cave complexes arose, lasting until the arrival of Islam in the 10th/11th century. Partly decorated with magnificent wall paintings, they were at the centre of Buddhist community life, and till today are witness to a living Buddhism in the region.    </v-card-text>
-      <v-card-title class="text-h5">The paintings</v-card-title>
-      <v-card-text>
-  In total, there are ten Buddhist cave complexes in the Kucha region. The largest and most well-known one is the cave complex of Kizil with nearly 400 caves (of which 339 are numbered). The remaining caves are as follows: Kumtura (114 numbered caves), Simsim (57 numbered caves), Kizilgaha (64 numbered caves), Mazabaha (44 numbered caves), Wenbashi (26 numbered caves), Tuohulake‘aiken (20 numbered caves), Taitai‘er (18 numbered caves), Subashi (5 numbered caves) and A’ai (1 numbered cave). About a third of all caves is decorated with wall paintings.
-  The paintings are closely related to Indian art, depicting narrative or devotional themes such as scenes from Buddhist stories and legends, or images of Buddhas, Bodhisatvas, and deities. In addition, they contain depictions of a purely decorative nature, such as stylised landscapes, architectural illustrations, and a variety of ornaments. While the paintings are largely traceable to Indian prototypes, they are fascinating as they are composed in a style blended with elements from the Mediterranean and Syro-Iranian area, and later from East Asia as well.
-      </v-card-text>
-      <v-card-title class="text-h5">History of research</v-card-title>
-      <v-card-text>
-  Once the existence of bygone Buddhist life in eastern Central Asia became known to the world at the end of the 19th century, several nations sent research expeditions to the region. Of the four German expeditions between 1902 and 1914, three worked in 1902, 1906, and 1913 in the Buddhist cave complexes of Kucha. They discovered numerous manuscript fragments written in different languages and scripts. The majority of these are religious writings which, like the majority of the inscriptions on site, were composed either in Indian Sanskrit or in the Tocharian language (Tocharian B), which was indigenous at the time and is now extinct. Furthermore, the expeditions “salvaged” a large number of pieces of wall paintings from the caves which they sent to Berlin along with the manuscript fragments and other artefacts. One reason for this was to save the paintings in this manner, as they may have been prone to destruction by the Islamic population, or by forces of nature such as earthquakes. However, as history has shown, the paintings would have been safer on site than in Berlin, since several fragments fell victim to bombings during the Second World War.
-  Today, many of the wall painting fragments and artefacts which had been brought to Berlin are at the Museum of Asian Art, comprising the largest collection of Chinese-Central Asian art outside Central Asia. Following the end of the Second World War, a considerable number of painting fragments reached Russia which are kept today at the Hermitage in St. Petersburg. Other fragments of the Berlin collection had been given away or sold before the outbreak of the Second World War, and are today scattered across at least 15 museums around the world.
-  The tremendous significance of the wall paintings of Kucha as derivatives of Indian art and culture had already been recognised by the German scholars Grünwedel, von Le Coq, and Waldschmidt who interpreted the depictions on the basis of Sanskrit texts. Following the Cultural Revolution, exploration of the wall paintings also began in China. However, due to language barriers, hardly any German publications were consulted, and interpretations were made on the basis of Chinese sources. In turn, again due to language barriers, major research results of Chinese scholars, such as those of Su Bai, were hardly known in the West. Only in the last few years have both sides begun to open up to each other. In this context, an important cooperation developed between the Museum of Asian Art in Berlin and the Kucha Academy in Ürümqi.    </v-card-text>
-      <v-card-title class="text-h5">Task fields of the Academy’s project “Buddhist Wall Paintings in the Region of Kucha on the northern Silk Road”</v-card-title>
-      <v-card-text>
-      </v-card-text>
-      <v-card-title class="text-h6">Database information system</v-card-title>
-      <v-card-text>
-  It is planned to set up a database information system consisting of a “Database of the Kucha Paintings” and an “Encyclopaedia of Pictorial Elements in Kucha Paintings”. This is to be used for the work on the material, the publication of results, and as sustainable basis for all further explorations.
-      </v-card-text>
-      <v-card-title class="text-h6">Annotated bibliography</v-card-title>
-      <v-card-text>
-  An important component of the project is the preparation of an annotated bibliography, containing literature relevant to the wall paintings of Kucha in European languages as well as in Chinese, Japanese, and Korean. It encompasses writings on the style, contents, and state of preservation of Buddhist painting, including conservational measures and insights, as well as on the religion, history, and research history of Kucha. The respective works are accompanied by a short, critical summary in English, with references on further reading, thereby providing international experts easier access to the linguistically highly diverse literature.
-      </v-card-text>
-      <v-card-title class="text-h6">Publications</v-card-title>
-      <v-card-text>
-  Moreover, it is planned to initiate the publication series Leipziger Kutscha-Studien (“Kutcha Studies in Leipzig”) for publishing the (at least) 17 monographs which are to develop during the course of the project as books.
-      </v-card-text>
-      <v-card-title class="text-h6">Teaching and research</v-card-title>
-      <v-card-text>
-  In every semester, at least one course on Central Asian art is to take place.
-      </v-card-text>
-      <v-card-title class="text-h6">Project period: 2016–2030</v-card-title>
-      <v-card-text>
-      </v-card-text>
-      <v-card-text>
-  This research project is part of the Academies' Programme, a research funding programme co-financed by the German federal government and individual federal states. Coordinated by the Union of the German Academies of Sciences and Humanities, the Programme intends to retrieve and explore our cultural heritage, to make it accessible and highlight its relevance to the present, as well as to preserve it for the future. This research project is co-financed by the Saxon State government out of the State budget approved by the Saxon State Parliament.    </v-card-text>
-      <v-img class="mx-15" max-width="30%" src="/static/logo.jpeg"></v-img>
-      <v-card-title class="text-h5">Project Team</v-card-title>
-      <v-card-text v-html="team">
-      </v-card-text>
-      <v-card-title class="text-h5">Monitoring Commission</v-card-title>
-      <v-card-text v-html="commission">
-      </v-card-text>
+      <v-card-title class="text-h5">If you want to find out more about our project, please follow this link:  <a href="https://www.saw-leipzig.de/de/projekte/wissenschaftliche-bearbeitung-der-buddhistischen-hoehlenmalereien-in-der-kucha-region-der-noerdlichen-seidenstrasse/introduction/kucha-murals" target="_blank" style="margin-left: 10px;">  About the project </a></v-card-title>
     </v-card>
   </v-card>
 </template>
@@ -221,6 +171,7 @@ export default {
       statsbib.chartOptions.colors = ['#99C784', '#3f888f', '#ff9999', '#ffb90f', "#6495ed"]
       statsbib["jumpTo"] = this.pushToFilteredBibs
       allStats.push(statsbib)
+      this.$log.debug("allStats");
       return allStats
     }
   },
@@ -230,21 +181,27 @@ export default {
       this.$log.debug("chartContext", chartContext);
       this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
       this.$log.debug("chosen", config.dataPointIndex);
-      this.$router.push({name: 'depictionFilter'})
+      this.$router.push({path: '/pr',
+        query:{
+          "sites": [config.w.config.labels[config.dataPointIndex]]
+        }})
     },
     pushToFilteredBibs(event, chartContext, config) {
       this.$log.debug("Chosen Bib");
       this.$log.debug("chartContext", chartContext);
       this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
       this.$log.debug("chosen", config.dataPointIndex);
-      this.$router.push({name: 'bibliographyFilter'})
+      this.$router.push({path: '/bibliography',
+        query:{
+          "annotation": config.dataPointIndex
+        }})
     },
     pushToFilteredAnnos(event, chartContext, config) {
       this.$log.debug("Chosen Anno");
       this.$log.debug("chartContext", chartContext);
       this.$log.debug("config", config.w.config.labels[config.dataPointIndex]);
       this.$log.debug("chosen", config.dataPointIndex);
-      this.$router.push({name: 'depictionFilter',
+      this.$router.push({path: '/pr',
         query:{
           "iconography": [config.w.config.labels[config.dataPointIndex]]
         }})
@@ -271,7 +228,6 @@ export default {
       }
     },
     onPlay(player){
-      this.$log.debug("Hello", player.explicitOriginalTarget.id);
       if (player.explicitOriginalTarget.id !== "player1"){
         this.$refs.video1.pause()
       }
@@ -381,12 +337,11 @@ export default {
       .then( res => {
         this.$log.debug("bibStats res", res);
         let dicStats = {}
-        for (let stat of res.data.aggregations.bibliography.Annotated.buckets){
-          dicStats[stat.key] = stat.doc_count
-        }
+        dicStats[1] = res.data.aggregations.bibliography.doc_count - res.data.hits.total.value
+        dicStats[0] = res.data.hits.total.value
         this.bibStats = dicStats;
       }).catch(function (error) {
-        this.$log.debug(error)
+        console.log(error);
         return null
       })
 

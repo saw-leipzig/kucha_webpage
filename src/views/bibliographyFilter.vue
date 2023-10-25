@@ -40,6 +40,7 @@
                   @clicked="changedBibCeckboxInput"
                   :checkBoxData="getBibCheckBoxData"
                   :aggregations="bibCheckBoxFacets"
+                  :preSelected="getCheckBoxPreselected"
                   >
                   </checkBoxFilter>
               </v-col>
@@ -98,6 +99,18 @@ export default {
     }
   },
   computed: {
+    getCheckBoxPreselected(){
+      let selectedCheckBoxes = {}
+      if (this.$route.query.annotation){
+        this.$log.debug("selected annotation", this.$route.query.annotation);
+        if (Array.isArray(this.$route.query.annotation)){
+          selectedCheckBoxes['annotation'] = this.$route.query.annotation
+        } else {
+          selectedCheckBoxes['annotation'] = [this.$route.query.annotation]
+        }
+      }
+      return selectedCheckBoxes
+    },
     getTextSearchParams(){
       return TextSearchBibliography
     },
@@ -152,7 +165,7 @@ export default {
           aggregations[checkBox] = getBuckets(this.aggregations[checkBox])
         }
       }
-      this.$log.debug("aggregations bibKeywordsFacetts: ", aggregations);
+      console.log("aggregations checkboxFacetts: ", aggregations);
       return aggregations
     },
     resultsTitle(){
@@ -294,8 +307,11 @@ export default {
 
 
     buildAgg(aggInfo, reference){
+      console.log("started buildaggs");
       delete this.aggsObject[reference]
       for (let prop in aggInfo){
+
+        console.log("prop", prop);
         this.aggsObject[prop] = {}
         if (aggInfo[prop].ids){
           this.aggsObject[prop]['filter'] = {
@@ -376,7 +392,7 @@ export default {
           }
         }
       }
-
+      console.log("queries are:", queries);
       return queries
     },
     initiateSearch(amount){
@@ -411,8 +427,18 @@ export default {
       }
       this.resAmount = 0
       this.loading = true
+      searchObject['runtime_mappings'] = {
+        "annotation": {
+          "type": "boolean",
+          "script": {
+            "source": "emit(doc['annotationHTML.keyword'].size()==0)"
+          }
+        }
+      }
+      console.log("query is:", searchObject);
       postQuery(searchObject)
         .then( res => {
+          this.$refs.textSearch.loaded()
           this.$log.debug("search results", res);
           var newDepictions = []
           this.resAmount = res.data.hits.total.value
@@ -446,6 +472,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.loading = true
       this.relatedBibliography = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
@@ -479,6 +506,14 @@ export default {
           ]
         }
       }
+      aggregations['runtime_mappings'] = {
+        "annotation": {
+          "type": "boolean",
+          "script": {
+            "source": "emit(doc['annotationHTML.keyword'].size()==0)"
+          }
+        }
+      }
       aggregations["post_filter"] = {}
       aggregations["post_filter"]["bool"] = {}
       aggregations["post_filter"]["bool"]["must"] = []
@@ -500,6 +535,8 @@ export default {
       }
       postQuery(aggregations)
         .then( res => {
+          this.loading = false
+          this.$refs.textSearch.loaded()
           this.$log.debug("aggs results", res.data.aggregations);
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value

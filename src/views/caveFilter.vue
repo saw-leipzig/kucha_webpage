@@ -490,6 +490,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
+          this.$refs.textSearch.loaded()
           this.$log.debug("search results", res);
           var newCaves = []
           this.resAmount = res.data.hits.total.value
@@ -522,6 +523,7 @@ export default {
       return null
     },
     initiateFacets(){
+      this.loading = true
       this.relatedCaves = []
       let aggregations = {"aggs" : {}}
       for (let aggProp in this.aggsObject){
@@ -576,6 +578,8 @@ export default {
       }
       postQuery(aggregations)
         .then( res => {
+          this.loading = false
+          this.$refs.textSearch.loaded()
           this.$log.debug("aggs results", res.data.aggregations);
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value

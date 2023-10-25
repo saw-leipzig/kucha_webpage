@@ -9,6 +9,7 @@
       ref="globalSearchInput"
       label="Search"
       light
+      append-inner
       prepend-inner-icon="mdi-magnify"
       v-model="searchtext"
       @keyup="countAndSubmit"
@@ -23,6 +24,10 @@
       autocomplete="off"
       accesskey="f"
     >
+      <template slot="append">
+        <v-icon @click="clearSearch()">clear</v-icon>
+        <v-progress-circular indeterminate v-show="loading"></v-progress-circular>
+      </template>
     </v-text-field>
     <v-btn
       v-if="! hideButton"
@@ -56,7 +61,7 @@
               </v-btn>
           </v-list-item-action>
         </v-subheader>
-        <v-list-item v-for="(item, index) in $store.state.results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
+        <v-list-item v-for="(item, index) in results" :key="index" @click.native=setRes(index) :to="getItemURL(item)" two-line>
           <v-list-item-content>
             <v-row style="width=100%">
               <v-col :cols="hasThumb(item) ? 10 : 12">
@@ -143,7 +148,10 @@ export default {
       showResults: false,
       previousUrl: '',
       nextUrl: '',
-      loading: false
+      loading: false,
+      searchtext: "",
+      searchPack: null,
+      totalres: null,
     }
   },
   computed: {
@@ -185,22 +193,30 @@ export default {
     searchPackEnd(){
       return this.searchPack + this.results.length;
     },
-    searchPack:{
-      get: function(){
-        return this.$store.state.searchPack;
-      },
-      set: function (newValue){
-        this.$store.commit("setSearchPack", newValue)
-      }
-    },
-    totalres:{
-      get: function(){
-        return this.$store.state.totalRes;
-      },
-      set: function (newValue){
-        this.$store.commit("setTotalRes", newValue)
-      }
-    },
+    // searchPack:{
+    //   get: function(){
+    //     return this.$store.state.searchPack;
+    //   },
+    //   set: function (newValue){
+    //     newValue = this.searchPackBuffer
+    //     if (!this.searchPackIsWaitingForSaving){
+    //       this.searchPackIsWaitingForSaving = true
+    //       let _self = this
+    //       setTimeout(function(){
+    //         _self.$store.commit("setSearchPack", this.searchPackBuffer)
+    //         _self.searchPackIsWaitingForSaving = false
+    //       }, 1000);
+    //     }
+    //   }
+    // },
+    // totalres:{
+    //   get: function(){
+    //     return this.$store.state.totalRes;
+    //   },
+    //   set: function (newValue){
+    //     this.$store.commit("setTotalRes", newValue)
+    //   }
+    // },
     respack:{
       get: function(){
         return  this.$store.state.respack;
@@ -209,14 +225,22 @@ export default {
         this.$store.commit("setRespack", newValue)
       }
     },
-    searchtext:{
-      get: function(){
-        return this.$store.state.searchText;
-      },
-      set: function (newValue){
-        this.$store.commit("setSearchText", newValue)
-      }
-    },
+    // searchtext:{
+    //   get: function(){
+    //     return this.$store.state.searchText;
+    //   },
+    //   set: function (newValue){
+    //     newValue = this.searchTextBuffer
+    //     if (!this.searchTextIsWaitingForSaving){
+    //       this.searchTextIsWaitingForSaving = true
+    //       let _self = this
+    //       setTimeout(function(){
+    //         _self.$store.commit("setSearchText", this.searchTextBuffer)
+    //         _self.searchTextIsWaitingForSaving = false
+    //       }, 1000);
+    //     }
+    //   }
+    // },
     b_size() {
       return this.$vuetify.breakpoint.smAndUp ? 10 : 4
     },
@@ -325,6 +349,16 @@ export default {
       this.$log.debug('Setting result to', res);
       this.$store.commit('setResult', res)
     },
+    clearSearch(){
+      this.$log.debug("execute clear")
+      this.searchtext = '';
+      this.showResults = false;
+      this.results = []
+      this.totalResults = 0
+      this.totalres = 0
+      this.start = 0
+
+    },
     checkClear() {
       this.searchtext = '';
       this.showResults = false;
@@ -421,7 +455,6 @@ export default {
           })
       }
     },
-
     loadPrevious() {
       this.searchPack -= 10
       this.formSubmit(this.searchPack)

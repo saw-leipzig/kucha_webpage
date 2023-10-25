@@ -20,7 +20,7 @@
         </v-breadcrumbs-item>
       </template>
     </v-breadcrumbs>
-    <v-card-title ref="cardTitle" :class="$vuetify.breakpoint.smAndDown ? 'h4 justify-center' : 'h1 justify-center'">
+    <v-card-title ref="cardTitle" :class="$vuetify.breakpoint.smAndDown ? 'py-0 my-0 h4 justify-center' : 'py-0 my-0 h1 justify-center'">
       Buddhist Murals of Kucha - Virtual Tour
     </v-card-title>
     <v-carousel
@@ -76,7 +76,7 @@
          <v-card-title ref="icoTitle" v-if="!$vuetify.breakpoint.smAndDown">
             <a :href="getIcoURL(idealTypical)" style="word-break: break-word!important;flex-wrap: wrap;font-size: 1.25rem;font-weight: 500;letter-spacing: .0125em;line-height: 2rem;color: rgba(0,0,0,.87);;word-break: break-all;padding-bottom: 0px !important;">{{idealTypical.text}}</a>
          </v-card-title>
-        <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 100px;overflow-y: auto;"> {{idealTypical.oe.description}} </v-card-text>
+        <v-card-text v-if="!$vuetify.breakpoint.smAndDown"  class="mb-3" ref="IdealTypicalDescription" style="max-height: 60px;overflow-y: auto;"> {{idealTypical.oe.description}} </v-card-text>
         <v-menu rounded="Removed" content-class="description" offset-y flat v-if="$vuetify.breakpoint.smAndDown" >
           <template v-slot:activator="{ on, attrs }">
             <v-list
@@ -328,6 +328,7 @@ export default {
   mounted:function () {
     // this.nextDepiction()
     const _self = this
+    console.log("idealTypicals", this.idealTypicals);
     setTimeout(function(){
       _self.$log.debug(_self.$refs.carousel);
       _self.$vuetify.goTo(_self.$refs.carousel)

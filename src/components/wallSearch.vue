@@ -2,10 +2,7 @@
     <v-card outlined>
         <v-list-item-subtitle>Wall Location</v-list-item-subtitle>
         <v-text-field v-model="search" label="Search WallLocation Tree" hide-details clearable clear-icon="mdi-close-circle-outline"></v-text-field>
-        <v-lazy
-            transition="scroll-x-reverse-transition"
-        >
-        <v-treeview style="max-height: 300px!important;" selection-type="leaf" :filter="filter" item-key="wallLocationID" :search="search" v-model="wallLocationSelected" rounded  selectable hoverable open-all :items="getWallLocations" dense >
+        <v-treeview selection-type="leaf" :filter="filter" item-key="wallLocationID" :search="search" v-model="wallLocationSelected" rounded  selectable hoverable open-all :items="getWallLocations" dense >
                 <template  class="v-treeview-node__label" slot="label" slot-scope="{ item }">
                 <div class="v-treeview-node__label">
                   {{ item.name }}
@@ -19,7 +16,6 @@
                 </div>
                 </template>
         </v-treeview>
-        </v-lazy>
     </v-card>
 </template>
 <script>

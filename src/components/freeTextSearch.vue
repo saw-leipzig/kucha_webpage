@@ -14,20 +14,23 @@
             class="mx-1"
             @click:append="removeTextSearch(n)"
             @click:prepend="addTextSearch(n)"
-            clearable
             :dense=false
             prepend-inner-icon="mdi-magnify"
             v-model="textSearch[n]"
             @mouseup.prevent
             @mousedown.prevent
             return-object
+            @dblclick="$event.target.select()"
             @click:clear.prevent="checkClear(n)"
-            @keyup.enter="startSearch(false)"
+            @keyup.enter.prevent="enterField()"
             @keyup.escape="checkClear(n)"
             autocomplete="off"
             accesskey="f"
           >
-
+            <template slot="append">
+              <v-icon @click="clear()">clear</v-icon>
+              <v-progress-circular indeterminate v-show="loading"></v-progress-circular>
+            </template>
           </v-text-field>
         </v-col>
         <v-col v-if="advancedSearch" class="flex-grow-1 flex-shrink-1" style="max-width: 100px;">
@@ -71,7 +74,8 @@
           :menu-props="{closeOnContentClick: true }">
             <template #selection="{ item }">
               <v-chip @click="removeChipTextSearch(item, n)" small color="#007d40" text-color="white">{{item}}</v-chip>
-            </template>        </v-autocomplete>
+            </template>
+          </v-autocomplete>
         </v-col>
       </v-row>
     </v-card>
@@ -80,7 +84,7 @@
 </template>
 <script>
 import {buildNestedQueries} from '@/services/repository'
-
+import {getWordSplit} from '@/utils/helpers'
 export default {
   name: 'freeTextSearch',
   components: {
@@ -107,7 +111,7 @@ export default {
       advancedSearch:false,
       selectedTextChips: {1:[]},
       shouldMust:["should", "must"],
-      shouldMustSelect:{1:"should"}
+      shouldMustSelect:{1:"must"}
     }
   },
   computed: {
@@ -116,6 +120,9 @@ export default {
     }
   },
   methods: {
+    loaded(){
+      this.loading = false
+    },
     first(n){
       return (this.textSearchFields.indexOf(n) === 0)
     },
@@ -125,7 +132,7 @@ export default {
       this.selectedTextChips[this.textSearchFieldsCount] = []
       this.alertText[this.textSearchFieldsCount] = ""
       this.alert[this.textSearchFieldsCount] = false
-      this.shouldMustSelect[this.textSearchFieldsCount] = "should"
+      this.shouldMustSelect[this.textSearchFieldsCount] = "must"
       this.textSearch[this.textSearchFieldsCount] = ""
     },
     removeTextSearch(n){
@@ -163,54 +170,67 @@ export default {
         if (this.textSearch[field].length > 0){
           if (this.advancedSearch){
             for (let searchfield of this.selectedTextChips[field]){
+              for (let searchedText of this.getWordSplit( this.textSearch[field])){
+                let shouldQuery = {
+                  "bool": {
+                    "should": [
+                    ]
+                  }
+                }
+                for (let aggfield in this.textSearchParam[searchfield]){
+                  if (this.textSearchParam[searchfield][aggfield].nested){
+                    query = {
+                      "nested": {
+                        "path": aggfield,
+                        "query":{
+                          "query_string": {
+                            "query": searchedText,
+                            "default_operator": "and",
+                            "type": "cross_fields"
+                          }
+                        }
+                      }
+                    }
+                  } else {
+                    query = {
+                      "query_string": {
+                        "query": searchedText,
+                        "default_field": aggfield,
+                        "default_operator": "and",
+                        "type": "cross_fields"
+                      }
+                    }
+                  }
+                  if (this.shouldMustSelect[field] === "should"){
+                    searchObjects.should.push(query)
+                  } else {
+                    shouldQuery.bool.should.push(query)
+                  }
+                }
+                searchObjects.must.push(shouldQuery)
+              }
+            }
+          } else {
+            for (let searchedText of this.getWordSplit( this.textSearch[field])){
               let shouldQuery = {
                 "bool": {
                   "should": [
                   ]
                 }
               }
-              for (let aggfield in this.textSearchParam[searchfield]){
-                if (this.textSearchParam[searchfield][aggfield].nested){
-                  query = {
-                    "nested": {
-                      "path": aggfield,
-                      "query":{
-                        "query_string": {
-                          "query": this.textSearch[field],
-                          "lenient": true,
-                        }
-                      }
-                    }
-                  }
-                } else {
-                  query = {
-                    "query_string": {
-                      "query": this.textSearch[field],
-                      "default_field": aggfield,
-                      "lenient": true,
-                    }
-                  }
-                }
-                if (this.shouldMustSelect[field] === "should"){
-                  searchObjects.should.push(query)
-                } else {
-                  shouldQuery.bool.should.push(query)
-                }
+              let textSearchmust = {}
+              let deepquery = buildNestedQueries(this.isForum ? this.$store.state.discussionMapping : this.$store.state.mapping, "", searchedText)
+
+              textSearchmust["query_string"] = {
+                "default_operator": "and",
+                "type": "cross_fields"
+              }
+              textSearchmust.query_string["query"] = searchedText
+              shouldQuery.bool.should.push(textSearchmust)
+              for (query of deepquery){
+                shouldQuery.bool.should.push(query)
               }
               searchObjects.must.push(shouldQuery)
-            }
-          } else {
-            let textSearchmust = {}
-            let deepquery = buildNestedQueries(this.isForum ? this.$store.state.discussionMapping : this.$store.state.mapping, "", this.textSearch[field])
-            this.$log.debug("deepquery", deepquery);
-
-            textSearchmust["query_string"] = {
-              "lenient": true,
-            }
-            textSearchmust.query_string["query"] = this.textSearch[field]
-            searchObjects.should.push(textSearchmust)
-            for (query of deepquery){
-              searchObjects.should.push(query)
             }
           }
         }
@@ -220,10 +240,15 @@ export default {
       this.$log.debug("searchObject of location", result);
       return result
     },
+    enterField(){
+      this.loading = true
+      this.startSearch(false)
+    },
     update(){
       this.startSearch(true)
     },
     startSearch(update){
+      console.log("starting text search");
       let foundNoTextChip = false
       if (this.advancedSearch){
         for (let text in this.textSearch){
@@ -243,6 +268,9 @@ export default {
         }
       }
     },
+    getWordSplit(input){
+      return getWordSplit(input)
+    },
     checkClear(n) {
       this.textSearch[n] = '';
     },
@@ -259,7 +287,6 @@ export default {
         this.textSearchFields = [1]
         this.visible = true
         this.relatedDepictions = []
-        this.loading = false
         this.textSearch = {
           1: ""
         }
@@ -267,7 +294,7 @@ export default {
         this.selectedTextChips = {
           1:[]
         }
-        this.shouldMustSelect = {1:"should"}
+        this.shouldMustSelect = {1:"must"}
       }
     }
   },

@@ -31,7 +31,8 @@ export default {
   props: {
     label: "",
     checkBoxData:{},
-    aggregations:{}
+    aggregations:{},
+    preSelected:{}
   },
   data () {
     return {
@@ -42,6 +43,7 @@ export default {
   computed: {
     getCheckBoxData(){
       let newCheckBoxData = {}
+      console.log('getCheckBoxData', this.checkBoxData);
       for (let key in this.checkBoxData){
         if (this.getCount(this.checkBoxData[key]) !== null){
           newCheckBoxData[key] = this.checkBoxData[key]
@@ -51,12 +53,19 @@ export default {
     }
   },
   methods: {
+    getPreselected(){
+      console.log("preselected checkbox", this.preSelected, this.model);
+      for (const keySelected in this.preSelected){
+        this.model.push(keySelected)
+      }
+    },
     clear(){
       this.model = [];
     },
     getCount(item){
       if (this.aggregations){
         if (Object.keys(this.aggregations).length > 0){
+          console.log("looking for ", item.label, this.aggregations);
           let findEl = Object.keys(this.aggregations).find(el => el === item.label)
           if (findEl !== undefined){
             if (this.aggregations[findEl] !== null){
@@ -113,6 +122,7 @@ export default {
   },
   mounted:function () {
     this.$log.debug("checkBoxData:", this.checkBoxData);
+    this.getPreselected()
   },
   beforeUpdate:function () {
   }

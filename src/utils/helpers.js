@@ -370,6 +370,31 @@ export function getAuthorOrEditor(bibliography){
     return getTitleORGFull(bibliography)
   }
 }
+export function getWordSplit(inputString) {
+  // Verwende eine reguläre Expression, um Wörter, Zahlen, Wörter mit Apostrophen und Wörter innerhalb von Anführungszeichen zu extrahieren
+  const regex = /[\p{Script=Han}\p{Script=Latin}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}'’0-9]+|"[^"]+"/gu;
+
+  // Verwende die match()-Methode, um alle übereinstimmenden Wörter, Zahlen und Wörter innerhalb von Anführungszeichen zu extrahieren
+  const matches = inputString.match(regex);
+
+  // Überprüfe, ob Übereinstimmungen vorhanden sind
+  if (matches) {
+    // Entferne Leerzeichen, Satzzeichen und Anführungszeichen aus den übereinstimmenden Wörtern, Zahlen und Wörtern innerhalb von Anführungszeichen
+    const cleanedWords = matches.map(word => {
+      if (word.startsWith('"') && word.endsWith('"')) {
+        // Wenn das Wort von Anführungszeichen umschlossen ist, entferne die Anführungszeichen
+        return word.slice(1, -1).toLowerCase();
+      } else {
+        // Andernfalls entferne Leerzeichen, Satzzeichen und konvertiere in Kleinbuchstaben
+        return word.replace(/[.,;:'"”“]/g, '').toLowerCase();
+      }
+    });
+    return cleanedWords;
+  } else {
+    return [];
+  }
+}
+
 export function getBibTitle(bibliography){
   if (bibliography.publicationType){
     var bib = "";
@@ -759,7 +784,7 @@ export function getRelatedDepictions(iconographyWithChildren){
   var newDepictions = []
   getDepictionByAnnotation(params)
     .then( res => {
-
+      console.log("getRelatedDepictions", res);
       for ( var entry of res.data.hits.hits){
         newDepictions.push(entry._source)
       }

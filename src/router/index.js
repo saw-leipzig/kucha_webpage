@@ -106,6 +106,12 @@ const router =  new Router({
       component: () => import('@/views/about'),
       props: true
     },
+    {
+      path: '/game/',
+      name: 'Game',
+      component: () => import('@/views/game'),
+      props: true
+    },
     { path: "/404",
       component:  () => import('@/views/pageNotFound'),
     },
@@ -123,67 +129,79 @@ const router =  new Router({
   ]
 })
 router.beforeEach((to, from, next) => {
+  // console.log("url", to);
+  let breadcrumb = [
+    {
+      text: 'Home',
+      disabled: false,
+      href: '/',
+    },
+  ]
+  if (to.path !== "/"){
+    breadcrumb.push(
+      {
+        text: to.name,
+        disabled: false,
+        href: to.fullPath.replace(to.params.id, ""),
+      }
+    )
+    if (Object.keys(to.params).length > 0){
+      breadcrumb.push(
+        {
+          text: to.name + ' Entry ' + to.params.id,
+          disabled: false,
+          href: to.fullPath,
+        }
+      )
+    }
+  } else {
+    breadcrumb = []
+  }
+  console.log("setBreadcrumb", breadcrumb);
+  if (breadcrumb.length === store.state.breadcrumb.lenth){
+    let same = true
+    for (let i = 0; i < breadcrumb.length; i++){
+      if (breadcrumb[i].href !== store.state.breadcrumb[i].href){
+        same = false
+        break
+      }
+    }
+    if (!same){
+      console.log("neuer Eintrag nicht gleich!", breadcrumb, store.state.breadcrumb);
+      store.commit("setBreadcrumb", breadcrumb)
+    }
+  }
+  // console.log("new url", store.state.breadcrumb);
   console.log("to.name", to.name);
-  if (to.name === 'Home' || to.name === 'News' || to.name === 'Login' || to.name === undefined){
+  if (to.name === 'Home' || to.name === 'News' || to.name === 'Login' || to.name === 'Game' || to.name === undefined){
     if (store.state.showMenu){
-      console.log("to.name = ", to.name, "setting setShowMenu: false")
+      console.log("not showing menu");
       store.commit("setShowMenu", false)
     }
   } else {
     if (!store.state.showMenu){
-      console.log("to.name = ", to.name, "setting setShowMenu: true")
       store.commit("setShowMenu", true)
     }
   }
-  if (store.getters.getUser.granted){
-    next()
-  } else {
-    console.log("url", to);
-    let breadcrumb = [
-      {
-        text: 'Home',
-        disabled: false,
-        href: '/',
-      },
-    ]
-    if (to.path !== "/"){
-      breadcrumb.push(
-        {
-          text: to.name,
-          disabled: false,
-          href: to.fullPath.replace(to.params.id, ""),
-        }
-      )
-      if (Object.keys(to.params).length > 0){
-        breadcrumb.push(
-          {
-            text: to.name + ' Entry ' + to.params.id,
-            disabled: false,
-            href: to.fullPath,
-          }
-        )
-      }
-    } else {
-      breadcrumb = []
-    }
-    store.commit("setBreadcrumb", breadcrumb)
-    console.log("new url", store.state.breadcrumb);
-    console.log("to", to.name);
-    if (to.name === 'Home' || to.name === 'News'){
-      store.commit("setShowMenu", false)
-      next()
-    } else if (to.path.includes('http')){
-      next()
-    } else if (to.name !== 'login') {
-      store.commit("setShowMenu", false)
-      store.commit("setPrevVisited", to)
-      next({
-        name: "login"
-      })
-    } else {
-      next()
-    }
-  }
-  // next()
+  // if (store.getters.getUser.granted){
+  // } else {
+
+  //   console.log("to", to.name);
+  //   if (to.name === 'Home' || to.name === 'News' || to.name === "Game"){
+  //     store.commit("setShowMenu", false)
+  //     next()
+  //   } else if (to.path.includes('http')){
+  //     next()
+  //   } else if (to.name !== 'login') {
+  //     store.commit("setShowMenu", false)
+  //     store.commit("setPrevVisited", to)
+  //     next({
+  //       name: "login"
+  //     })
+  //   } else {
+  //     next()
+  //   }
+  // }
+  next()
 })
 export default router

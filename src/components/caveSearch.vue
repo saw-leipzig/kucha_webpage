@@ -115,7 +115,9 @@ export default {
   },
   props: {
     prefix:"",
-    aggregations:{}
+    aggregations:{},
+    preSelected:{},
+
   },
 
   data () {
@@ -143,6 +145,20 @@ export default {
 
   },
   methods: {
+    getPreSelected(){
+      console.log('preselected cave', this.preSelected);
+      if ('site' in this.preSelected){
+        for (const selectedSite of this.preSelected['site']){
+          for (const site of this.sites){
+            if (site.name === selectedSite){
+              if (!this.sitesSelected.find(siteSelected => siteSelected.name === selectedSite)) {
+                this.sitesSelected.push(site)
+              }
+            }
+          }
+        }
+      }
+    },
     clear(){
       this.updateSites = false
       this.updateTypes = false
@@ -239,6 +255,7 @@ export default {
       this.getSites()
       this.getDistricts()
       this.getRegions()
+      this.getPreSelected()
     },
     prepSearch(){
       let searchObjects = []
@@ -359,6 +376,7 @@ export default {
   },
   mounted:function () {
     this.getCaveProps()
+    this.getPreSelected();
   },
   beforeUpdate:function () {
   }

@@ -111,6 +111,7 @@ export default {
   },
   methods: {
     setCheckedInChildren(item, checked){
+      this.$log.debug("seting", item.name, true)
       item.checked = checked
       if (checked){
         this.selected.push(item)
@@ -125,6 +126,7 @@ export default {
       }
     },
     selectedIco(item){
+      console.log("selected Ico triggered", item);
       if (this.selectedSelectionType === "leaf"){
         this.setCheckedInChildren(item, item.checked)
       }
@@ -154,6 +156,7 @@ export default {
       }
     },
     getPreSelectedByName(){
+      console.log("preselected", this.preSelected);
       let selected = []
       let names = []
       if (this.preSelected){
@@ -165,11 +168,20 @@ export default {
       }
       for (const name of names){
         for (const ico of this.iconography){
-          selected = selected.concat(this.getIcosByName(ico, name, false))
+          selected = selected.concat(this.getIcoByName(ico, name))
         }
       }
       this.$log.debug("getPreSelectedByName found selected:", selected);
       this.iconographySelected = selected
+      const _self = this
+      if (this.isDepiction){
+        for (let selectedIco of selected){
+          setTimeout(function(){
+            _self.setCheckedInChildren(selectedIco, true)
+            _self.selectedIco(selectedIco)
+          }, 50);
+        }
+      }
     },
     getIcosByName(ico, name, found){
       let selected = []
@@ -189,6 +201,24 @@ export default {
       return selected
 
     },
+    getIcoByName(ico, name){
+      let selected = []
+      if (ico.name === name){
+        return ico
+      }
+      if (ico.children){
+        if (ico.children.length > 0){
+          for (const child of ico.children) {
+            selected = selected.concat(this.getIcosByName(child, name))
+            if (selected) {
+              return selected
+            }
+          }
+        }
+      }
+      return null
+
+    },
     initiateIco(){
       if (this.iconographySelected.length > 0){
         this.selectedTriggered = true
@@ -196,7 +226,7 @@ export default {
       this.$log.debug("select triggered initiateICO")
       this.$log.debug("iconographySelectedLocal before initiate Ico", this.iconographySelected.length);
       // this.iconography = []
-      // this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
+      this.iconographySelectedWhileReload = JSON.parse(JSON.stringify(this.iconographySelected));
       // this.iconographySelected = []
       // this.$log.debug("Iconography", icos);
       let icoTree = []

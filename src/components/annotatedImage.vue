@@ -23,8 +23,8 @@
       </v-tab>
     </v-tabs>
     <v-checkbox v-if="treeShowOption && deviceType() !== 'mobile'" dense class="mx-5 py-0 my-0" hide-details label="Hide tree."  v-model="dontShowTree"></v-checkbox>
-    <v-row justify="center" class="mx-1" :style="'flex:1;'">
-      <v-col class="d-flex flex-column align-stretch" style="flex:1" :cols="getCols('AnnoImg')">
+    <v-row justify="center" class="mx-1" :style="'max-height:80vh;'">
+      <v-col class="d-flex flex-column align-stretch" :cols="getCols('AnnoImg')">
         <v-tooltip v-if="showTag" :position-y="yTag" :position-x="xTag" right v-model="showTag" >
           <span >{{hoveredTags(hoveredAnno)}}</span>
         </v-tooltip>
@@ -97,7 +97,7 @@
                   >
                     <v-btn
                     small
-                    v-if="(isFullScreen || (deviceType() === 'mobile')) && treeShowOption"
+                    v-if="(isFullScreen || (deviceType() === 'mobile' || getCols() == '12')) && !dontShowTree"
                     class="text-xs-center"
                     :attach="'#openseadragonAnno' + itemId"
                       color="orange"
@@ -121,7 +121,7 @@
                 <v-sheet
                   :attach="'#openseadragonAnno' + itemId"
                   class="text-center"
-                  height="340px"
+                  height="100%"
                   style="overflow-y: scroll;"
                 >
                   <v-text-field
@@ -130,9 +130,6 @@
                     hide-details
                     clearable
                     clear-icon="mdi-close-circle-outline" ></v-text-field>
-                  <v-lazy
-                    transition="scroll-x-reverse-transition"
-                  >
                   <v-treeview
                     selection-type="leaf"
                     :filter="filter"
@@ -153,7 +150,6 @@
                       @mouseleave="mouseLeaveNode(item)"><div class="v-treeview-node__label">{{ item.name }}</div></a> <a :href="getIconographyLink(item)">[go to]</a>
                     </template>
                   </v-treeview>
-                </v-lazy>
             </v-sheet>
           </v-bottom-sheet>
           </v-row>
@@ -202,9 +198,9 @@
         </v-card>
 
       </v-col>
-      <v-col :style="setHeight"
-              v-if="!dontShowTree && deviceType() !== 'mobile'"
-              :order="left ? 1 : 3" :cols="getCols('AnnoTree')"  :ref="'cardAnno' + itemId" style="max-height: 70vh;">
+      <v-col class="d-flex align-stretch"
+              v-if="!dontShowTree && deviceType() !== 'mobile' && getCols() !== '12'"
+              :order="left ? 1 : 3" :cols="getCols('AnnoTree')"  :ref="'cardAnno' + itemId" style="max-height: 80vh;">
         <v-card
           style='overflow-y: scroll;
             overflow-x: hidden;
@@ -219,35 +215,34 @@
                 label="Search Iconography Tree"
                 hide-details
                 clearable
-                clear-icon="mdi-close-circle-outline" ></v-text-field>
+                clear-icon="mdi-close-circle-outline" >
+              </v-text-field>
             </v-col>
           </v-row>
-          <v-lazy
-            transition="scroll-x-reverse-transition"
-          >
-            <v-treeview
-              item-disabled="locked"
-              selection-type="independent"
-              :filter="filter"
-              :search="search"
-              return-object
-              v-model="annoSelected"
-              rounded
-              selectable
-              hoverable
-              open-all
-              multiple-active
-              :active="annoActivated"
-              :items="this.icoAnnos"
-              dense>
-              <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
-                <div style="display: flex;">
-                <div class="v-treeview-node__label"> <span @mouseover="mouseOverNode(item)" @click="clickAnno(item)"
-                  @mouseleave="mouseLeaveNode(item)">{{ item.name }}</span> <a style="min-width: 54px;" :href="getIconographyLink(item)">[go to]</a> </div>
-                </div>
-              </template>
-            </v-treeview>
-          </v-lazy>
+          <v-treeview
+          class="align-stretch"
+            item-disabled="locked"
+            selection-type="independent"
+            :filter="filter"
+            :search="search"
+            return-object
+            v-model="annoSelected"
+            rounded
+            selectable
+            hoverable
+            open-all
+            multiple-active
+            :active="annoActivated"
+            :items="this.icoAnnos"
+            style="max-height: 100%;"
+            dense>
+            <template class="v-treeview-node__label" slot="label" slot-scope="{ item }">
+              <div style="display: flex;">
+              <div class="v-treeview-node__label"> <span @mouseover="mouseOverNode(item)" @click="clickAnno(item)"
+                @mouseleave="mouseLeaveNode(item)">{{ item.name }}</span> <a style="min-width: 54px;" :href="getIconographyLink(item)">[go to]</a> </div>
+              </div>
+            </template>
+          </v-treeview>
         </v-card>
       </v-col>
       </v-row>
@@ -607,7 +602,6 @@ export default {
           if (item.accessLevel === 2){
             if (item.isExpiring){
               if (item.expiresAt <= Date.now()){
-                console.log("expired");
                 return 1
               } else {
                 return item.accessLevel
@@ -628,7 +622,6 @@ export default {
       return this.getAccessLevel(item) === 1 ?  "Access to the picture is restricted due to copyright reasons." : "Picture is not available."
     },
     mouseEnterAnnotation(annotation, evt){
-      this.$log.debug("mouseenterannotation", event);
       if (!this.isTouchDevice || (this.isTouchDevice && this.actControl === "Navigate")){
         annotation.motivation = "highlight"
         this.annotoriousplugin.format(annotation)
@@ -710,7 +703,7 @@ export default {
       if (this.getAccessLevel(this.annoImage) > 1){
         for (let anno of this.w3cAnnos){
           if (anno) {
-            if (this.annoImage.filename === anno.target.id){
+            if (this.annoImage.filename === anno.target.source){
               annotations.push(anno)
             }
           }
@@ -1069,7 +1062,7 @@ export default {
       let foundPic = false
       for (let w3c of element.w3cAnno){
         for (let pic of this.annos){
-          if (pic.filename === w3c.target.id){
+          if (pic.filename === w3c.target.source){
             foundPic = true
           }
         }
@@ -1191,13 +1184,17 @@ export default {
         this.w3cAnnos = []
         var geoGenerator = d3.geoPath()
         for (var ae of this.relatedAnnotations) {
+          for (var ico of ae.tags) {
+            if (!allAnnotationEntries.includes(ico)) {
+              allAnnotationEntries.push(ico.iconographyID);
+            }
+          }
           if (ae.w3c){
-            this.w3cAnnos.push(ae.w3c)
+            this.w3cAnnos.push(JSON.parse(ae.w3c))
           } else {
             var bodies = []
             for (var ie of ae.tags) {
               if (!allAnnotationEntries.includes(ie)) {
-                allAnnotationEntries.push(ie.iconographyID);
                 var body = {};
                 body["type"] = "TextualBody";
                 if (ie.name){
@@ -1300,7 +1297,7 @@ export default {
         if (Object.keys(this.annotoriousplugin).length > 0){
           let shownAnnos = []
           for (let anno of this.w3cAnnos){
-            if (this.annoImage.filename === anno.target.id){
+            if (this.annoImage.filename === anno.target.source){
               shownAnnos.push(anno)
             }
           }
@@ -1321,7 +1318,7 @@ export default {
       if (this.isZoom){
         let annos = []
         for (const anno of _self.annotoriousplugin.getAnnotations()){
-          if (this.annoImage.filename === anno.target.id) {
+          if (this.annoImage.filename === anno.target.source) {
             annos.push(anno)
           }
         }

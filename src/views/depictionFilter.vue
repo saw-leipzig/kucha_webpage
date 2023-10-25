@@ -28,23 +28,23 @@
           <v-col  style="min-width: 265px;" class="mr-1">
             <v-row>
               <v-col>
-                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets"></caveSearch>
+                <caveSearch ref="caveSearch" @clicked="changedCaveInput" prefix="cave." :aggregations="caveFacets" :preSelected="selectedCave"></caveSearch>
               </v-col>
             </v-row>
-            <v-row>
+            <v-row class="mb-1">
               <v-col>
                 <locationSearch ref="locationSearch" @clicked="changedLocationInput" prefix="location." :aggregations="locationFacets"></locationSearch>
               </v-col>
             </v-row>
           </v-col>
-          <v-col style="min-width: 200px;max-width: 265px;">
+          <v-col class="mb-3" :style="$vuetify.breakpoint.smAndDown? 'min-width: 200px;':'min-width: 200px; max-width: 350px;'">
             <wallSearch ref="wallLocationSearch" @clicked="changedWallInput" prefix="wallIDs." :aggregations="wallLocationFacets"></wallSearch>
           </v-col>
           <v-col class="ml-1" style="min-width: 300px;">
             <iconographySearch ref="iconographySearch" mode="depiction" :preSelected="selectedIcos" @clicked="changedIcoInput" prefix="relatedAnnotationList.tags." altPrefix="relatedIconographyList." :aggregations="icoFacets"></iconographySearch>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row class="mx-5">
           <v-col>
             <v-btn @click="initiateSearch(2000)" :loading="loading" dense block color="success">{{"Show " + resAmount +" Results"}}</v-btn>
           </v-col>
@@ -156,6 +156,19 @@ export default {
       } else {
         return null
       }
+    },
+    selectedCave(){
+      let selectedCave = {}
+      if (this.$route.query.sites){
+        this.$log.debug("selected Cave", this.$route.query.sites);
+        if (Array.isArray(this.$route.query.sites)){
+          selectedCave['site'] = this.$route.query.sites
+        } else {
+          selectedCave['site'] = [this.$route.query.sites]
+        }
+      }
+      this.$log.debug("selected Cave returning", selectedCave);
+      return selectedCave
     },
     getTextSearchParams(){
       return TextSearchDepiction
@@ -403,6 +416,7 @@ export default {
       this.loading = true
       postQuery(searchObject)
         .then( res => {
+          this.$refs.textSearch.loaded()
           this.$log.debug("search results", res);
           var newDepictions = []
           this.resAmount = res.data.hits.total.value
@@ -436,6 +450,7 @@ export default {
     initiateFacets(){
       if (!this.stoppAggs){
         this.$log.debug("initiateFacets");
+        this.loading = true
         this.relatedDepictions = []
         let aggregations = {"aggs" : {}}
         for (let aggProp in this.aggsObject){
@@ -491,6 +506,8 @@ export default {
         }
         postQuery(aggregations)
           .then( res => {
+            this.$refs.textSearch.loaded()
+            this.loading = false
             this.$log.debug("aggs results", res.data.aggregations);
             this.aggregations = res.data.aggregations
             this.resAmount = res.data.hits.total.value

@@ -548,7 +548,7 @@ export default {
             this.versions[this.versions.length - 1].date = this.versions[this.versions.length - 1].date + " - (current)"
             this.version = this.versions[this.versions.length - 1]
           }).catch(function (error) {
-            this.$log.debug(error)
+            console.log(error)
             return null
           })
         OpenSeadragon.setString('Tooltips.SelectionToggle', 'Selection Demo');

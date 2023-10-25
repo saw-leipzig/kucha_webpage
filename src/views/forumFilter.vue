@@ -18,7 +18,7 @@
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
         <v-expansion-panels class="mx-5 pr-10 pt-5"  v-model="introPanel">
-          <v-expansion-panel v-if="introTopicTitle!=='' || $store.state.user.accessLevel===4">
+          <v-expansion-panel v-if="introTopicTitle!==''">
             <v-expansion-panel-header>
               Introduction
             </v-expansion-panel-header>
@@ -677,6 +677,7 @@ export default {
       this.loading = true
       postQuery(searchObject, process.env.VUE_APP_ESAPI + 'kucha_discussion/_search')
         .then( res => {
+          this.$refs.textSearch.loaded()
           var newForums = []
           this.resAmount = res.data.hits.total.value
           for ( var entry of res.data.hits.hits){
@@ -825,6 +826,7 @@ export default {
       }
       postQuery(aggregations, process.env.VUE_APP_ESAPI + 'kucha_discussion/_search')
         .then( res => {
+          this.$refs.textSearch.loaded()
           this.aggregations = res.data.aggregations
           this.resAmount = res.data.hits.total.value
         })

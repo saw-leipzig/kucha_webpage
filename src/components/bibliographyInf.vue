@@ -69,7 +69,7 @@
               </v-card>
         </div>
       </v-expand-transition>
-      <v-card-actions v-if="bibliography.annotation">
+      <v-card-actions v-if="bibliography.annotationHTML.length>0">
         <v-btn
           @click="mouseOverAnno"
           color="orange lighten-2"
@@ -87,57 +87,19 @@
           <v-icon>{{ showAnno ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
       </v-card-actions>
-      <v-expand-transition v-if="bibliography.annotation">
+      <v-expand-transition  v-if="bibliography.annotationHTML.length>0">
         <div v-show="showAnno">
           <v-divider></v-divider>
-              <v-card class="mx-10" >
-                <v-card-title>
-                  <a :href="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'">
+              <v-card class="mx-10 d-flex flex-column justify-center" >
+                <v-card-title class="justify-space-between mx-5">
                   Annotation for Annotated Bibliography {{bibliography.annotatedBibliographyID}}
-                  </a>
+                  <v-btn icon :href="getAnnoLink" target="_blank">
+                    <v-icon color="success">
+                      mdi-content-save-outline
+                    </v-icon>
+                  </v-btn>
                 </v-card-title>
-                <div id="app" class="app mx-3">
-                  <div class="app-header">
-                    <template v-if="isLoading">
-                      Loading...
-                    </template>
-
-                    <template v-else>
-                      <span v-if="showAllPages">
-                        {{ pageCount }} page(s)
-                      </span>
-
-                      <span v-else>
-                        <button :disabled="page <= 1" @click="page--">❮</button>
-
-                        {{ page }} / {{ pageCount }}
-
-                        <button :disabled="page >= pageCount" @click="page++">❯</button>
-                      </span>
-                      <a :href="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'" :download="'AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'" target="_blank">
-                        <v-icon color="#ddd">
-                          mdi-content-save-outline
-                        </v-icon>
-                      </a>
-                      <label class="right">
-                        <input v-model="showAllPages" type="checkbox">
-
-                        Show all pages
-                      </label>
-                    </template>
-                  </div>
-
-                  <div class="app-content">
-                    <VuePdfEmbed
-                      style="height: 80vh;"
-                      ref="pdfRef"
-                      :source="'https://kuchatest.saw-leipzig.de/kis/resource?document=AnnotatedBibliography.' + bibliography.annotatedBibliographyID + '-annotation.pdf'"
-                      @rendered="handleDocumentRender"
-                      :page="page"
-                    ></VuePdfEmbed>
-                  </div>
-                </div>
-
+                <div id="annotation" style="line-height: 1em!important;break-before: auto !important;margin: 25px!important; " class="p-4" v-html="bibliography.annotationHTML" ></div>
               </v-card>
         </div>
       </v-expand-transition>
@@ -186,10 +148,11 @@
 <script>
 
 import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
-import {getBibTitle} from  "@/utils/helpers"
+import {getAuthorOrEditor, getBibTitle} from  "@/utils/helpers"
 import VuePdfEmbed from 'vue-pdf-embed/dist/vue2-pdf-embed'
 import "vue-pdf-app/dist/icons/main.css";
 import Foruminf from '../components/foruminf.vue'
+import jsPDF from 'jspdf'
 
 export default {
   name: 'bibliographyInf',
@@ -222,6 +185,9 @@ export default {
     }
   },
   computed: {
+    getAnnoLink(){
+      return process.env.VUE_APP_USERREG + 'resource?annotation=' + this.bibliography.annotatedBibliographyID
+    },
     bibInfo (){
       if (this.bibliography.annotatedBibliographyID){
         this.$log.debug("bibentry: ", this.bibliography);
@@ -277,13 +243,17 @@ export default {
           let editorList = {}
           for (let authorInf of this.bibliography.editorList){
             let authorInfShown = {}
+            console.log("authorInf", authorInf);
             if (authorInf.alias !== null && authorInf.alias !== "" && authorInf.alias !== undefined){
               authorInfShown["Alias"] = authorInf.alias
             }
             if (authorInf.homepage !== null && authorInf.homepage !== "" && authorInf.homepage !== undefined){
               authorInfShown["Homepage"] = authorInf.homepage
             }
-            if (authorInf.firstname === null || authorInf.firstname === "" || authorInf.firstname === undefined){
+            if (authorInf.institutionEnabled) {
+              console.log("institution");
+              editorList[authorInf.institution] = authorInfShown
+            } else if (authorInf.firstname === null || authorInf.firstname === "" || authorInf.firstname === undefined){
               if (authorInf.lastname === null || authorInf.lastname === "" || authorInf.lastname === undefined){
                 editorList[authorInf.alias] = authorInfShown
               } else {
@@ -293,8 +263,9 @@ export default {
               editorList[authorInf.firstname + " " + authorInf.lastname] = authorInfShown
             }
           }
+          console.log("editorList", editorList);
           let authors = ""
-          this.bibliography.authorList.length > 1 ? authors = "Editor" : authors = "Editors"
+          this.bibliography.editorList.length > 1 ? authors = "Editor" : authors = "Editors"
           bibInfo[authors] = editorList
         }
         if (Object.keys(basciInf).length > 0){
@@ -314,6 +285,32 @@ export default {
     }
   },
   methods: {
+    generateReport () {
+      let element = document.getElementById('annotation');
+      console.log("element", element);
+      let filename = getAuthorOrEditor(this.bibliography) + "_" + this.bibliography.yearORG + ".pdf"
+      console.log(filename);
+      // let opt = {
+      //   filename:     getAuthorOrEditor(this.bibliography) + "_" + this.bibliography.yearORG + ".pdf",
+      //   image:        { type: 'jpeg', quality: 0.98 },
+      //   html2canvas:  { scale: 2 },
+      //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      // }
+      // html2pdf().set(opt).from(element).save();
+      // eslint-disable-next-line no-use-before-define
+      var pdf = new jsPDF(); // eslint-disable-line
+      pdf.html(element, {
+        callback: function (pdf) {
+          pdf.save();
+        },
+        margin: [10, 10, 10, 10],
+        autoPaging: 'text',
+        x: 0,
+        y: 0,
+        width: 650,
+        windowWidth: 190,
+      })
+    },
     getComments(){
       getCommentsByItems([], [], [], [this.bibliography.annotatedBibliographyID])
         .then( res => {
@@ -346,7 +343,7 @@ export default {
           this.relatedDepictions = newDepictions
           this.$log.debug("new Depictions:", newDepictions);
         }).catch(function (error) {
-          this.$log.debug(error)
+          console.log(error)
         })
     },
 
@@ -384,6 +381,9 @@ export default {
       })
   },
   watch: {
+    bibliography(){
+      console.log("new Bibliography", this.bibliography);
+    },
     showAllPages() {
       this.page = this.showAllPages ? null : 1
     },
@@ -403,7 +403,11 @@ export default {
 </script>
 
 <style lang="css" scoped>
-
+div >>> p {
+  line-height: 1em!important;
+  break-before: auto!important;
+  max-width: 210mm!important;
+}
 .v-list-item__title{
   margin-bottom: 5px;
 }

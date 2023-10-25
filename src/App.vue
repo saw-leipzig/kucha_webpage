@@ -102,7 +102,7 @@
             <v-list-item to="/about" style="padding:0 0px!important" :ripple="false">
                 <v-list-item-icon title="About"  :style="mini ? 'min-width: 56px;' : 'min-width: 100px;'">
                   <iconAbout :width="mini ? 56 : 100" :height="mini ? 56 : 100" ></iconAbout>
-                  <title>About</title>
+                  <title>About the Database</title>
                 </v-list-item-icon>
             </v-list-item>
             <v-list-item v-if="true" style="padding:0 0px!important" :ripple="false"
@@ -126,8 +126,24 @@
         </v-navigation-drawer>
       </template>
     <v-main >
+      <v-dialog width="500" v-model="isTestVersion">
+          <v-card title="Test Phase Ended">
+            <v-card-title>Thes Pahse Ended!</v-card-title>
+            <v-card-text>
+              The Kucha Murals Information System is not in test phase anymore, you can find the official page here: <a href="https://kucha.saw-leipzig.de">https://kucha.saw-leipzig.de</a>.
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" block target="_self" href="https://kucha.saw-leipzig.de">Go To</v-btn>
+            </v-card-actions>
+            <v-card-actions class="my-0 py-0">
+              <v-btn density="compact" class="my-0 py-0" style="color:hsla(0,0%,100%,.9)!important;caret-color:hsla(0,0%,100%,.9)!important; " plain color="white"  block @click="isTestVersion = false"></v-btn>
+            </v-card-actions>
+          </v-card>
+      </v-dialog>
       <v-row no-gutters justify="center" style="flex:1 mx-0" >
-        <v-col no-gutters class="d-flex mt-1 mx-0 flex-column">
+        <v-col no-gutters class="d-flex mt-1 mx-0 flex-column align-self-stretch flex-grow-1">
           <router-view></router-view>
         </v-col>
       </v-row>
@@ -141,7 +157,7 @@
     >
       <v-row no-gutters style="height:100%">
         <v-col cols="8">
-          <div content style="color:white;position: absolute;left: 20px; text-align: left;" v-html="getFooter"> </div>
+          <div content style="font-size: 0.8rem;color:white;position: absolute;left: 20px; text-align: left;" v-html="getFooter"> </div>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-layout warp class="justify-end">
@@ -177,6 +193,7 @@ export default {
   name: 'App',
   data () {
     return {
+      isTestVersion: false,
       route: window.location.hash,
       show: false,
       drawer: null,
@@ -238,7 +255,7 @@ export default {
       return this.$vuetify.breakpoint.width > this.$vuetify.breakpoint.height
     },
     getFooter(){
-      return !this.$vuetify.breakpoint.smAndDown ? "2021, version 0.0.1 <br>Note: This site is still under construction. Please report any problems to <a href='mailto:kuchaadmin@saw-leipzig.de'> admin </a>" : "2021,<br> version 0.0.1"
+      return !this.$vuetify.breakpoint.smAndDown ? "2023, version 0.8.1 <br>Note: We welcome any kind of user feedback, be it on practical matters concerning <br> the website or comments on and questions about the content. Please contact <a href='mailto:kuchaadmin@saw-leipzig.de'> admin </a>" : "2023,<br> version 0.0.1"
     }
   },
   methods: {
@@ -305,6 +322,9 @@ export default {
     }
   },
   mounted:function(){
+    if (window.location.origin.includes("test")){
+      this.isTestVersion = true;
+    }
     if (this.$vuetify.breakpoint.smAndDown){
       this.navigation = false
       this.mini = false

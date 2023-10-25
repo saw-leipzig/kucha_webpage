@@ -199,6 +199,7 @@ export default {
         "expires": Date.parse(this.expireDate),
         "isUnpublished": true,
       }
+      console.log(this.newsBody);
       putNews(data, uuidv4(), false, this.$store.state.user.sessionID)
         .then( res => {
           const _self = this

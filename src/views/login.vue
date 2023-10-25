@@ -5,7 +5,7 @@
                <v-col  sm="12" md="10" lg="8">
                   <v-card class="elevation-10">
                      <v-toolbar dark color="primary">
-                        <v-toolbar-title>Kucha Information System (Test Version)</v-toolbar-title>
+                        <v-toolbar-title>Kucha Information System</v-toolbar-title>
                      </v-toolbar>
                      <v-card-text>
                         This page is in test phase and is thus only accessible to a limited audience. You can register here. <Register @click.stop="doRegister()"></Register> Or login here.<LoginComponent/>

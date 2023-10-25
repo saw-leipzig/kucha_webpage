@@ -139,7 +139,7 @@
     <title
       :id="iconName"
       lang="en"
-    >About</title>
+    >About the Database</title>
   </svg>
 </template>
 

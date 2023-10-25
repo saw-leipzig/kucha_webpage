@@ -49,15 +49,23 @@ export default {
       this.$log.debug("params of getDepictions", params);
       getDepictionByAnnotation(params)
         .then( res => {
+          console.log("getDepictionByAnnotation", res);
           this.$log.debug("anno.tags, git results");
           for (let typical of this.idealTypicalsWithoutDepictions){
             for ( var entry of res.data.hits.hits){
+              console.log("tags:", entry._source);
+              if (entry._source.depictionID === 1002){
+                console.log("tags:", entry._source);
+              }
               if (this.getAnnos(entry._source).length > 0){
                 let newAnnos = []
                 for (let anno of entry._source.relatedAnnotationList){
                   let tagDummy = []
                   let found = false
                   for (let tag of anno.tags){
+                    if (entry._source.depictionID === 1002){
+                      console.log("tags:", tag);
+                    }
                     if (tag.iconographyID === typical.iconographyID){
                       const img = entry._source.relatedImages.find(element => element.filename === anno.image)
                       if (img) {
