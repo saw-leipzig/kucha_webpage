@@ -102,7 +102,7 @@ export default {
       } else {
         let published = []
         for (let discussion of this.discussions){
-          if (discussion.published){
+          if (discussion._source.published){
             published.push(discussion)
           } else if (this.$store.state.user.userID === discussion._source.userID) {
             published.push(discussion)
@@ -198,6 +198,7 @@ export default {
   },
   mounted:function () {
     this.$log.debug("published discussions", this.publishedDiscussions);
+    console.log("chronologicalRange", this.chronologicalRange);
   },
 }
 

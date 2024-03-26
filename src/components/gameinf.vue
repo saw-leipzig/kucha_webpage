@@ -381,7 +381,7 @@ export default {
         } else if (annotation.motivation === "hint") {
           return {
             style:
-              "stroke-width:0px;stroke: gold; fill: rgba(255, 210, 219,0.30);vector-effect: none;cursor: auto;",
+              "stroke-width:0px;stroke: gold; fill: rgba(247, 236, 208,0.40);vector-effect: none;cursor: auto;",
           }
         } else {
           return {

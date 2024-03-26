@@ -186,7 +186,6 @@ export default {
                           "query_string": {
                             "query": searchedText,
                             "default_operator": "and",
-                            "type": "cross_fields"
                           }
                         }
                       }
@@ -197,7 +196,6 @@ export default {
                         "query": searchedText,
                         "default_field": aggfield,
                         "default_operator": "and",
-                        "type": "cross_fields"
                       }
                     }
                   }
@@ -223,7 +221,6 @@ export default {
 
               textSearchmust["query_string"] = {
                 "default_operator": "and",
-                "type": "cross_fields"
               }
               textSearchmust.query_string["query"] = searchedText
               shouldQuery.bool.should.push(textSearchmust)

@@ -75,7 +75,7 @@
                         :key="item_key"
                       >
                         <div v-if="item_name=='dating'">
-                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions" :chronologicalRange="getChronologicalRange"></foruminf>
                         </div>
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                           <v-list-item-content>
@@ -175,6 +175,7 @@ import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
 import {getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
 import Foruminf from '../components/foruminf.vue'
+import { getChronologicalRange } from '../utils/helpers'
 
 
 export default {
@@ -203,6 +204,9 @@ export default {
     }
   },
   computed: {
+    getChronologicalRange(){
+      return getChronologicalRange()
+    },
     hasRelatedDepictions(){
       if (this.relatedDepictions){
         if (this.relatedDepictions.length > 0){

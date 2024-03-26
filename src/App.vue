@@ -337,6 +337,15 @@ export default {
 </script>
 
 <style lang="css">
+::-webkit-scrollbar {
+  width: 3px;
+  height: 8px;
+  background-color: transparent; /* or add it to the track */
+}
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
 .v-list-item__icon {
   margin: 1px 0!important;
 }

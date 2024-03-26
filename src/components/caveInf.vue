@@ -22,7 +22,7 @@
               :key="item_key"
               >
                 <div v-if="item_name=='dating'">
-                  <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                  <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions" :chronologicalRange="getChronologicalRange"></foruminf>
                 </div>
                 <div v-if="item_name!='dating'" >
                   <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import {getCaveLabel} from  "@/utils/helpers"
+import {getCaveLabel, getChronologicalRange} from  "@/utils/helpers"
 import {getItemById, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
 
 import Foruminf from '../components/foruminf.vue'
@@ -124,6 +124,9 @@ export default {
     }
   },
   computed: {
+    getChronologicalRange(){
+      return getChronologicalRange()
+    },
     paddingCaveCard(){
       const padding = this.cave.caveID === -1 ? 'pb-1' : ''
       this.$log.debug(this.cave.caveID, "padding", padding);

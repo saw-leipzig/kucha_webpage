@@ -74,7 +74,12 @@ export function putComments(data, uuid, sendMail, sessionID, text){
     data: data
   })
 }
+export function publish(item){
+  item._source.isUnpublished = !item._source.isUnpublished
+  return putNews(item._source, item._id, true, store.state.user.sessionID, "This news was " + item._source.isUnpublished ? "published" : "unpublished")
+}
 export function putNews(data, uuid, sendMail, sessionID, text){
+  console.log("put news started", data);
   return axios({
     url: process.env.VUE_APP_USERREG + 'resource?putNews&uuid=' + uuid + '&sendMail=' + sendMail + '&sessionID=' + sessionID + '&message=' + text,
     method: 'PUT',
@@ -648,7 +653,6 @@ export function buildNestedQueries(mapping, path, queryWord){
           "query":{
             "query_string": {
               "lenient": true,
-              "type": "cross_fields",
               "query": queryWord,
               "default_operator": "AND"
             }
@@ -693,7 +697,6 @@ export function searchRoot(params, source) {
     const rootSearch = {
       "query_string": {
         "default_operator": "AND",
-        "type": "cross_fields",
         "query" : searchedText
       }
     }

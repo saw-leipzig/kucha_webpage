@@ -18,7 +18,7 @@
         </v-btn>
       </v-card-actions>
       <v-expand-transition v-if="pr.relatedAnnotationList.length>0" >
-        <annotatedImage :highlightedAnnotations="annotations" style="min-height: 60vh;" treeShowOption v-show="showAnno" v-if="depiction.relatedAnnotationList.length>0" :item="pr"  :annos="annos" :relatedAnnotations="pr.relatedAnnotationList" :isVersion="version" :preSelected="preSelected"/>
+        <annotatedImage :highlightedAnnotations="annotations" style="min-height: 60vh;" treeShowOption v-show="showAnno" v-if="pr.relatedAnnotationList.length>0" :item="pr"  :annos="annos" :relatedAnnotations="pr.relatedAnnotationList" :isVersion="version" :preSelected="preSelected"/>
       </v-expand-transition>
 
       <v-card-actions v-if="Object.keys(depictionInfo).length>0" >
@@ -66,7 +66,7 @@
                       :key="item_key"
                     >
                       <div v-if="item_name=='dating'">
-                        <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                        <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions" :chronologicalRange="getChronologicalRange"></foruminf>
                       </div>
                       <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                         <v-list-item-content>
@@ -153,7 +153,7 @@
                 >
                     <h3>Press ctrl or use two fingers to navigate on the image!</h3>
               </div>
-              <div id="openseadragonImg" ref="test" :style=" checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
+              <div :id="'openseadragonImg' + pr.depictionID" ref="test" :style=" checkImgPermitted(image) ? 'height:525px;background-color: rgba(255, 255, 255, 1) !important;' : 'display: none;height:525px;background-color: rgba(255, 255, 255, 1) !important;'"></div>
               <v-alert
                 class="mx-5"
                 :value="isDrawing"
@@ -224,7 +224,7 @@
 
 <script>
 import caveInf from '@/components/caveInf'
-import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel, deviceType} from  "@/utils/helpers"
+import {checkImgPermitted, setOSDImgOverlayImg, getOSDURL, getCaveLabel, getWallTreeByIDs, getDepictionLabel, deviceType, getTagIDsFromRelatedAnnotations, getChronologicalRange} from  "@/utils/helpers"
 import {getVersionsOfEntry, getVersionOfEntry, getWallTreeByTimestamp, getCommentsByItems} from '@/services/repository'
 import OpenSeadragon from 'openseadragon'
 import annotatedImage from '@/components/annotatedImage'
@@ -281,6 +281,9 @@ export default {
     }
   },
   computed:{
+    getChronologicalRange(){
+      return getChronologicalRange()
+    },
     depictionInfo(){
       var depictionInf = {}
       var mainInf = {}
@@ -364,7 +367,7 @@ export default {
       this.$log.debug("scrolling!");
     },
     getComments(){
-      getCommentsByItems(this.pr.cave ? [this.pr.cave.caveID] : [], [this.pr.depictionID], [], [])
+      getCommentsByItems(this.pr.cave ? [this.pr.cave.caveID] : [], [this.pr.depictionID], getTagIDsFromRelatedAnnotations(this.pr.relatedAnnotationList), [])
         .then( res => {
           this.$log.debug("recieved discussions.", res.data.hits.hits)
           this.discussions = res.data.hits.hits
@@ -413,7 +416,7 @@ export default {
         this.$log.debug("images available, initiate OSDIMG", this.$refs);
         tilesImg = getOSDURL(this.image)
         this.viewerImg = OpenSeadragon({
-          id: "openseadragonImg",
+          id: "openseadragonImg" + this.pr.depictionID,
           prefixUrl: '/static/',
           tileSources: tilesImg,
           // ajaxWithCredentials: true,
@@ -434,7 +437,7 @@ export default {
         this.setOSDImgOverlayImg()
         this.viewerImg.addControl(infoButtonImg.element, { anchor: OpenSeadragon.ControlAnchor.TOP_LEFT });
         const _self = this
-        document.getElementById('openseadragonImg').addEventListener('fullscreenchange', (event) => {
+        document.getElementById('openseadragonImg' + this.pr.depictionID).addEventListener('fullscreenchange', (event) => {
           if (document.fullscreenElement) {
             _self.isFullScreen = true
           } else {

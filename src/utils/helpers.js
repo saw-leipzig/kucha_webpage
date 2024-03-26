@@ -21,6 +21,7 @@ function getName(author) {
   }
   return authorString
 }
+
 function getAuthors(bibliography) {
   var result = "";
   if (bibliography.authorList.length > 3) {
@@ -60,6 +61,9 @@ function getTitleORGFull(bibliography) {
 function getTitleTRFull(bibliography) {
   var result = bibliography.subtitleTR === "" ? bibliography.titleTR : bibliography.titleTR + ": " + bibliography.subtitleTR;
   return result;
+}
+export function getChronologicalRange(){
+  return ["unset", "400BC", "375BC", "350BC", "325BC", "300BC", "275BC", "250BC", "225BC", "200BC", "175BC", "150BC", "125BC", "100BC", "75BC", "50BC", "25BC", "0AD", "25AD", "50AD", "75AD", "100AD", "125AD", "150AD", "175AD", "200AD", "225AD", "250AD", "275AD", "300AD", "325AD", "350AD", "375AD", "400AD", "425AD", "450AD", "475AD", "500AD", "525AD", "550AD", "575AD", "600AD", "625AD", "650AD", "675AD", "700AD", "725AD", "750AD", "775AD", "800AD", "825AD", "850AD", "875AD", "900AD", "925AD", "950AD", "975AD", "1000AD", "1025AD", "1050AD", "1075AD", "1100AD", "1125AD", "1150AD", "1175AD", "1200AD", "1225AD", "1250AD", "1275AD", "1300AD", "1325AD", "1350AD", "1375AD", "1400AD", "1425AD", "1450AD", "1475AD", "1500AD", "1525AD", "1550AD", "1575AD", "1600AD", "1625AD", "1650AD", "1675AD", "1700AD", "1725AD", "1750AD", "1775AD", "1800AD", "1825AD", "1850AD", "1875AD", "1900AD", "1925AD", "1950AD", "1975AD", "2000AD", "unset"]
 }
 export function getSpliceOfText(text){
   if (text === undefined){
@@ -340,6 +344,17 @@ export function getWallLabels(depiction, label){
   }
   return results
 }
+export function getTagIDsFromRelatedAnnotations(relatedAnnotationList){
+  var tagIDs = []
+  for (const relatedAnnotation of relatedAnnotationList){
+    for (const tag of relatedAnnotation.tags){
+      if (tagIDs.indexOf(tag.iconographyID) === -1){
+        tagIDs.push(tag.iconographyID)
+      }
+    }
+  }
+  return tagIDs
+}
 export function getWallTreeLabels(wallTree, label){
   var results = []
   if (label === ""){
@@ -382,8 +397,8 @@ export function getWordSplit(inputString) {
     // Entferne Leerzeichen, Satzzeichen und Anführungszeichen aus den übereinstimmenden Wörtern, Zahlen und Wörtern innerhalb von Anführungszeichen
     const cleanedWords = matches.map(word => {
       if (word.startsWith('"') && word.endsWith('"')) {
-        // Wenn das Wort von Anführungszeichen umschlossen ist, entferne die Anführungszeichen
-        return word.slice(1, -1).toLowerCase();
+        // Wenn das Wort von Anführungszeichen umschlossen ist, ersetze die Anführungszeichen durch "escaped Anführungszeichen"
+        return "\"" + word.slice(1, -1).toLowerCase() + "\"";
       } else {
         // Andernfalls entferne Leerzeichen, Satzzeichen und konvertiere in Kleinbuchstaben
         return word.replace(/[.,;:'"”“]/g, '').toLowerCase();
@@ -687,12 +702,13 @@ export function setOSDImgOverlayImg(image, viewer){
   } else {
     copyright.innerHTML = image.copyright
   }
-  const freeAuthors = [4, 8]
-  if ((image.imageTypeID === 5) && (freeAuthors.includes(image.imageAuthor.photographerID))){
-    if (copyright.innerHTML === ""){
-      copyright.innerHTML = copyright.innerHTML + "<img src='/static/01_Cc-by-nc-sa_euro_icon.jpg' alt='Creative Commons NonCommercial 4.0' style=height:30px;'></img> </br>"
-    } else {
-      copyright.innerHTML = copyright.innerHTML + "<br> <img src='/static/01_Cc-by-nc-sa_euro_icon.jpg' alt='Creative Commons NonCommercial 4.0' style=height:30px;'></img> </br>"
+  if (image.cc){
+    if (image.cc.html != null){
+      if (copyright.innerHTML === ""){
+        copyright.innerHTML = copyright.innerHTML + image.cc.html
+      } else {
+        copyright.innerHTML = copyright.innerHTML + "<br>" + image.cc.html
+      }
     }
   }
   elm.appendChild(titleHd)

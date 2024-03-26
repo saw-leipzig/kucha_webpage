@@ -64,7 +64,7 @@ export default {
         ['lineheight'],
         ['indent', 'outdent'],
         ['unorderedList', 'orderedList'],
-        ['table'],
+        ['table', 'tableCellBackgroundColor', 'tableBorderColor'],
         ['horizontalRule'],
         ['removeformat'],
         ['fullscreen'],
@@ -118,3 +118,23 @@ export default {
   },
 }
 </script>
+
+<style lang="css" >
+:root {
+  --tbw-cell-vertical-padding: 4px;
+  --tbw-cell-horizontal-padding: 8px;
+  --tbw-cell-line-height: 1.5em;
+}
+
+table {
+  margin-bottom: var(--tbw-cell-line-height);
+}
+
+th,
+td {
+  height: calc(var(--tbw-cell-vertical-padding) * 2 + var(--tbw-cell-line-height));
+  min-width: calc(var(--tbw-cell-horizontal-padding) * 2);
+  padding: var(--tbw-cell-vertical-padding) var(--tbw-cell-horizontal-padding);
+  border: 1px solid #e7eaec;
+}
+</style>

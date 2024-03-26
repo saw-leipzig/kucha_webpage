@@ -1190,7 +1190,12 @@ export default {
             }
           }
           if (ae.w3c){
-            this.w3cAnnos.push(JSON.parse(ae.w3c))
+            if (typeof ae.w3c === 'string' || ae.w3c instanceof String) {
+              this.w3cAnnos.push(JSON.parse(ae.w3c))
+            } else {
+              this.w3cAnnos.push(ae.w3c)
+            }
+            console.log(ae.w3c);
           } else {
             var bodies = []
             for (var ie of ae.tags) {
@@ -1464,7 +1469,7 @@ export default {
     }
   },
   mounted:function () {
-    this.$log.debug("istouchdevice: ", this.isTouchDevice);
+    console.log(this.relatedAnnotations);
     this.isMounted = true
     if (this.treeShowOption){
       this.dontShowTree = true

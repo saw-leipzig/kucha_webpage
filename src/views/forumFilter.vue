@@ -18,7 +18,7 @@
       <v-card-title class="text-h3" raised width="98%" style="margin: auto;padding-bottom: 15px;">Discussion Forum on Dating Issues</v-card-title>
       <v-card raised width="98%" style="margin: auto;padding-bottom: 15px;">
         <v-expansion-panels class="mx-5 pr-10 pt-5"  v-model="introPanel">
-          <v-expansion-panel v-if="introTopicTitle!==''">
+          <v-expansion-panel>
             <v-expansion-panel-header>
               Introduction
             </v-expansion-panel-header>
@@ -379,7 +379,7 @@ import {TextSearchForum} from '@/utils/constants.js'
 import freeTextSearch from '@/components/freeTextSearch.vue'
 import showIntroDiscussion from '@/components/showIntroDiscussion.vue'
 import { v4 as uuidv4 } from 'uuid'
-import {getBuckets, getDepictionLabelShort, getCaveShortLabel, getBibTitle, prepareSortItem, appendFilterToAgg} from  "@/utils/helpers"
+import {getBuckets, getDepictionLabelShort, getCaveShortLabel, getBibTitle, prepareSortItem, appendFilterToAgg, getChronologicalRange} from  "@/utils/helpers"
 import {getIntroDiscussions, getIntro, getComments, postQuery, putComments, getPRList, getBiblioList, getIcoList, getCaveList, getDiscussionKeywords} from '@/services/repository'
 
 import draggable from 'vuedraggable'
@@ -449,7 +449,7 @@ export default {
       caves: [],
       keywords:[],
       keywordsSelected:[],
-      chronologicalRange: ["unset", "400BC", "375BC", "350BC", "325BC", "300BC", "275BC", "250BC", "225BC", "200BC", "175BC", "150BC", "125BC", "100BC", "75BC", "50BC", "25BC", "0AD", "25AD", "50AD", "75AD", "100AD", "125AD", "150AD", "175AD", "200AD", "225AD", "250AD", "275AD", "300AD", "325AD", "350AD", "375AD", "400AD", "425AD", "450AD", "475AD", "500AD", "525AD", "550AD", "575AD", "600AD", "625AD", "650AD", "675AD", "700AD", "725AD", "750AD", "775AD", "800AD", "825AD", "850AD", "875AD", "900AD", "925AD", "950AD", "975AD", "1000AD", "1025AD", "1050AD", "1075AD", "1100AD", "1125AD", "1150AD", "1175AD", "1200AD", "1225AD", "1250AD", "1275AD", "1300AD", "1325AD", "1350AD", "1375AD", "1400AD", "1425AD", "1450AD", "1475AD", "1500AD", "1525AD", "1550AD", "1575AD", "1600AD", "1625AD", "1650AD", "1675AD", "1700AD", "1725AD", "1750AD", "1775AD", "1800AD", "1825AD", "1850AD", "1875AD", "1900AD", "1925AD", "1950AD", "1975AD", "2000AD", "unset"],
+      chronologicalRange: getChronologicalRange(),
       chronologicalRangeSelected: [-425, 2025],
       bibKeywordsSearchObjects:[],
       userSearchObjects: [],
@@ -1041,7 +1041,7 @@ export default {
 
 <style>
 .v-select__selections {
-  overflow: scroll;
+  overflow: auto;
   flex-wrap: nowrap;
 }
 .v-chip {

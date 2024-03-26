@@ -114,6 +114,10 @@ export default {
         "value": "shortName.keyword"
       })
       radioGroupData.push({
+        "label": "Painted Representation ID",
+        "value": ["depictionID"]
+      })
+      radioGroupData.push({
         "label": "Cave",
         "value": ["cave.regionID", "cave.districtID", "cave.siteID", "cave.officialNumber"]
       })

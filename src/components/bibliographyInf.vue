@@ -48,7 +48,7 @@
                         :key="item_key"
                       >
                         <div v-if="item_name=='dating'">
-                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions"></foruminf>
+                          <foruminf heading="Related Dating Discussions" :newPosts="false" @getComments="getComments()" :discussions="discussions" :chronologicalRange="getChronologicalRange"></foruminf>
                         </div>
                         <v-list-item two-line v-for="(value, name, index) in item_value" :key=index>
                           <v-list-item-content>
@@ -91,8 +91,7 @@
         <div v-show="showAnno">
           <v-divider></v-divider>
               <v-card class="mx-10 d-flex flex-column justify-center" >
-                <v-card-title class="justify-space-between mx-5">
-                  Annotation for Annotated Bibliography {{bibliography.annotatedBibliographyID}}
+                <v-card-title class="mx-5 d-block" v-html="getBibTitleAnno(bibliography)">
                   <v-btn icon :href="getAnnoLink" target="_blank">
                     <v-icon color="success">
                       mdi-content-save-outline
@@ -148,7 +147,7 @@
 <script>
 
 import {getDepictionByBibliography, getVersionsOfEntry, getVersionOfEntry, getCommentsByItems} from '@/services/repository'
-import {getAuthorOrEditor, getBibTitle} from  "@/utils/helpers"
+import {getAuthorOrEditor, getBibTitle, getChronologicalRange} from  "@/utils/helpers"
 import VuePdfEmbed from 'vue-pdf-embed/dist/vue2-pdf-embed'
 import "vue-pdf-app/dist/icons/main.css";
 import Foruminf from '../components/foruminf.vue'
@@ -185,6 +184,10 @@ export default {
     }
   },
   computed: {
+    getChronologicalRange(){
+      console.log(getChronologicalRange());
+      return getChronologicalRange()
+    },
     getAnnoLink(){
       return process.env.VUE_APP_USERREG + 'resource?annotation=' + this.bibliography.annotatedBibliographyID
     },
@@ -356,6 +359,9 @@ export default {
     getBibTitle(bib){
       this.$log.debug("bibentry: ", bib, getBibTitle(bib));
       return getBibTitle(bib)
+    },
+    getBibTitleAnno(bib){
+      return "Annotation for Annotated Bibliography of " + getBibTitle(bib)
     }
   },
   mounted:function () {

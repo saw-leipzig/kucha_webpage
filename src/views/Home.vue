@@ -8,9 +8,9 @@
               <v-col class="my-3" :cols="checkLandscape() ? 3:12" style="opacity:1;padding-bottom: 0px !important;" >
                 <v-img style="opacity:1;margin: auto;" src="../static/kucha-logo 02.png"  :width="!checkLandscape()?'90vw':'30vw'" left contain></v-img>
               </v-col>
-              <v-col v-if="checkLandscape()" cols="9">
-                <v-row class="py-5 justify-center" style="opacity:1;height:50%;">
-                  <v-card-title :class="getHeading" style="color:#67331e;font-size:3vw;">Buddhist Murals of Kucha <br> on the Northern Silk Road</v-card-title>
+              <v-col v-if="checkLandscape()" cols="9" class="d-flex">
+                <v-row class="d-flex justify-center" style="opacity:1;">
+                  <v-card-title :class="getHeadingStyle" style="color:#67331e;font-size:3vw;" v-html="getHeading"></v-card-title>
                 </v-row>
               </v-col>
               <v-fade-transition>
@@ -133,6 +133,13 @@ export default {
     },
   },
   computed: {
+    getHeading(){
+      if (this.isSearch){
+        return "Kucha Murals Information System"
+      } else {
+        return "Buddhist Murals of Kucha <br> on the Northern Silk Road"
+      }
+    },
     showMenu:{
       get: function(){
         return this.$store.state.showMenu
@@ -141,19 +148,19 @@ export default {
         this.$store.commit("setShowMenu", newValue)
       }
     },
-    getHeading(){
+    getHeadingStyle(){
       if (this.$vuetify.breakpoint.xs){
-        return "h6 font-weight-bold"
+        return "h6 font-weight-bold align-center"
       } else if (this.$vuetify.breakpoint.sm){
-        return "h6 font-weight-bold"
+        return "h6 font-weight-bold align-center"
       } else if (this.$vuetify.breakpoint.md){
-        return "h1 font-weight-bold"
+        return "h1 font-weight-bold align-center"
       } else if (this.$vuetify.breakpoint.lg){
-        return "h1 font-weight-bold"
+        return "h1 font-weight-bold align-center"
       } else if (this.$vuetify.breakpoint.xl){
-        return "h1 font-weight-bold"
+        return "h1 font-weight-bold align-center"
       } else {
-        return "h2 font-weight-bold"
+        return "h2 font-weight-bold align-center"
       }
     }
   },
